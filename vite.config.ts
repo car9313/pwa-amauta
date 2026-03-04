@@ -8,41 +8,81 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    VitePWA({
-      registerType: 'autoUpdate',
+   
+    /**
+     * PWA plugin (injectManifest)
+     *
+     * - injectManifest: te permite escribir src/sw.ts con lógica custom (cola offline, background sync, etc).
+     * - registerType: 'prompt' te deja decidir en la UI cuándo forzar la actualización.
+     * - includeAssets: assets estáticos que quieres pre-cachear/servir desde public.
+     *
+     * Notas:
+     * - Crea `src/sw.ts` (módulo) con Workbox imports o lógica nativa.
+     * - En desarrollo puedes activar `devOptions.enabled` para probar SW localmente (con limitaciones).
+     */
+      VitePWA({
+      // Para producción puedes usar 'prompt' (control en UI) o 'autoUpdate' (más sencillo)
+      registerType: 'prompt',
+
+      // Usamos injectManifest para poder escribir un service worker con lógica personalizada
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts', // Vite buscará src/sw.ts y lo inyectará en la build
+
+      // Archivos estáticos en /public que queremos asegurar que estén disponibles
+      includeAssets: ['favicon.ico', 'robots.txt', 'icons/*.png', 'icons/*.webp'],
+
+      // Manifest: metadatos que el navegador usará para la instalación
       manifest: {
         name: 'Amauta',
         short_name: 'Amauta',
-        start_url: '/',
+        description: 'Plataforma educativa interactiva para niños y familias.',
+        lang: 'es-419',
+        start_url: '/?source=pwa',
+        scope: '/',
         display: 'standalone',
+        orientation: 'portrait',
         background_color: '#ffffff',
-        theme_color: '#2563eb',
+        theme_color: '#0b6bf6',
         icons: [
-          { src: '/icons/pwa-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/icons/pwa-512.png', sizes: '512x512', type: 'image/png' }
+          { src: '/icons/icon-48.png',   sizes: '48x48',   type: 'image/png' },
+          { src: '/icons/icon-72.png',   sizes: '72x72',   type: 'image/png' },
+          { src: '/icons/icon-96.png',   sizes: '96x96',   type: 'image/png' },
+          { src: '/icons/icon-144.png',  sizes: '144x144', type: 'image/png' },
+          { src: '/icons/icon-192.png',  sizes: '192x192', type: 'image/png' },
+          { src: '/icons/icon-512.png',  sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+        ],
+        shortcuts: [
+          {
+            name: 'Continuar última lección',
+            short_name: 'Continuar',
+            description: 'Abrir la lección más reciente',
+            url: '/lessons/continue',
+            icons: [{ src: '/icons/shortcut-96.png', sizes: '96x96', type: 'image/png' }]
+          }
         ]
       },
-       workbox: {
-    runtimeCaching: [
-      {
-        urlPattern: ({ request }) => request.destination === 'image',
-        handler: 'CacheFirst',
-        options: {
-          cacheName: 'images-cache',
-        }
+
+      // Opciones útiles para pruebas en desarrollo (activar con cuidado)
+      devOptions: {
+        // enabled: true permite probar SW en `npm run dev` en localhost
+        // Ten en cuenta que el SW en dev puede esconder cambios rápidos; activar sólo cuando lo necesites.
+        enabled: false,
+        type: 'module'
       },
-      {
-        urlPattern: ({ url }) => url.pathname.startsWith('/api'),
-        handler: 'NetworkFirst',
-        options: {
-          cacheName: 'api-cache',
-        }
-      }
-    ]
-  }
-    },
-  )
+
+      // Nota: con injectManifest, tu archivo src/sw.ts controlará las strategies de caching y la cola offline.
+      // Si en algún caso quieres que workbox genere automáticamente la SW, usa strategies: 'generateSW' y
+      // añade un bloque `workbox` con runtimeCaching (ver snippet alternativo al final).
+    })
   ],
+    // Opciones del servidor (útiles para testing PWA en LAN/dev)
+  server: {
+    // permitir servir recursos desde la raíz del proyecto (si necesitas `public` con iconos)
+    fs: {
+      allow: ['.']
+    }
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
