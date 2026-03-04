@@ -21,8 +21,27 @@ export default defineConfig({
           { src: '/icons/pwa-192.png', sizes: '192x192', type: 'image/png' },
           { src: '/icons/pwa-512.png', sizes: '512x512', type: 'image/png' }
         ]
+      },
+       workbox: {
+    runtimeCaching: [
+      {
+        urlPattern: ({ request }) => request.destination === 'image',
+        handler: 'CacheFirst',
+        options: {
+          cacheName: 'images-cache',
+        }
+      },
+      {
+        urlPattern: ({ url }) => url.pathname.startsWith('/api'),
+        handler: 'NetworkFirst',
+        options: {
+          cacheName: 'api-cache',
+        }
       }
-    })
+    ]
+  }
+    },
+  )
   ],
   resolve: {
     alias: {
