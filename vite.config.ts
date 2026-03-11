@@ -38,20 +38,38 @@ export default defineConfig({
         short_name: 'Amauta',
         description: 'Plataforma educativa interactiva para niños y familias.',
         lang: 'es-419',
-        start_url: '/?source=pwa',
+        start_url: '/',
         scope: '/',
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#ffffff',
         theme_color: '#0b6bf6',
-        icons: [
-          { src: '/icons/icon-48.png',   sizes: '48x48',   type: 'image/png' },
-          { src: '/icons/icon-72.png',   sizes: '72x72',   type: 'image/png' },
-          { src: '/icons/icon-96.png',   sizes: '96x96',   type: 'image/png' },
-          { src: '/icons/icon-144.png',  sizes: '144x144', type: 'image/png' },
-          { src: '/icons/icon-192.png',  sizes: '192x192', type: 'image/png' },
-          { src: '/icons/icon-512.png',  sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
-        ],
+       "icons": [
+  {
+    "src": "/icons/manifest-icon-192.maskable.png",
+    "sizes": "192x192",
+    "type": "image/png",
+    "purpose": "any"
+  },
+  {
+    "src": "/icons/manifest-icon-192.maskable.png",
+    "sizes": "192x192",
+    "type": "image/png",
+    "purpose": "maskable"
+  },
+  {
+    "src": "/icons/manifest-icon-512.maskable.png",
+    "sizes": "512x512",
+    "type": "image/png",
+    "purpose": "any"
+  },
+  {
+    "src": "/icons/manifest-icon-512.maskable.png",
+    "sizes": "512x512",
+    "type": "image/png",
+    "purpose": "maskable"
+  }
+],
         shortcuts: [
           {
             name: 'Continuar última lección',

@@ -1,4 +1,3 @@
-// src/serviceWorkerRegistration.ts
 import { registerSW } from 'virtual:pwa-register'
 
 let updateFn: (() => Promise<void>) | undefined
