@@ -1,15 +1,19 @@
-import { Header } from './components/layout/header'
-import { UpdateToast } from './components/UpdateToast'
-import { LessonPage } from './pages/LessonPage'
+import { HeroSection } from "./components/hero/hero-section"
+import { Header } from "./components/layout/header"
+import { ConnectionStatus } from "./components/pwa/ConnectionStatus"
 
 
 function App() {
   return (
     <>
+     {/* <ConnectionStatus /> */}
      <Header />
-      <LessonPage />
-      <UpdateToast />
-    </>
+      <main>
+          <HeroSection />
+           </main>
+      </>
+    
+  
   )
 }
 
