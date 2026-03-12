@@ -1,9 +1,9 @@
-"use client"
-
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
-
+import { useAppStore } from "@/stores/useAppStore"
+import {useNavigate} from "react-router-dom"
+import { db } from "@/db/db"
 const navLinks = [
   { label: "Inicio", href: "#hero" },
   { label: "Que es", href: "#que-es" },
@@ -12,7 +12,36 @@ const navLinks = [
 ]
 
 export function Header() {
-  const [isOpen, setIsOpen] = useState(false)
+ const [isOpen, setIsOpen] = useState(false);
+  const { user, login } = useAppStore();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
+  const handleStart = async () => {
+    if (user) {
+      console.log('Hola Mundo')
+      navigate('/profiles');
+    } else {
+      // Buscar un usuario por defecto (o podrías mostrar un modal de login)
+      const defaultUser = await db.users.where('email').equals('parent@example.com').first();
+      if (defaultUser) {
+       console.log('Hola Mundo2')
+        login({ id: defaultUser.id!, email: defaultUser.email, name: defaultUser.name });
+        navigate('/profiles');
+      } else {
+        // Si no existe, quizás crearlo (para demo)
+        const newUserId = await db.users.add({
+          email: 'parent@example.com',
+          name: 'Padre Amauta'
+        });
+        login({ id: newUserId, email: 'parent@example.com', name: 'Padre Amauta' });
+        navigate('/profiles');
+      }
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-card/90 backdrop-blur-md border-b border-border">
@@ -41,13 +70,16 @@ export function Header() {
               {link.label}
             </a>
           ))}
-          <Button
+          {/* <Button
             asChild
             size="lg"
             className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 font-bold"
           >
             <a href="#cta">Comenzar</a>
-          </Button>
+          </Button> */}
+          <Button variant="ghost" className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 font-bold" onClick={handleStart}>
+          {user ? "Mi Cuenta" : "Iniciar Sesión"}
+        </Button>
         </nav>
 
         {/* Mobile menu button */}

@@ -4,6 +4,8 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App'
 import { registerServiceWorker } from './serviceWorkerRegistration'
+import { RouterProvider } from 'react-router-dom'
+import { router } from './routes'
 
 const root = createRoot(document.getElementById('root')!)
 
@@ -57,6 +59,6 @@ navigator.serviceWorker?.addEventListener('controllerchange', () => {
 
 root.render(
   <StrictMode>
-    <App />
+     <RouterProvider router={router} />
   </StrictMode>,
 )
