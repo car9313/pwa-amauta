@@ -46,7 +46,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 bg-card/90 backdrop-blur-md border-b border-border">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <a href="#hero" className="flex items-center gap-2" aria-label="Amauta - Inicio">
+        <a href="/" className="flex items-center gap-2" aria-label="Amauta - Inicio">
           <img
             src="/icons/web-app-manifest-192x192.png"
             alt=""
@@ -61,7 +61,10 @@ export function Header() {
 
         {/* Desktop navigation */}
         <nav className="hidden items-center gap-6 md:flex" aria-label="Navegacion principal">
-          {navLinks.map((link) => (
+          
+          {
+        !user &&(
+          navLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}
@@ -69,14 +72,11 @@ export function Header() {
             >
               {link.label}
             </a>
-          ))}
-          {/* <Button
-            asChild
-            size="lg"
-            className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 font-bold"
-          >
-            <a href="#cta">Comenzar</a>
-          </Button> */}
+          ))
+        )  
+        }
+
+          
           <Button variant="ghost" className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 font-bold" onClick={handleStart}>
           {user ? "Mi Cuenta" : "Iniciar Sesión"}
         </Button>
