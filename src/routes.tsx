@@ -21,13 +21,21 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'learn',
-        element: (
-          <ProtectedRoute>
-            <Learn />
-          </ProtectedRoute>
-        ),
-      },
+  path: 'learn',
+  element: (
+    <ProtectedRoute>
+      <Learn />
+    </ProtectedRoute>
+  ),
+},
+/* {
+  path: 'lesson/:lessonId',
+  element: (
+    <ProtectedRoute>
+      <LessonPage />  // Componente a crear
+    </ProtectedRoute>
+  ),
+}, */
       {
         path: 'profiles',
         element: (
