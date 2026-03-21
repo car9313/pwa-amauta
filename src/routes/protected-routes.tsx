@@ -1,5 +1,4 @@
 import type { RouteObject } from "react-router-dom";
-import { Navigate } from "react-router-dom";
 import { RequireRole } from "./guards/require-role";
 import { RoleSelectionPage } from "@/features/role/pages/role-selection-page";
 import { AmautaLayout } from "@/layout/amauta-layout";
