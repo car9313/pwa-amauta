@@ -17,7 +17,7 @@ type AppMenuSheetProps = {
 
 export function AppMenuSheet({ trigger }: AppMenuSheetProps) {
   const role = useAuthStore((state) => state.role);
-  const clearRole = useAuthStore((state) => state.clearRole);
+  const clearSession = useAuthStore((state) => state.clearSession);
 
   const items = getNavigationItems(role);
 
@@ -27,7 +27,7 @@ export function AppMenuSheet({ trigger }: AppMenuSheetProps) {
 
       <SheetContent
         side="right"
-        className="w-[320px] border-l border-border bg-background p-0 sm:w-[360px]"
+        className="w-[320px] border-l border-border bg-background p-0 sm:w-90"
       >
         <div className="flex h-full flex-col">
           <SheetHeader className="border-b border-border/60 px-4 py-4">
@@ -71,7 +71,7 @@ export function AppMenuSheet({ trigger }: AppMenuSheetProps) {
               type="button"
               variant="destructive"
               className="w-full rounded-2xl py-6 text-base font-semibold"
-              onClick={clearRole}
+              onClick={clearSession}
             >
               <LogOut className="mr-2 h-5 w-5" />
               Cerrar sesión

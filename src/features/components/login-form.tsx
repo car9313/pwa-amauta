@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuthStore } from "../auth/store/auth-store";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 
 type LoginFormProps = {
