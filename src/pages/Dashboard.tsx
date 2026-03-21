@@ -7,10 +7,11 @@ import { ArrowLeft, User, Star, Trophy, Activity, Calendar } from "lucide-react"
 import { useLiveQuery } from "dexie-react-hooks";
 import { db, type ChildProfile } from "@/db/db";
 import { useNavigate } from "react-router-dom";
+import { StatBox } from "@/components/StatBox";
 
 export default function ParentalDashboard() {
     const navigate=useNavigate()
-   const { user, setCurrentProfileId, logout } = useAppStore();
+   const { user } = useAppStore();
   
   const userId = user?.id ? Number(user.id) : null;
  // const profiles = useLiveQuery(() => db.profiles.toArray());
@@ -127,12 +128,3 @@ export default function ParentalDashboard() {
   );
 }
 
-function StatBox({ icon, label, value }: { icon: React.ReactNode, label: string, value: string }) {
-  return (
-    <div className="p-4 bg-background rounded-2xl flex flex-col items-center justify-center space-y-1">
-      {icon}
-      <span className="text-xs font-bold text-muted-foreground uppercase">{label}</span>
-      <span className="text-xl font-black text-foreground">{value}</span>
-    </div>
-  );
-}

@@ -3,8 +3,9 @@ import { useAppStore } from "@/stores/useAppStore";
 import { db, type ChildProfile } from "@/db/db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Button } from "@/components/ui/button";
-import { Star, Trophy, Target, Home, BarChart2, User } from "lucide-react";
+import { Star } from "lucide-react";
 import { SAMPLE_COURSE } from "@/features/lessons/sample-data";
+import Sidebar from "@/components/Sidebar";
 
 export default function LearnPage() {
   const navigate = useNavigate();
@@ -35,15 +36,7 @@ export default function LearnPage() {
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0 md:pl-64">
       {/* Sidebar */}
-      <aside className="fixed bottom-0 left-0 w-full md:top-0 md:h-screen md:w-64 bg-white border-r md:border-b-0 border-t z-50 flex md:flex-col p-2 md:p-4 justify-around md:justify-start gap-2">
-        <div className="hidden md:block text-3xl font-black text-primary p-4 mb-6">AMAUTA</div>
-        <SidebarItem icon={<Home />} label="Aprender" active />
-        <SidebarItem icon={<Target />} label="Práctica" />
-        <SidebarItem icon={<Trophy />} label="Ligas" />
-        <SidebarItem icon={<User />} label="Perfil" onClick={() => navigate('/profiles')} />
-        <SidebarItem icon={<BarChart2 />} label="Panel" onClick={() => navigate('/dashboard')} />
-      </aside>
-
+      <Sidebar/>
       {/* Main Content */}
       <div className="max-w-2xl mx-auto p-4 md:pt-12">
         {/* Header with Stats */}
@@ -70,7 +63,7 @@ export default function LearnPage() {
                 <h2 className="text-lg font-bold opacity-80 uppercase tracking-widest">Unidad {unitIdx + 1}</h2>
                 <h3 className="text-3xl font-black">{unit.title}</h3>
                 <Button className="mt-4 bg-white text-primary hover:bg-white/90 duo-button border-white/70">GUÍA</Button>
-                <div className="absolute right-6 bottom-[-20px] bg-accent p-3 rounded-2xl shadow-lg rotate-3 hidden md:block">
+                <div className="absolute right-6 -bottom-5 bg-accent p-3 rounded-2xl shadow-lg rotate-3 hidden md:block">
                   <Star className="w-10 h-10 fill-white text-white" />
                 </div>
               </div>
@@ -108,17 +101,3 @@ export default function LearnPage() {
   );
 }
 
-function SidebarItem({ icon, label, active = false, onClick }: { icon: React.ReactNode; label: string; active?: boolean; onClick?: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`
-        flex items-center gap-4 p-4 rounded-xl font-black text-lg transition-colors w-full
-        ${active ? 'bg-secondary text-primary border-2 border-primary/20' : 'text-muted-foreground hover:bg-secondary/50'}
-      `}
-    >
-      <span className={active ? 'text-primary' : 'text-muted-foreground'}>{icon}</span>
-      <span className="hidden md:inline">{label}</span>
-    </button>
-  );
-}

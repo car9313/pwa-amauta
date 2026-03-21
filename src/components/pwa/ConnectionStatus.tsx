@@ -2,9 +2,6 @@ import { useEffect, useRef, useState } from "react"
 import { WifiOff, Wifi } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { processQueue } from '@/shared/services/syncService';
-// IMPORT OPCIONAL: función que procesa la outbox cuando hay conexión
-// Ajusta la ruta al archivo real donde implementaste processQueue
-
 
 export function ConnectionStatus() {
   const [isOnline, setIsOnline] = useState<boolean>(() => typeof navigator !== "undefined" ? navigator.onLine : true)
