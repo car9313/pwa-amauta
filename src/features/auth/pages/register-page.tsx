@@ -1,3 +1,4 @@
+// src/features/auth/pages/register-page.tsx
 import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -5,19 +6,13 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import { useAuthStore } from "../store/auth-store";
-import { getDashboardPath } from "../utils/get-dashboard-path";
-import RegisterUseCase from "../application/register.use-case";
+import { useAuthStore } from "@/features/auth/store/auth-store";
+import { getDashboardPath } from "@/features/auth/utils/get-dashboard-path";
+import { registerUseCase } from "@/features/auth/application/auth.use-cases";
 
 const registerSchema = z
   .object({
@@ -40,21 +35,18 @@ export function RegisterPage() {
   const role = useAuthStore((s) => s.role);
   const selectedRole = useAuthStore((s) => s.selectedRole);
   const hasHydrated = useAuthStore((s) => s.hasHydrated);
+
   const setAuthenticated = useAuthStore((s) => s.setAuthenticated);
   const setRole = useAuthStore((s) => s.setRole);
+  const setUser = useAuthStore((s) => s.setUser);
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    setError,
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-    },
   });
 
   useEffect(() => {
@@ -66,27 +58,34 @@ export function RegisterPage() {
   }, [hasHydrated, isAuthenticated, role, navigate]);
 
   const onSubmit = async (values: RegisterFormValues) => {
-    const session = await RegisterUseCase().execute({
-      name: values.name,
-      email: values.email,
-      password: values.password,
-    });
+    try {
+      const result = await registerUseCase({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      });
 
-    setAuthenticated(true);
+      setAuthenticated(true);
+      setUser(result.user);
 
-    if (selectedRole) {
-      setRole(selectedRole);
-      navigate(getDashboardPath(selectedRole), { replace: true });
-      return;
+      const resolvedRole = selectedRole ?? result.user.role ?? null;
+
+      if (resolvedRole) {
+        setRole(resolvedRole);
+        navigate(getDashboardPath(resolvedRole), { replace: true });
+        return;
+      }
+
+      navigate("/roles", { replace: true });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "No se pudo registrar";
+
+      setError("email", {
+        type: "manual",
+        message,
+      });
     }
-
-    if (session.user.role) {
-      setRole(session.user.role);
-      navigate(getDashboardPath(session.user.role), { replace: true });
-      return;
-    }
-
-    navigate("/roles", { replace: true });
   };
 
   if (!hasHydrated) return null;
@@ -106,24 +105,29 @@ export function RegisterPage() {
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div className="space-y-2">
-              <Label>Nombre</Label>
-              <Input placeholder="Tu nombre" {...register("name")} />
+              <Label htmlFor="name">Nombre</Label>
+              <Input id="name" placeholder="Tu nombre" {...register("name")} />
               {errors.name && (
                 <p className="text-sm text-red-600">{errors.name.message}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label>Email</Label>
-              <Input placeholder="correo@ejemplo.com" {...register("email")} />
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                placeholder="correo@ejemplo.com"
+                {...register("email")}
+              />
               {errors.email && (
                 <p className="text-sm text-red-600">{errors.email.message}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label>Contraseña</Label>
+              <Label htmlFor="password">Contraseña</Label>
               <Input
+                id="password"
                 type="password"
                 placeholder="••••••••"
                 {...register("password")}
@@ -134,8 +138,9 @@ export function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <Label>Confirmar contraseña</Label>
+              <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
               <Input
+                id="confirmPassword"
                 type="password"
                 placeholder="••••••••"
                 {...register("confirmPassword")}
