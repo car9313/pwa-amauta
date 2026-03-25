@@ -290,3 +290,11 @@
 .animate-gentle-pulse {
   animation: gentlePulse 2s ease-in-out infinite;
 }
+/* Ocultar scrollbar pero mantener funcionalidad */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

@@ -1,17 +1,18 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-
-export type UserRole = "student" | "parent";
+import type { UserRole } from "../domain/auth.types";
 
 interface AuthState {
   isAuthenticated: boolean;
   role: UserRole | null;
   selectedRole: UserRole | null;
+  hasHydrated: boolean;
 
   setAuthenticated: (value: boolean) => void;
-  setRole: (role: UserRole) => void;
+  setRole: (role: UserRole | null) => void;
   setSelectedRole: (role: UserRole) => void;
-  clearSession: () => void;
+  setHydrated: (value: boolean) => void;
+  logout: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -20,12 +21,14 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       role: null,
       selectedRole: null,
+      hasHydrated: false,
 
       setAuthenticated: (value) => set({ isAuthenticated: value }),
       setRole: (role) => set({ role }),
       setSelectedRole: (selectedRole) => set({ selectedRole }),
+      setHydrated: (value) => set({ hasHydrated: value }),
 
-      clearSession: () =>
+      logout: () =>
         set({
           isAuthenticated: false,
           role: null,
@@ -34,6 +37,9 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: "amauta-auth",
+      onRehydrateStorage: () => (state) => {
+        state?.setHydrated(true);
+      },
     }
   )
 );

@@ -1,4 +1,4 @@
-import type { UserRole } from "@/features/auth/store/auth-store";
+import type { UserRole } from "@/features/auth/domain/auth.types";
 import {
   Home,
   BookOpen,
@@ -6,9 +6,7 @@ import {
   Gamepad2,
   TrendingUp,
   Users,
-  LogIn,
-  UserPlus,
-} from "lucide-react";
+ } from "lucide-react";
 
 export type NavigationItem = {
   label: string;
@@ -55,7 +53,7 @@ export const navigationItems: NavigationItem[] = [
     icon: Users,
     roles: ["parent"],
   },
-  {
+  /* {
     label: "Iniciar sesión",
     path: "/login",
     icon: LogIn,
@@ -66,5 +64,5 @@ export const navigationItems: NavigationItem[] = [
     path: "/register",
     icon: UserPlus,
     publicOnly: true,
-  },
+  }, */
 ];
