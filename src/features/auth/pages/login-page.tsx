@@ -17,7 +17,7 @@ import { Label } from "@/components/ui/label";
 
 import { useAuthStore } from "@/features/auth/store/auth-store";
 import { getDashboardPath } from "@/features/auth/utils/get-dashboard-path";
-import LoginUseCase from "../application/login.use-case";
+import { loginUseCase } from "../application/auth.use-cases";
 
 const loginSchema = z.object({
   email: z.string().email("Ingresa un correo válido"),
@@ -35,12 +35,13 @@ export function LoginPage() {
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
   const setAuthenticated = useAuthStore((state) => state.setAuthenticated);
   const setRole = useAuthStore((state) => state.setRole);
-
+   const setUser = useAuthStore((state) => state.setUser);
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    setError,
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -48,6 +49,7 @@ export function LoginPage() {
       password: "",
     },
   });
+
 
   useEffect(() => {
     if (!hasHydrated) return;
@@ -57,24 +59,44 @@ export function LoginPage() {
     }
   }, [hasHydrated, isAuthenticated, role, navigate]);
 
-  const onSubmit = async (_values: LoginFormValues) => {
-    const session = await LoginUseCase().execute(_values)
+  const onSubmit = async (values: LoginFormValues) => {
+try{
+    const result = await loginUseCase(values)
    
-    setRole(session.user.role); 
     setAuthenticated(true);
-   
-    if (selectedRole) {
+    setUser(result.user)
+    /* setRole(session.user.role); 
+     */
+  const resolvedRole = selectedRole ?? result.user.role ?? null;
+
+    
+    /* if (selectedRole) {
       setRole(selectedRole);
       navigate(getDashboardPath(selectedRole), { replace: true });
       return;
-    }
+    } */
 
-    if (role) {
+   /*  if (role) {
       navigate(getDashboardPath(role), { replace: true });
       return;
-    }
+    } */
+   if (resolvedRole) {
+        setRole(resolvedRole);
+        navigate(getDashboardPath(resolvedRole), { replace: true });
+        return;
+      }
 
     navigate("/roles", { replace: true });
+    }
+    catch (error) {
+      const message =
+        error instanceof Error ? error.message : "No se pudo iniciar sesión";
+
+      setError("password", {
+        type: "manual",
+        message,
+      });
+    }
   };
 
   if (!hasHydrated) {
@@ -123,7 +145,7 @@ export function LoginPage() {
 
             <Button
               type="submit"
-              className="w-full h-12 bg-amauta-orange text-white hover:bg-amauta-orange-dark"
+               className="w-full bg-amauta-orange text-white hover:bg-amauta-orange/90"
               disabled={isSubmitting}
             >
               {isSubmitting ? "Validando..." : "Entrar"}

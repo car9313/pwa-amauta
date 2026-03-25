@@ -1,24 +1,24 @@
-export type UserRole = "student" | "parent";
+import type { UserRole } from "../store/auth-store";
 
-export interface AuthCredentials {
+export type AuthCredentials = {
   email: string;
   password: string;
 }
 
-export interface RegisterData {
+export type RegisterInput = {
   name: string;
   email: string;
   password: string;
-}
+};
 
-export interface AuthUser {
+export type AuthUser = {
   id: string;
   name: string;
   email: string;
   role: UserRole | null;
 }
 
-export interface AuthSession {
+export type AuthResult = {
   user: AuthUser;
   token: string;
-}
+};
