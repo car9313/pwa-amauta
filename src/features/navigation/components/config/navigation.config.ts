@@ -1,4 +1,5 @@
-import type { UserRole } from "@/features/auth/domain/auth.types";
+
+import type { UserRole } from "@/features/auth/store/auth-store";
 import {
   Home,
   BookOpen,
