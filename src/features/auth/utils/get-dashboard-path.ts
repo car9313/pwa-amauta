@@ -1,4 +1,4 @@
-import type { UserRole } from "../store/auth-store";
+import type { UserRole } from "../domain/auth.types";
 
 export function getDashboardPath(role: UserRole | null) {
   if (role === "student") return "/dashboard/student";

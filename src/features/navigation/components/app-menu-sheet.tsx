@@ -10,16 +10,27 @@ import { LogOut } from "lucide-react";
 import { useAuthStore } from "@/features/auth/store/auth-store";
 import { NavItem } from "./nav-item";
 import { getNavigationItems } from "./config/filter-navigation";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 type AppMenuSheetProps = {
   trigger: React.ReactNode;
 };
 
 export function AppMenuSheet({ trigger }: AppMenuSheetProps) {
+   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  
   const role = useAuthStore((state) => state.role);
-  const clearSession = useAuthStore((state) => state.clearSession);
-
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const logout = useAuthStore((state) => state.logout);
+ 
   const items = getNavigationItems(role);
+     const handleLogout = () => {
+    logout();
+    setOpen(false);
+    navigate("/login", { replace: true });
+  };
 
   return (
     <Sheet>
@@ -27,7 +38,7 @@ export function AppMenuSheet({ trigger }: AppMenuSheetProps) {
 
       <SheetContent
         side="right"
-        className="w-[320px] border-l border-border bg-background p-0 sm:w-90"
+        className="w-[320px] overflow-y-auto  border-l border-border bg-background p-0 sm:w-90"
       >
         <div className="flex h-full flex-col">
           <SheetHeader className="border-b border-border/60 px-4 py-4">
@@ -50,7 +61,7 @@ export function AppMenuSheet({ trigger }: AppMenuSheetProps) {
           <nav className="flex-1 space-y-2 px-4 py-5">
             {items.map((item) => (
               <NavItem
-                key={item.path}
+                key={`${item.label}-${item.path}`}
                 to={item.path}
                 icon={item.icon}
                 label={item.label}
@@ -61,17 +72,16 @@ export function AppMenuSheet({ trigger }: AppMenuSheetProps) {
           <div className="border-t border-border/60 p-4">
             <div className="mb-4 flex justify-center">
               <img
-                src="/amauta-mascot.png"
+                src="/icons/web-app-manifest-192x192.png"
                 alt="Amauta"
-                className="h-12 w-12 object-contain"
+                className="h-30 w-30 object-contain"
               />
             </div>
 
             <Button
               type="button"
-              variant="destructive"
-              className="w-full rounded-2xl py-6 text-base font-semibold"
-              onClick={clearSession}
+              className="w-full rounded-2xl py-6 text-base font-semibold bg-amauta-orange hover:bg-amauta-orange-dark"
+              onClick={handleLogout}
             >
               <LogOut className="mr-2 h-5 w-5" />
               Cerrar sesión
