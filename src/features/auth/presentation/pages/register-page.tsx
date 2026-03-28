@@ -1,44 +1,27 @@
 // src/features/auth/pages/register-page.tsx
-import { useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import { useAuthStore } from "@/features/auth/store/auth-store";
-import { getDashboardPath } from "@/features/auth/utils/get-dashboard-path";
-import { registerUseCase } from "@/features/auth/application/auth.use-cases";
 
-const registerSchema = z
-  .object({
-    name: z.string().min(2, "Nombre requerido"),
-    email: z.string().email("Correo inválido"),
-    password: z.string().min(6, "Mínimo 6 caracteres"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Las contraseñas no coinciden",
-    path: ["confirmPassword"],
-  });
-
-type RegisterFormValues = z.infer<typeof registerSchema>;
+import { useRegisterActions } from "../hooks/use-register-actions";
+import { createFormErrorHandler } from "../errors/create-form-error-handler";
+import { registerSchema, type RegisterFormValues } from "../../domain/register-form.types";
+import { AuthLoadingScreen } from "../components/loading/auth-loading-screen";
 
 export function RegisterPage() {
-  const navigate = useNavigate();
-
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const role = useAuthStore((s) => s.role);
-  const selectedRole = useAuthStore((s) => s.selectedRole);
-  const hasHydrated = useAuthStore((s) => s.hasHydrated);
-
-  const setAuthenticated = useAuthStore((s) => s.setAuthenticated);
-  const setRole = useAuthStore((s) => s.setRole);
-  const setUser = useAuthStore((s) => s.setUser);
+  const { register: registerUser, isReady } = useRegisterActions();
 
   const {
     register,
@@ -47,48 +30,31 @@ export function RegisterPage() {
     setError,
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
   });
 
-  useEffect(() => {
-    if (!hasHydrated) return;
+  const handleAuthError = createFormErrorHandler<RegisterFormValues>({
+    setError,
+    field: "email",
+    fallbackMessage: "No se pudo registrar",
+  });
 
-    if (isAuthenticated && role) {
-      navigate(getDashboardPath(role), { replace: true });
-    }
-  }, [hasHydrated, isAuthenticated, role, navigate]);
-
-  const onSubmit = async (values: RegisterFormValues) => {
+  const onSubmit = async (values: RegisterFormValues): Promise<void> => {
     try {
-      const result = await registerUseCase({
-        name: values.name,
-        email: values.email,
-        password: values.password,
-      });
-
-      setAuthenticated(true);
-      setUser(result.user);
-
-      const resolvedRole = selectedRole ?? result.user.role ?? null;
-
-      if (resolvedRole) {
-        setRole(resolvedRole);
-        navigate(getDashboardPath(resolvedRole), { replace: true });
-        return;
-      }
-
-      navigate("/roles", { replace: true });
+      await registerUser(values);
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "No se pudo registrar";
-
-      setError("email", {
-        type: "manual",
-        message,
-      });
+      handleAuthError(error);
     }
   };
 
-  if (!hasHydrated) return null;
+  if (!isReady) {
+    return <AuthLoadingScreen />;
+  }
 
   return (
     <section className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-md items-center px-4 py-6 sm:px-6 lg:px-8">
@@ -106,7 +72,11 @@ export function RegisterPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="name">Nombre</Label>
-              <Input id="name" placeholder="Tu nombre" {...register("name")} />
+              <Input
+                id="name"
+                placeholder="Tu nombre"
+                {...register("name")}
+              />
               {errors.name && (
                 <p className="text-sm text-red-600">{errors.name.message}</p>
               )}

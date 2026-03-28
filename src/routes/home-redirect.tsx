@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
-import { useAuthStore } from "@/features/auth/store/auth-store";
-import { getDashboardPath } from "@/features/auth/utils/get-dashboard-path";
+import { getDashboardPath } from "@/features/auth/presentation/routing/get-dashboard-path";
+import { useAuthStore } from "@/features/auth/presentation/store/auth-store";
 
 export function HomeRedirect() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);

@@ -1,6 +1,5 @@
-import { Navigate } from "react-router-dom";
-import { useAuthStore, type UserRole } from "@/features/auth/store/auth-store";
-import { getDashboardPath } from "@/features/auth/utils/get-dashboard-path";
+import { Navigate } from "react-router-dom";import { getDashboardPath } from "@/features/auth/presentation/routing/get-dashboard-path";
+import { useAuthStore, type UserRole } from "@/features/auth/presentation/store/auth-store";
 
 type RequireRoleProps = {
   allowedRole: UserRole;

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
+import { logoutUseCase } from "../../auth.di";
 import { useAuthStore } from "../store/auth-store";
-import { logoutUseCase } from "../application/auth.use-cases";
 
 export function useLogout() {
   const navigate = useNavigate();

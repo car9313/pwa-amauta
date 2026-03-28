@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "@/features/auth/store/auth-store";
-import { getDashboardPath } from "@/features/auth/utils/get-dashboard-path";
-import { RoleCard } from "@/features/components/role-card";
+import { getDashboardPath } from "@/features/auth/presentation/routing/get-dashboard-path";
+import { useAuthStore } from "@/features/auth/presentation/store/auth-store";
+import { RoleCard } from "./components/role-card";
+
 
 export function RoleSelectionPage() {
   const navigate = useNavigate();
@@ -49,7 +50,9 @@ export function RoleSelectionPage() {
           imageAlt="Estudiante"
           accentClassName="border-amauta-orange/20"
           onSelect={() => handleSelectRole("student")}
+        
           />
+
 
         <RoleCard
           title="Soy"
