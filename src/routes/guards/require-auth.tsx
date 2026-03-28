@@ -1,5 +1,5 @@
+import { useAuthStore } from "@/features/auth/presentation/store/auth-store";
 import { Navigate } from "react-router-dom";
-import { useAuthStore } from "@/features/auth/store/auth-store";
 
 type RequireAuthProps = {
   children: React.ReactNode;

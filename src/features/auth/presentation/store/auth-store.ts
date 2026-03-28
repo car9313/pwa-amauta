@@ -1,7 +1,7 @@
-// src/features/auth/store/auth-store.ts
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { AuthUser } from "../domain/auth.types";
+import type { AuthUser } from "../../domain/auth.types";
+
 
 export type UserRole = "student" | "parent";
 

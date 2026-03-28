@@ -7,10 +7,10 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { LogOut } from "lucide-react";
-import { useAuthStore } from "@/features/auth/store/auth-store";
 import { NavItem } from "./nav-item";
 import { getNavigationItems } from "./config/filter-navigation";
-import { useLogout } from "@/features/auth/hooks/use-logout";
+import { useLogout } from "@/features/auth/presentation/hooks/use-logout";
+import { useAuthStore } from "@/features/auth/presentation/store/auth-store";
 
 type AppMenuSheetProps = {
   trigger: React.ReactNode;
