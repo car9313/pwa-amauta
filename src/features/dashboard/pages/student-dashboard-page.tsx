@@ -1,4 +1,3 @@
-"use client"
 
 import { Plus, TrendingUp, BookOpen, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -6,6 +5,16 @@ import { StatCard } from "../components/stat-card"
 import { AgendaItem } from "../components/agenda-item"
 import { ProgressCard } from "../components/progress-card"
 import { AchievementCard } from "../components/achievement-card"
+
+const WEEK_DAYS = [
+  { day: "L", active: true },
+  { day: "M", active: true },
+  { day: "M", active: true },
+  { day: "J", active: true },
+  { day: "V", active: false },
+  { day: "S", active: false },
+  { day: "D", active: false },
+] as const
 
 interface StudentDashboardProps {
   userName?: string
@@ -16,15 +25,6 @@ export function StudentDashboardPage({
   userName = "Mario",
   userAvatar,
 }: StudentDashboardProps) {
-  const weekDays = [
-    { day: "L", active: true },
-    { day: "M", active: true },
-    { day: "M", active: true },
-    { day: "J", active: true },
-    { day: "V", active: false },
-    { day: "S", active: false },
-    { day: "D", active: false },
-  ]
 
   return (
     <div className="space-y-6 pb-6">
@@ -83,7 +83,7 @@ export function StudentDashboardPage({
             </div>
           </div>
           <div className="flex gap-2 ml-auto">
-            {weekDays.map((day, index) => (
+            {WEEK_DAYS.map((day, index) => (
               <div
                 key={index}
                 className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-medium ${

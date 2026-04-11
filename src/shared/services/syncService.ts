@@ -21,8 +21,14 @@ export type OutboxEntry = {
   attempts?: number
 }
 
-/* ---------- Util: abrir DB y asegurar objectStores ---------- */
+/* ---------- Util: abrir DB y asegurar objectStores (cached) ---------- */
+let cachedDB: IDBDatabase | null = null
+
 function openOutboxDB(): Promise<IDBDatabase> {
+  if (cachedDB?.objectStoreNames.length) {
+    return Promise.resolve(cachedDB)
+  }
+
   return new Promise((resolve, reject) => {
     const req = indexedDB.open('AmautaDB', 1)
     req.onupgradeneeded = () => {
@@ -37,7 +43,10 @@ function openOutboxDB(): Promise<IDBDatabase> {
         db.createObjectStore('progress', { keyPath: 'id', autoIncrement: true })
       }
     }
-    req.onsuccess = () => resolve(req.result)
+    req.onsuccess = () => {
+      cachedDB = req.result
+      resolve(req.result)
+    }
     req.onerror = () => reject(req.error)
   })
 }
@@ -81,30 +90,38 @@ async function deleteOutboxEntry(id: number) {
   })
 }
 
-/* ---------- processQueue: intenta enviar las acciones al servidor ---------- */
+/* ---------- processQueue: Attempt to send actions to server in parallel ---------- */
 export async function processQueue(): Promise<{ success: number; failed: number }> {
   const entries = await getAllOutbox()
-  let success = 0
-  let failed = 0
 
-  for (const entry of entries) {
-    try {
-      // Ajusta la URL '/api/sync' por tu endpoint real; apiClient puede reemplazar esto.
+  if (entries.length === 0) {
+    return { success: 0, failed: 0 }
+  }
+
+  const results = await Promise.allSettled(
+    entries.map(async (entry) => {
       const res = await fetch('/api/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: entry.type, payload: entry.payload, createdAt: entry.createdAt })
       })
 
-      if (res.ok) {
-        await deleteOutboxEntry(entry.id!)
-        success++
-      } else {
-        // Incrementar attempts si quieres; aquí dejamos el registro para reintentar luego.
-        failed++
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`)
       }
-    } catch (err) {
-      // Falló la request (offline, CORS, etc). La dejamos en la cola para reintento.
+
+      await deleteOutboxEntry(entry.id!)
+      return entry.id
+    })
+  )
+
+  let success = 0
+  let failed = 0
+
+  for (const result of results) {
+    if (result.status === 'fulfilled') {
+      success++
+    } else {
       failed++
     }
   }
