@@ -12,24 +12,30 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useLoginActions } from "../hooks/use-login-actions"
+import { useLogin } from "@/hooks/useAuth"
 import { createFormErrorHandler } from "../errors/create-form-error-handler"
 import { loginSchema, type LoginFormValues } from "../../domain/login-form.types"
 import { AuthLoadingScreen } from "../components/loading/auth-loading-screen"
+import { useAuthStore } from "../store/auth-store"
 
 export function LoginPage() {
   const navigate = useNavigate()
-  const { login, isReady } = useLoginActions()
+  const hasHydrated = useAuthStore((s) => s.hasHydrated)
+  const { login, isLoading, isError } = useLogin()
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
     setIsVisible(true)
   }, [])
 
+  if (!hasHydrated) {
+    return <AuthLoadingScreen />
+  }
+
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     setError,
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -45,16 +51,13 @@ export function LoginPage() {
     fallbackMessage: "No se pudo iniciar sesión",
   })
 
-  const onSubmit = async (values: LoginFormValues): Promise<void> => {
-    try {
-      await login(values)
-    } catch (error) {
-      handleAuthError(error)
-    }
-  }
-
-  if (!isReady) {
-    return <AuthLoadingScreen />
+  const onSubmit = (values: LoginFormValues): void => {
+    if (isError) return
+    login(values, {
+      onError: (error) => {
+        handleAuthError(error)
+      },
+    })
   }
 
   return (
@@ -65,24 +68,6 @@ export function LoginPage() {
       {/* Floating decorative orbs */}
       <div className="absolute right-1/4 top-1/4 h-64 w-64 rounded-full bg-[#1f4fa3]/10 blur-3xl animate-float-gentle hidden sm:block" />
       <div className="absolute left-1/4 bottom-1/4 h-48 w-48 rounded-full bg-[#f4701f]/10 blur-3xl animate-float-gentle-reverse hidden sm:block" style={{ animationDelay: '2s' }} />
-
-      {/* Mascot decoration - usando imagen real */}
-      <div className="absolute left-4 bottom-8 sm:left-8 sm:bottom-32 w-24 h-24 sm:w-32 sm:h-32 animate-bounce-gentle hidden sm:block">
-        <img 
-          src="/img/amauta-mascot.jpg" 
-          alt="Amauta" 
-          className="w-full h-full object-contain rounded-full"
-        />
-      </div>
-
-      {/* Mobile mascot - más pequeño */}
-      <div className="absolute right-4 top-20 w-16 h-16 sm:hidden">
-        <img 
-          src="/img/amauta-mascot.jpg" 
-          alt="Amauta" 
-          className="w-full h-full object-contain rounded-full opacity-20"
-        />
-      </div>
 
       <Card className={`
         w-full max-w-md border-0 shadow-2xl
@@ -177,9 +162,9 @@ export function LoginPage() {
                 disabled:opacity-70 disabled:hover:scale-100
                 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
               `}
-              disabled={isSubmitting}
+              disabled={isLoading}
             >
-              {isSubmitting ? (
+              {isLoading ? (
                 <span className="flex items-center gap-2">
                   <svg className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" viewBox="0 0 24 24" fill="none">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />

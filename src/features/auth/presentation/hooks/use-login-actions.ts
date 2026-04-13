@@ -4,8 +4,9 @@ import { useNavigate } from "react-router-dom"
 import type { LoginFormValues } from "../../domain/login-form.types"
 import { useAuthRedirectAfterHydration } from "./useAuthRedirectAfterHydration"
 import { redirectToDashboard, redirectToRoles, resolveAuthRole } from "../routing/auth-navigation"
-import { loginUseCase } from "../../auth.di"
+import { login as loginService } from "@/services/auth.service"
 import { useAuthStore } from "../store/auth-store"
+import type { LoginCredentials } from "@/types/auth.types"
 
 type UseLoginActionsResult = {
   login: (values: LoginFormValues) => Promise<void>
@@ -22,12 +23,17 @@ export function useLoginActions(): UseLoginActionsResult {
   const setUser = useAuthStore((state) => state.setUser)
 
   const login = useCallback(async (values: LoginFormValues): Promise<void> => {
-    const result = await loginUseCase(values)
+    const credentials: LoginCredentials = {
+      email: values.email,
+      password: values.password,
+    }
+
+    const result = await loginService(credentials)
 
     setAuthenticated(true)
     setUser(result.user)
 
-    const resolvedRole = resolveAuthRole(selectedRole, result.user.role)
+    const resolvedRole = resolveAuthRole(selectedRole, result.user.role as "student" | "parent")
 
     if (resolvedRole) {
       setRole(resolvedRole)
