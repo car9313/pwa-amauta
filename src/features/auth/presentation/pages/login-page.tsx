@@ -1,30 +1,41 @@
-import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useLoginActions } from "../hooks/use-login-actions";
-import { createFormErrorHandler } from "../errors/create-form-error-handler";
-import { loginSchema, type LoginFormValues } from "../../domain/login-form.types";
-import { AuthLoadingScreen } from "../components/loading/auth-loading-screen";
-
+} from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { useLogin } from "@/hooks/useAuth"
+import { createFormErrorHandler } from "../errors/create-form-error-handler"
+import { loginSchema, type LoginFormValues } from "../../domain/login-form.types"
+import { AuthLoadingScreen } from "../components/loading/auth-loading-screen"
+import { useAuthStore } from "../store/auth-store"
 
 export function LoginPage() {
-  const navigate = useNavigate();
-  const { login, isReady } = useLoginActions();
-  
-   const {
+  const navigate = useNavigate()
+  const hasHydrated = useAuthStore((s) => s.hasHydrated)
+  const { login, isLoading, isError } = useLogin()
+  const [isVisible, setIsVisible] = useState(false)
+
+  useEffect(() => {
+    setIsVisible(true)
+  }, [])
+
+  if (!hasHydrated) {
+    return <AuthLoadingScreen />
+  }
+
+  const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     setError,
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -32,81 +43,155 @@ export function LoginPage() {
       email: "",
       password: "",
     },
-  });
+  })
 
   const handleAuthError = createFormErrorHandler<LoginFormValues>({
     setError,
     field: "password",
     fallbackMessage: "No se pudo iniciar sesión",
-  });
-    const onSubmit = async (values: LoginFormValues): Promise<void> => {
-    try {
-      await login(values);
-    } catch (error) {
-      handleAuthError(error);
-    }
-  };
-   if (!isReady) {
-    return <AuthLoadingScreen />;
+  })
+
+  const onSubmit = (values: LoginFormValues): void => {
+    if (isError) return
+    login(values, {
+      onError: (error) => {
+        handleAuthError(error)
+      },
+    })
   }
+
   return (
-    <section className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-md items-center px-4 py-6 sm:px-6 lg:px-8">
-      <Card className="w-full border-border/70 shadow-sm">
-        <CardHeader className="space-y-2 text-center">
-          <CardTitle className="text-2xl font-bold text-amauta-blue">
-            Iniciar sesión
+    <section className="relative flex min-h-[calc(100vh-4rem)] w-full items-center justify-center px-4 py-6">
+      {/* Atmospheric background */}
+      <div className="gradient-mesh absolute inset-0 -z-10" />
+      
+      {/* Floating decorative orbs */}
+      <div className="absolute right-1/4 top-1/4 h-64 w-64 rounded-full bg-[#1f4fa3]/10 blur-3xl animate-float-gentle hidden sm:block" />
+      <div className="absolute left-1/4 bottom-1/4 h-48 w-48 rounded-full bg-[#f4701f]/10 blur-3xl animate-float-gentle-reverse hidden sm:block" style={{ animationDelay: '2s' }} />
+
+      <Card className={`
+        w-full max-w-md border-0 shadow-2xl
+        transition-all duration-700 ease-out
+        ${isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95'}
+      `}>
+        {/* Header with animation */}
+        <CardHeader className="space-y-3 text-center pt-8">
+          {/* Usando imagen del mascot en lugar de emoji */}
+          <div className={`
+            mx-auto mb-2 w-20 h-20 sm:w-24 sm:h-24 relative
+            transition-all duration-700 delay-100
+            ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}
+          `}>
+            <img 
+              src="/img/amauta-mascot.jpg" 
+              alt="Amauta" 
+              className="w-full h-full object-cover rounded-2xl shadow-lg shadow-[#1f4fa3]/30"
+            />
+          </div>
+          
+          <CardTitle 
+            className={`
+              text-2xl sm:text-3xl font-bold tracking-tight text-[#1f4fa3] transition-all duration-500 delay-200
+              ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}
+            `}
+          >
+            ¡Bienvenido a Amauta!
           </CardTitle>
-          <CardDescription>
-            Accede a tu cuenta para continuar en Amauta
+          
+          <CardDescription 
+            className={`
+              text-sm sm:text-base transition-all duration-500 delay-300
+              ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}
+            `}
+          >
+            Inicia sesión para continuar tu aprendizaje
           </CardDescription>
         </CardHeader>
 
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="email">Correo electrónico</Label>
+        <CardContent className="px-6 sm:px-8 pb-6 sm:pb-8">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5">
+            {/* Email input */}
+            <div className={`
+              space-y-2 transition-all duration-500 delay-400
+              ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
+            `}>
+              <Label htmlFor="email" className="text-slate-700 font-semibold text-sm sm:text-base">
+                Correo electrónico
+              </Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="correo@ejemplo.com"
+                className="h-10 sm:h-11 border-slate-200 bg-slate-50/50 focus:bg-white transition-all duration-200 focus:ring-2 focus:ring-[#1f4fa3]/20 focus:border-[#1f4fa3] text-sm sm:text-base"
                 {...register("email")}
               />
               {errors.email && (
-                <p className="text-sm text-red-600">{errors.email.message}</p>
+                <p className="text-sm text-red-500 font-medium">{errors.email.message}</p>
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">Contraseña</Label>
+            {/* Password input */}
+            <div className={`
+              space-y-2 transition-all duration-500 delay-500
+              ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
+            `}>
+              <Label htmlFor="password" className="text-slate-700 font-semibold text-sm sm:text-base">
+                Contraseña
+              </Label>
               <Input
                 id="password"
                 type="password"
                 placeholder="••••••••"
+                className="h-10 sm:h-11 border-slate-200 bg-slate-50/50 focus:bg-white transition-all duration-200 focus:ring-2 focus:ring-[#1f4fa3]/20 focus:border-[#1f4fa3] text-sm sm:text-base"
                 {...register("password")}
               />
               {errors.password && (
-                <p className="text-sm text-red-600">{errors.password.message}</p>
+                <p className="text-sm text-red-500 font-medium">{errors.password.message}</p>
               )}
             </div>
 
+            {/* Submit button */}
             <Button
               type="submit"
-              className="w-full bg-amauta-orange text-white hover:bg-amauta-orange/90"
-              disabled={isSubmitting}
+              className={`
+                w-full h-11 sm:h-12 text-sm sm:text-base font-bold
+                bg-gradient-to-r from-[#f4701f] to-[#ea601b]
+                hover:from-[#ea601b] hover:to-[#d45518]
+                shadow-lg shadow-orange-500/25
+                transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/30 hover:scale-[1.02]
+                disabled:opacity-70 disabled:hover:scale-100
+                ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
+              `}
+              disabled={isLoading}
             >
-              {isSubmitting ? "Validando..." : "Entrar"}
+              {isLoading ? (
+                <span className="flex items-center gap-2">
+                  <svg className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Validando...
+                </span>
+              ) : (
+                "Entrar"
+              )}
             </Button>
 
+            {/* Register link */}
             <button
               type="button"
               onClick={() => navigate("/register", { replace: true })}
-              className="w-full text-center text-muted-foreground transition-colors hover:text-foreground"
+              className={`
+                w-full text-center text-sm font-medium text-slate-500 transition-all duration-500 delay-600
+                hover:text-[#1f4fa3] hover:underline decoration-2 underline-offset-2
+                ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
+              `}
             >
-              Registrarme soy nuevo
+              ¿No tienes cuenta? <span className="font-semibold">Regístrate</span>
             </button>
           </form>
         </CardContent>
       </Card>
     </section>
-  );
+  )
 }

@@ -290,7 +290,235 @@
 .animate-gentle-pulse {
   animation: gentlePulse 2s ease-in-out infinite;
 }
-/* Ocultar scrollbar pero mantener funcionalidad */
+/* ========== ATMOSPHERIC EFFECTS ========== */
+
+/* Noise texture overlay */
+.noise-overlay {
+  position: relative;
+}
+
+.noise-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: overlay;
+}
+
+/* Gradient mesh background */
+.gradient-mesh {
+  background: 
+    radial-gradient(at 40% 20%, hsla(210, 90%, 60%, 0.15) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, hsla(30, 90%, 60%, 0.12) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, hsla(180, 80%, 55%, 0.1) 0px, transparent 50%),
+    radial-gradient(at 80% 50%, hsla(250, 60%, 50%, 0.08) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, hsla(40, 90%, 55%, 0.12) 0px, transparent 50%),
+    var(--background);
+}
+
+/* Glass card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 
+    0 1px 2px rgba(255, 255, 255, 0.4),
+    0 8px 32px rgba(31, 79, 163, 0.08);
+}
+
+/* Frosted background */
+.frosted {
+  background: rgba(242, 247, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* ========== MOTION UTILITIES ========== */
+
+/* Stagger delays for page load */
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+.stagger-6 { animation-delay: 0.6s; }
+
+/* Fade in up */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+/* Scale in */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+/* Slide in from right */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+/* Count up animation for numbers */
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-count-up {
+  animation: countUp 0.4s ease-out forwards;
+}
+
+/* Shimmer effect for buttons */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.shimmer-badge {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0.2) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}
+
+/* Organic blob clip-path */
+.blob-card {
+  clip-path: path("M0,48 C0,21.509 [21.509,0 [48,0 C74.491,0 [96,21.509 [96,48 C96,74.491 [74.491,96 [48,96 C21.509,96 [0,74.491 [0,48 Z");
+}
+
+.blob-card-organic {
+  clip-path: path("M32,8 C56,8 72,28 88,32 C104,36 120,20 128,40 C136,60 152,68 160,88 C168,108 184,124 192,120 C200,116 208,104 208,128 C208,152 224,176 200,192 C176,208 152,208 128,208 C104,208 72,224 56,200 C40,176 16,176 8,152 C0,128 8,108 8,88 C8,68 8,32 32,8 Z");
+}
+
+/* ========== HOVER MICRO-INTERACTIONS ========== */
+
+/* Scale on hover */
+.hover-scale {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hover-scale:hover {
+  transform: scale(1.04);
+}
+
+/* Lift on hover */
+.hover-lift {
+  transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 
+    0 12px 40px rgba(31, 79, 163, 0.15),
+    0 4px 12px rgba(31, 79, 163, 0.1);
+}
+
+/* Glow on hover */
+.hover-glow {
+  transition: box-shadow 0.3s ease-out;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 24px rgba(244, 112, 31, 0.3);
+}
+
+/* Shine sweep on hover */
+.hover-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.hover-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.6s ease-out;
+}
+
+.hover-shine:hover::after {
+  transform: translateX(100%);
+}
+
+/* ========== UTILIDADES ========== */
+
+/* Text gradient */
+.text-gradient {
+  background: linear-gradient(135deg, var(--amauta-blue) 0%, var(--amauta-orange) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Hide scrollbar pero mantener funcionalidad */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
