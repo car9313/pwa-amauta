@@ -1,36 +1,35 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { Link } from "react-router-dom"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Sparkles, User, Mail, Lock, ArrowRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Sparkles, User, Mail, Lock, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useRegister } from "@/hooks/useAuth"
-import { createFormErrorHandler } from "../errors/create-form-error-handler"
-import { registerSchema, type RegisterFormValues } from "../../domain/register-form.types"
-import { AuthLoadingScreen } from "../components/loading/auth-loading-screen"
-import { useAuthStore } from "../store/auth-store"
-import { cn } from "@/lib/utils"
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { createFormErrorHandler } from "../errors/create-form-error-handler";
+import { registerFormSchema, type RegisterFormValues } from "../../domain/register-form.types";
+import { AuthLoadingScreen } from "../components/loading/auth-loading-screen";
+import { useAuthStore } from "../store/auth-store";
+import { cn } from "@/lib/utils";
+import { useRegister } from "../../hooks/useAuth";
 
 export function RegisterPage() {
-  const hasHydrated = useAuthStore((s) => s.hasHydrated)
-  const { register: registerUser, isLoading, isError } = useRegister()
-  const [isVisible, setIsVisible] = useState(false)
-  const [role, setRole] = useState<"student" | "parent">("student")
-
+  const hasHydrated = useAuthStore((state) => state.hasHydrated);
+  const { register: registerUser,isLoading } = useRegister();
+  const [isVisible, setIsVisible] = useState(false);
+ 
   useEffect(() => {
-    setIsVisible(true)
-  }, [])
+    setIsVisible(true);
+  }, []);
 
   const {
     register,
@@ -38,82 +37,41 @@ export function RegisterPage() {
     formState: { errors },
     setError,
   } = useForm<RegisterFormValues>({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(registerFormSchema),
     defaultValues: {
       name: "",
       email: "",
       password: "",
       confirmPassword: "",
+      role:'parent'
     },
-  })
+  });
 
   const handleAuthError = createFormErrorHandler<RegisterFormValues>({
     setError,
     field: "email",
     fallbackMessage: "No se pudo registrar",
-  })
+  });
 
   const onSubmit = (values: RegisterFormValues): void => {
-    if (isError) return
-    registerUser(
-      {
-        ...values,
-        role,
-      },
-      {
-        onError: (error) => {
-          handleAuthError(error)
-        },
-      }
-    )
-  }
+    registerUser(values,{
+      onError:(error) => {
+        handleAuthError(error);
+      }, 
+    })
+     
+  };
 
-  if (!hasHydrated) {
-    return <AuthLoadingScreen />
+  if (!hasHydrated ) {
+    return <AuthLoadingScreen />;
   }
 
   return (
     <section className="relative flex min-h-[calc(100vh-4rem)] w-full items-center justify-center px-4 py-6">
-      {/* Atmospheric background */}
       <div className="gradient-mesh absolute inset-0 -z-10" />
       
-      {/* Floating decorative orbs */}
       <div className="absolute right-1/4 top-1/4 h-64 w-64 rounded-full bg-[#1f4fa3]/10 blur-3xl animate-float-gentle hidden sm:block" />
       <div className="absolute left-1/4 bottom-1/4 h-48 w-48 rounded-full bg-[#f4701f]/10 blur-3xl animate-float-gentle-reverse hidden sm:block" style={{ animationDelay: '2s' }} />
-
-      {/* Role selector */}
-      <div className={cn(
-        "absolute top-4 sm:top-8 left-1/2 -translate-x-1/2 flex gap-2 p-1 bg-white/50 rounded-full backdrop-blur-sm transition-all duration-500",
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
-      )}>
-        <button
-          type="button"
-          onClick={() => setRole("student")}
-          className={cn(
-            "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300",
-            role === "student"
-              ? "bg-[#1f4fa3] text-white"
-              : "text-slate-600 hover:bg-white/50"
-          )}
-        >
-          <User className="h-4 w-4" />
-          <span className="hidden sm:inline">Estudiante</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setRole("parent")}
-          className={cn(
-            "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300",
-            role === "parent"
-              ? "bg-[#1f4fa3] text-white"
-              : "text-slate-600 hover:bg-white/50"
-          )}
-        >
-          <User className="h-4 w-4" />
-          <span className="hidden sm:inline">Padre/Madre</span>
-        </button>
-      </div>
-
       <Card className={cn(
         "w-full max-w-md border-0 shadow-2xl transition-all duration-700 ease-out",
         isVisible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-8 scale-95"
@@ -141,7 +99,6 @@ export function RegisterPage() {
 
         <CardContent className="px-6 sm:px-8 pb-6 sm:pb-8">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* Name input */}
             <div className={cn(
               "space-y-2 transition-all duration-500 delay-200",
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
@@ -163,7 +120,6 @@ export function RegisterPage() {
               )}
             </div>
 
-            {/* Email input */}
             <div className={cn(
               "space-y-2 transition-all duration-500 delay-300",
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
@@ -186,7 +142,6 @@ export function RegisterPage() {
               )}
             </div>
 
-            {/* Password input */}
             <div className={cn(
               "space-y-2 transition-all duration-500 delay-400",
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
@@ -209,7 +164,6 @@ export function RegisterPage() {
               )}
             </div>
 
-            {/* Confirm Password input */}
             <div className={cn(
               "space-y-2 transition-all duration-500 delay-500",
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
@@ -232,13 +186,12 @@ export function RegisterPage() {
               )}
             </div>
 
-            {/* Submit button */}
             <Button
               type="submit"
               disabled={isLoading}
               className={cn(
                 "w-full h-11 sm:h-12 text-base font-bold mt-2",
-                "bg-gradient-to-r from-[#f4701f] to-[#ea601b]",
+                "bg-linear-to-r from-[#f4701f] to-[#ea601b]",
                 "hover:from-[#ea601b] hover:to-[#d45518]",
                 "shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/30",
                 "hover:scale-[1.02] transition-all duration-300",
@@ -259,7 +212,6 @@ export function RegisterPage() {
               )}
             </Button>
 
-            {/* Login link */}
             <p className={cn(
               "text-center text-sm font-medium text-slate-500 transition-all duration-500 delay-600",
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
@@ -273,5 +225,5 @@ export function RegisterPage() {
         </CardContent>
       </Card>
     </section>
-  )
+  );
 }

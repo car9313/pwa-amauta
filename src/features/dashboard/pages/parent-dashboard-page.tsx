@@ -1,20 +1,14 @@
-"use client"
-
 import { useEffect, useState } from "react"
 import { CheckCircle2, ChevronRight, TrendingUp, Sparkles, HelpCircle, Trophy, BarChart3 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useParentDashboard } from "@/hooks/useAuth"
+import { useParentDashboard } from "@/features/auth/hooks/useAuth"
 import { cn } from "@/lib/utils"
 
-const DEFAULT_PARENT_ID = "par_001"
 
-interface ParentDashboardProps {
-  parentId?: string
-}
 
-export function ParentDashboardPage({ parentId = DEFAULT_PARENT_ID }: ParentDashboardProps) {
-  const [isVisible, setIsVisible] = useState(false)
-  const { data: dashboard, isLoading, isError, error, refetch } = useParentDashboard(parentId)
+export function ParentDashboardPage() {
+  const [isVisible, setIsVisible] = useState(false);
+  const { data: dashboard, isLoading, isError, error, refetch } = useParentDashboard();
 
   useEffect(() => {
     setIsVisible(true)
@@ -56,7 +50,7 @@ export function ParentDashboardPage({ parentId = DEFAULT_PARENT_ID }: ParentDash
     <div className="space-y-4 sm:space-y-6 pb-6">
       {/* Welcome Header */}
       <div className={cn(
-        "relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1f4fa3] via-[#3d5a80] to-[#f4701f] p-4 sm:p-6 text-white transition-all duration-700",
+        "relative overflow-hidden rounded-2xl bg-linear-to-br from-[#1f4fa3] via-[#3d5a80] to-[#f4701f] p-4 sm:p-6 text-white transition-all duration-700",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       )}>
         <div className="noise-overlay pointer-events-none absolute inset-0 z-0" />
@@ -77,11 +71,11 @@ export function ParentDashboardPage({ parentId = DEFAULT_PARENT_ID }: ParentDash
       )}>
         {children.map((child) => (
           <div
-            key={child.childId}
+            key={child.studentId}
             className="glass-card rounded-2xl p-4 hover-lift cursor-pointer"
           >
             <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-full bg-slate-100 overflow-hidden flex-shrink-0">
+              <div className="h-12 w-12 rounded-full bg-slate-100 overflow-hidden shrink-0">
                 <img 
                   src={child.avatar ?? "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=200&h=200&fit=crop"} 
                   alt={child.name}
@@ -128,7 +122,7 @@ export function ParentDashboardPage({ parentId = DEFAULT_PARENT_ID }: ParentDash
               key={item.id}
               className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors"
             >
-              <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center flex-shrink-0">
+              <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center shrink-0">
                 {item.action.includes('Completó') ? (
                   <CheckCircle2 className="h-4 w-4 text-green-500" />
                 ) : item.action.includes('Nivel') ? (
@@ -143,7 +137,7 @@ export function ParentDashboardPage({ parentId = DEFAULT_PARENT_ID }: ParentDash
                 </p>
                 <p className="text-xs text-slate-500 truncate">{item.subject}</p>
               </div>
-              <span className="text-xs text-slate-400 flex-shrink-0">{item.timestamp}</span>
+              <span className="text-xs text-slate-400 shrink-0">{item.timestamp}</span>
             </div>
           ))}
         </div>
@@ -151,7 +145,7 @@ export function ParentDashboardPage({ parentId = DEFAULT_PARENT_ID }: ParentDash
 
       {/* Quick Actions */}
       <div className={cn(
-        "relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1f4fa3] to-[#3d5a80] p-4 sm:p-5 transition-all duration-700 delay-400",
+        "relative overflow-hidden rounded-2xl bg-linear-to-br from-[#1f4fa3] to-[#3d5a80] p-4 sm:p-5 transition-all duration-700 delay-400",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       )}>
         <h2 className="text-lg font-bold text-white">Resumen de Hijos</h2>

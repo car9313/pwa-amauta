@@ -5,6 +5,7 @@ import './index.css'
 import App from './App'
 import { registerServiceWorker } from './serviceWorkerRegistration'
 import { BrowserRouter } from 'react-router-dom'
+import { AuthInitializer } from './features/auth/presentation/components/AuthInitializer'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -72,7 +73,9 @@ root.render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <App />
+       <AuthInitializer>       
+         <App />
+         </AuthInitializer>
       </BrowserRouter>
     </QueryClientProvider>
   </StrictMode>,

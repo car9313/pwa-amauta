@@ -1,6 +1,5 @@
 import type { NavigateFunction } from "react-router-dom";
-import { getDashboardPath } from "./get-dashboard-path";
-import type { UserRole } from "../store/auth-store";
+import type { UserRole } from "@/features/auth/domain/types";
 
 export function redirectToDashboard(
   navigate: NavigateFunction,
@@ -13,9 +12,9 @@ export function redirectToRoles(navigate: NavigateFunction): void {
   navigate("/roles", { replace: true });
 }
 
-export function resolveAuthRole(
-  selectedRole: UserRole | null,
-  userRole: UserRole | null | undefined
-): UserRole | null {
-  return selectedRole ?? userRole ?? null;
+export function getDashboardPath(role: UserRole | null) {
+  if (role === "student") return "/dashboard/student";
+  if (role === "parent") return "/dashboard/parent";
+  if (role === "teacher") return "/dashboard/teacher";
+  return "/login";
 }
