@@ -7,13 +7,14 @@ import type {
 import { addChildRequestSchema } from "../../domain/types";
 import { loginFormSchema, type LoginFormValues } from "../../domain/login-form.types";
 import { registerFormSchema, type RegisterFormValues } from "../../domain/register-form.types";
+import { httpClient } from "@/lib/http/client";
 
 const USE_MOCKS = import.meta.env.VITE_USE_MOCK === "true";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
-const API_VERSION = import.meta.env.VITE_API_VERSION ?? "v1";
-const API_URL = `${API_BASE_URL}/${API_VERSION}`;
+ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
+/*const API_VERSION = import.meta.env.VITE_API_VERSION ?? "v1";
+const API_URL = `${API_BASE_URL}/${API_VERSION}`; */
 
-function getToken(): string | null {
+ function getToken(): string | null {
   return localStorage.getItem(import.meta.env.VITE_AUTH_TOKEN_KEY ?? "amauta_token");
 }
 
@@ -24,7 +25,7 @@ function setToken(token: string): void {
 function clearToken(): void {
   localStorage.removeItem(import.meta.env.VITE_AUTH_TOKEN_KEY ?? "amauta_token");
 }
-
+/* 
 async function fetchApi<T>(
   endpoint: string,
   options: RequestInit = {}
@@ -51,7 +52,7 @@ async function fetchApi<T>(
   }
 
   return response.json();
-}
+} */
 
 function delay<T>(data: T, ms = 800): Promise<T> {
   return new Promise((resolve) => setTimeout(() => resolve(data), ms));
@@ -211,34 +212,32 @@ export interface AuthAdapter {
 
 const realAdapter: AuthAdapter = {
  
-  async login(credentials) {
-    const validated = validateInput(loginFormSchema, credentials);
-    console.log(validated)
-    const response = await fetchApi<AuthResponse>("/auth/login", {
-      method: "POST",
-      body: JSON.stringify(validated),
-    });
-    setToken(response.token);
-    return response;
-  },
+async login(credentials) {
+  const validated = validateInput(loginFormSchema, credentials);
+  const response = await httpClient.request<AuthResponse>("/auth/login", {
+    method: "POST",
+    body: JSON.stringify(validated),
+  });
+  setToken(response.token);
+  return response;
+},
+async register(input) {
+  const validated = validateInput(registerFormSchema, input);
+  const response = await httpClient.request<AuthResponse>("/auth/register", {
+    method: "POST",
+    body: JSON.stringify(validated),
+  });
+  setToken(response.token);
+  return response;
+},
 
-  async register(input) {
-    const validated = validateInput(registerFormSchema, input);
-    const response = await fetchApi<AuthResponse>("/auth/register", {
-      method: "POST",
-      body: JSON.stringify(validated),
-    });
-    setToken(response.token);
-    return response;
-  },
-
-  async logout() {
-    try {
-      await fetchApi("/auth/logout", { method: "POST" });
-    } finally {
-      clearToken();
-    }
-  },
+ async logout() {
+  try {
+    await httpClient.request("/auth/logout", { method: "POST" });
+  } finally {
+    clearToken();
+  }
+},
 
   getToken,
 
@@ -247,9 +246,10 @@ async addChild(_parentId, input) {
     const validated = validateInput(addChildRequestSchema, input) as AddChildRequest;
     return mockAddChild(_parentId, validated);
   },
-  async me() {
-    return fetchApi<AuthResponse['user']>('/auth/me');
-  },
+ async me() {
+  return httpClient.request<AuthResponse['user']>('/auth/me');
+},
+
 };
 
 const mockAdapter: AuthAdapter = {
@@ -305,8 +305,6 @@ const mockAdapter: AuthAdapter = {
 };
 
 export function createAuthAdapter(): AuthAdapter {
-console.log(USE_MOCKS)
-console.log(API_BASE_URL)
   if (USE_MOCKS || !API_BASE_URL) {
     console.debug("[AuthAdapter] Using mock adapter");
     return mockAdapter;

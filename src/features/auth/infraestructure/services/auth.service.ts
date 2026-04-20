@@ -2,9 +2,10 @@ import { authAdapter } from "../mappers/adapter";
 import type { ParentDashboard, StudentProgress } from "../../../exercises/domain/exercise.types";
 import type { LoginFormValues } from "../../domain/login-form.types";
 import type { RegisterFormValues } from "../../domain/register-form.types";
+import { httpClient } from "@/lib/http/client";
 
 const USE_MOCKS = import.meta.env.VITE_USE_MOCK === "true";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
+/* const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
 const VERSION = import.meta.env.VITE_API_VERSION ?? "v1";
 const API_URL = `${API_BASE_URL}/${VERSION}`;
 
@@ -31,7 +32,7 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
 
   return response.json();
 }
-
+ */
 function delay<T>(data: T, ms = 600): Promise<T> {
   return new Promise((resolve) => setTimeout(() => resolve(data), ms));
 }
@@ -127,19 +128,17 @@ export const logout = async () => {
 };
 
 export const getParentDashboard = async (parentId: string): Promise<ParentDashboard> => {
-  if (USE_MOCKS || !API_BASE_URL) {
+  if (USE_MOCKS || !import.meta.env.VITE_API_BASE_URL) {
     return delay(mockParentDashboard);
   }
-
-  return fetchApi<ParentDashboard>(`/parents/${parentId}/dashboard`);
+  return httpClient.request<ParentDashboard>(`/parents/${parentId}/dashboard`);
 };
 
 export const getStudentProgress = async (studentId: string): Promise<StudentProgress> => {
-  if (USE_MOCKS || !API_BASE_URL) {
+  if (USE_MOCKS || !import.meta.env.VITE_API_BASE_URL) {
     return delay({ ...mockStudentProgress, studentId });
   }
-
-  return fetchApi<StudentProgress>(`/students/${studentId}/progress`);
+  return httpClient.request<StudentProgress>(`/students/${studentId}/progress`);
 };
 
 export const addChild = async (parentId: string, input: { name: string; email: string; password: string }) => {
