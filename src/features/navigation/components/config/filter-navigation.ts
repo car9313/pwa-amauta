@@ -1,4 +1,4 @@
-import type { UserRole } from "@/features/auth/presentation/store/auth-store";
+import type { UserRole } from "@/features/auth/domain/types";
 import { navigationItems } from "./navigation.config";
 
 export function getNavigationItems(role: UserRole | null) {

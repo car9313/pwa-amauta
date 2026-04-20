@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { ChevronRight, Lightbulb, Sparkles, HelpCircle, Trophy, Target, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useStudentProgress } from "@/hooks/useAuth"
+import { useStudentProgress } from "@/features/auth/hooks/useAuth"
 import { cn } from "@/lib/utils"
 
 const DEFAULT_STUDENT_ID = "stu_001"

@@ -1,5 +1,3 @@
-/* import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area"; */
 import { Button } from "@/components/ui/button";
 import { LogOut, X } from "lucide-react";
 import { NavItem } from "../components/nav-item";

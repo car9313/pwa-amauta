@@ -1,4 +1,5 @@
-import { Navigate } from "react-router-dom";import { getDashboardPath } from "@/features/auth/presentation/routing/get-dashboard-path";
+import { Navigate } from "react-router-dom";
+import { getDashboardPath } from "@/features/auth/presentation/routing/auth-navigation";
 import { useAuthStore, type UserRole } from "@/features/auth/presentation/store/auth-store";
 
 type RequireRoleProps = {
@@ -7,14 +8,14 @@ type RequireRoleProps = {
 };
 
 export function RequireRole({ allowedRole, children }: RequireRoleProps) {
-  const role = useAuthStore((state) => state.role);
+  const user = useAuthStore((state) => state.user);
 
-  if (!role) {
+  if (!user?.role) {
     return <Navigate to="/roles" replace />;
   }
 
-  if (role !== allowedRole) {
-     return <Navigate to={getDashboardPath(role)} replace />;
+  if (user.role !== allowedRole) {
+    return <Navigate to={getDashboardPath(user.role)} replace />;
   }
 
   return <>{children}</>;

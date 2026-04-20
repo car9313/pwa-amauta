@@ -1,16 +1,7 @@
-// src/hooks/useStudent.ts
-// ============================================================
-// Hooks de TanStack Query para estudiantes
-// ============================================================
-
 import { useQuery } from '@tanstack/react-query'
 import { getStudentDashboard } from '@/services/exercise.service'
-import type { StudentDashboard } from '@/types/exercise.types'
-
-export const studentKeys = {
-  all: ['student'] as const,
-  dashboard: (studentId: string) => ['student', 'dashboard', studentId] as const,
-}
+import { studentKeys } from '@/lib/query/keys'
+import type { StudentDashboard } from '@/features/exercises/domain/exercise.types'
 
 export function useStudentDashboard(studentId: string) {
   return useQuery<StudentDashboard, Error>({
