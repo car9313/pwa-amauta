@@ -2,6 +2,8 @@ export const authKeys = {
   all: ["auth"] as const,
   login: () => [...authKeys.all, "login"] as const,
   register: () => [...authKeys.all, "register"] as const,
+  session: () => [...authKeys.all, "session"] as const,
+  refresh: () => [...authKeys.all, "refresh"] as const,
 
   parentDashboard: (parentId: string, tenantId: string | null) =>
     [...authKeys.all, "parent", parentId, tenantId] as const,

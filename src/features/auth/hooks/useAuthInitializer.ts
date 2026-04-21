@@ -1,26 +1,23 @@
-import { useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@/features/auth/presentation/store/auth-store';
-import { authAdapter } from '../infraestructure/mappers/adapter';
+import { useEffect, useRef } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useAuthStore } from "@/features/auth/presentation/store/auth-store";
+import { checkAuthValidity, loadAuthFromStorage } from "../infrastructure/auth-storage";
+import { authKeys } from "@/lib/query/keys";
 
 export function useAuthInitializer() {
-  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const hasHydrated = useAuthStore((s) => s.hasHydrated);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const setVerifying = useAuthStore((s) => s.setVerifying);
   const setUser = useAuthStore((s) => s.setUser);
-  const clearSession = useAuthStore((s) => s.clearSession);
-
+  const setAuthenticated = useAuthStore((s) => s.setAuthenticated);
   const hasRun = useRef(false);
 
   useEffect(() => {
     if (!hasHydrated) return;
-
-    // Si ya ejecutamos la verificación, no volver a hacerlo
     if (hasRun.current) return;
 
-    const verify = async () => {
-      // Si ya estamos autenticados, no necesitamos verificar
+    const init = async () => {
       if (isAuthenticated) {
         setVerifying(false);
         hasRun.current = true;
@@ -28,22 +25,27 @@ export function useAuthInitializer() {
       }
 
       setVerifying(true);
+
       try {
-        const user = await authAdapter.me();
-        setUser(user);
+        const isValid = await checkAuthValidity();
+
+        if (isValid) {
+          const stored = await loadAuthFromStorage();
+          if (stored && stored.user) {
+            setAuthenticated(true);
+            setUser(stored.user);
+            queryClient.setQueryData(authKeys.session(), stored.user);
+          }
+        }
+
         hasRun.current = true;
       } catch {
-        // Solo limpiar si seguimos sin autenticar
-        if (!useAuthStore.getState().isAuthenticated) {
-          clearSession();
-          navigate('/login', { replace: true });
-        }
         hasRun.current = true;
       } finally {
         setVerifying(false);
       }
     };
 
-    verify();
-  }, [hasHydrated, isAuthenticated]); // Dependencias mínimas, sin isVerifying
+    init();
+  }, [hasHydrated, isAuthenticated]);
 }

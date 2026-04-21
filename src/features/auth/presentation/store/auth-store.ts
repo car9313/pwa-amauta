@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { AuthUser } from "@/features/auth/domain/types";
+import { loadAuthFromStorage, checkAuthValidity, clearAuth } from "@/features/auth/infrastructure/auth-storage";
 export type { UserRole } from "@/features/auth/domain/types";
 
 interface AuthState {
@@ -8,28 +9,24 @@ interface AuthState {
   user: AuthUser | null;
   hasHydrated: boolean;
   selectedStudentId: string | null;
-
-  // Estado para controlar la verificación inicial del token
   isVerifying: boolean;
   setVerifying: (value: boolean) => void;
-
   setAuthenticated: (value: boolean) => void;
   setUser: (user: AuthUser | null) => void;
-  clearSession: () => void;
+  clearSession: () => Promise<void>;
   setHydrated: (value: boolean) => void;
   selectStudent: (studentId: string) => boolean;
   clearSelectedStudent: () => void;
+  hydrateFromStorage: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       isAuthenticated: false,
       user: null,
       hasHydrated: false,
       selectedStudentId: null,
-
-      // Inicialmente estamos verificando para mostrar el loader
       isVerifying: true,
       setVerifying: (value) => set({ isVerifying: value }),
 
@@ -43,17 +40,19 @@ export const useAuthStore = create<AuthState>()(
         });
       },
 
-      clearSession: () =>
+      clearSession: async () => {
+        await clearAuth();
         set({
           isAuthenticated: false,
           user: null,
           selectedStudentId: null,
-        }),
+        });
+      },
 
       setHydrated: (value) => set({ hasHydrated: value }),
 
       selectStudent: (studentId: string) => {
-        const user = get().user;
+        const user = useAuthStore.getState().user;
 
         if (user?.role === "student") {
           return false;
@@ -72,25 +71,39 @@ export const useAuthStore = create<AuthState>()(
       },
 
       clearSelectedStudent: () => set({ selectedStudentId: null }),
+
+      hydrateFromStorage: async () => {
+        const isValid = await checkAuthValidity();
+        if (!isValid) {
+          await clearAuth();
+          set({
+            isAuthenticated: false,
+            user: null,
+          });
+          return;
+        }
+
+        const stored = await loadAuthFromStorage();
+        if (stored && stored.user) {
+          set({
+            isAuthenticated: true,
+            user: stored.user,
+          });
+        }
+      },
     }),
     {
-      name: "amauta-auth",
+      name: "amauta-auth-ui",
       partialize: (state) => ({
-        // Solo persistimos lo necesario para restaurar la sesión
-        isAuthenticated: state.isAuthenticated,
-        user: state.user,
         selectedStudentId: state.selectedStudentId,
-        // isVerifying NO se persiste, se reinicia a true en cada carga
       }),
       onRehydrateStorage: () => (state) => {
-        // Cuando termina la hidratación, marcamos hasHydrated = true
         state?.setHydrated(true);
       },
     }
   )
 );
 
-// Selectores para facilitar el acceso a partes del estado
 export const selectUser = (state: AuthState) => state.user;
 export const selectIsAuthenticated = (state: AuthState) => state.isAuthenticated;
 export const selectSelectedStudentId = (state: AuthState) => state.selectedStudentId;

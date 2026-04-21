@@ -3,6 +3,13 @@ import { z } from "zod";
 export const roleEnum = z.enum(["student", "parent", "teacher"]);
 export type UserRole = z.infer<typeof roleEnum>;
 
+
+export const loginResponseSchema = z.object({
+  token: z.string(),
+  role: roleEnum,
+});
+export type LoginResponse = z.infer<typeof loginResponseSchema>;
+
 const baseUserFields = z.object({
   name: z.string(),
   email: z.string().email(),
@@ -49,6 +56,8 @@ export type AuthUser = z.infer<typeof authUserSchema>;
 export const authResponseSchema = z.object({
   user: authUserSchema,
   token: z.string(),
+  refresh: z.string().optional(),
+  expiresIn: z.number().optional(),
   tenantId: z.string().optional(),
 });
 export type AuthResponse = z.infer<typeof authResponseSchema>;
