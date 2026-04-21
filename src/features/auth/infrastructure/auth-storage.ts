@@ -7,6 +7,9 @@ import {
   isAccessTokenValid,
   clearAuthData,
   updateAccessToken,
+  saveSelectedStudentId as saveSelectedStudentIdDb,
+  getSelectedStudentId as getSelectedStudentIdDb,
+  clearSelectedStudentId as clearSelectedStudentIdDb,
   type TokenData,
 } from "@/lib/api/storage/auth-db";
 
@@ -20,6 +23,9 @@ export interface AuthStorage {
   isValid: () => Promise<boolean>;
   clear: () => Promise<void>;
   refreshAccess: (refreshToken: string) => Promise<{ access: string; expiresIn: number }>;
+  saveSelectedStudentId: (studentId: string | null) => Promise<void>;
+  getSelectedStudentId: () => Promise<string | null>;
+  clearSelectedStudentId: () => Promise<void>;
 }
 
 export async function getAccessToken(): Promise<string | null> {
@@ -62,6 +68,18 @@ export async function updateAccess(
   await updateAccessToken(access, expiresIn);
 }
 
+export async function saveSelectedStudentId(studentId: string | null): Promise<void> {
+  await saveSelectedStudentIdDb(studentId);
+}
+
+export async function getSelectedStudentId(): Promise<string | null> {
+  return await getSelectedStudentIdDb();
+}
+
+export async function clearSelectedStudentId(): Promise<void> {
+  await clearSelectedStudentIdDb();
+}
+
 export const authStorage = {
   saveAuthResponse,
   getAccessToken,
@@ -70,4 +88,7 @@ export const authStorage = {
   checkAuthValidity,
   clearAuth,
   updateAccess,
+  saveSelectedStudentId,
+  getSelectedStudentId,
+  clearSelectedStudentId,
 };

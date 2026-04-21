@@ -1,8 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { QueryClient } from '@tanstack/react-query'
-import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
-import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import './index.css'
 import App from './App'
 import { registerServiceWorker } from './serviceWorkerRegistration'
@@ -19,10 +17,6 @@ const queryClient = new QueryClient({
     },
   },
 })
-
-const persister = createSyncStoragePersister({
-  storage: window.localStorage,
-});
 
 const root = createRoot(document.getElementById('root')!)
 
@@ -66,17 +60,12 @@ navigator.serviceWorker?.addEventListener('controllerchange', () => {
 
 root.render(
   <StrictMode>
-    <PersistQueryClientProvider
-      client={queryClient}
-      persistOptions={{
-        persister,
-      }}
-    >
+    <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AuthInitializer>
           <App />
         </AuthInitializer>
       </BrowserRouter>
-    </PersistQueryClientProvider>
+    </QueryClientProvider>
   </StrictMode>,
 )

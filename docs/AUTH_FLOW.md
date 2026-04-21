@@ -250,39 +250,19 @@ async request<T>(endpoint, options) {
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│  REACT QUERY CACHE - Persistido entre sesiones                    │
+│  REACT QUERY CACHE - En memoria (NO persistido)                     │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                             │
 │  ┌─────────────────────────────────────────────────────────────┐          │
 │  │  QueryClient Cache (en memoria)                             │          │
-│  │  ┌─────────────────────────────────────────────────┐    │          │
-│  │  │ queries: {                                     │    │          │
-│  │  │   "parentDashboard-par_001": {                │    │          │
-│  │  │     status: 'success',                        │    │          │
-│  │  │     data: { parent: {...}, children: [...] }│    │          │
-│  │  │   }                                      │    │          │
-│  │  │ }                                       │    │          │
-│  │  │ ...                                      │    │          │
-│  │  │ }                                       │    │          │
-│  │  └─────────────────────────────────────────────────┘    │          │
-│  └─────────────────────────────────────────────────────────────┘          │
-│                            │                                           │
-│                            │ persist (PersistQueryClientProvider)              │
-│                            ▼                                           │
-│  ┌─────────────────────────────────────────────────────────────┐          │
-│  │  localStorage (por ahora)                            │          │
-│  │  key: "tanstack-query-cache"                      │          │
-│  │  value: JSON.stringify(PersistedClient)         │          │
+│  │  - Se mantiene mientras la pestaña esté abierta            │          │
+│  │  - Se limpia al hacer logout (queryClient.clear())          │          │
+│  │  - Se revalida según staleTime configurado                 │          │
 │  └─────────────────────────────────────────────────────────────┘          │
 │                                                             │
-│  ┌─────────────────────────────────────────────────────────────┐          │
-│  │  IndexedDB (preparado para Fase 3)                    │          │
-│  │  ┌──────────────────────────────────────────────┐     │          │
-│  │  │ Table: cache                             │     │          │
-│  │  │ { id: "react-query-cache", data: "..." }│     │          │
-│  │  └──────────────────────────────────────────────┘     │          │
-│  └───────────────────────────────────────────────────────┘          │
-└─────────────────────────────────────────────────────────────────┘
+│  Nota: Se simplificó main.ts - se usa QueryClientProvider         │
+│  simple (sin persistencia). Las queries se revalidan al abrir.      │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Beneficios del Cache

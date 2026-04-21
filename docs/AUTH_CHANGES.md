@@ -73,19 +73,13 @@ export async function refreshAccessToken(): Promise<RefreshResponse>
 
 ### 1. `src/main.tsx`
 
-**Cambio**: QueryClientProvider → PersistQueryClientProvider
+**Cambio**: QueryClientProvider simple (sin persistencia)
 
-**Por qué**: Persistir el cache de React Query entre sesiones para offline.
+**Por qué**: El cache de React Query en localStorage tiene límite (~5MB) y los datos API cambian frecuentemente (stale). Simplificado para evitar complejidad innecesaria.
 
 ```tsx
-// Antes
+// Después (simplificado)
 <QueryClientProvider client={queryClient}>
-
-// Después
-<PersistQueryClientProvider
-  client={queryClient}
-  persistOptions={{ persister }}
->
 ```
 
 ### 2. `src/features/auth/presentation/store/auth-store.ts`
@@ -256,6 +250,51 @@ interface StoredUser {
 
 ---
 
+## Actualización: selectedStudentId en Dexie (100% Source of Truth)
+
+### Fecha: 21/04/2026
+
+### Cambio
+Moved `selectedStudentId` from localStorage (Zustand persist) to Dexie for consistent offline support.
+
+### Por qué
+- Mantener 100% Dexie como fuente de verdad para datos de autenticación
+- Eliminar dependencia de localStorage para estado de auth
+
+### Archivos modificados
+- `src/lib/api/storage/auth-db.ts`:
+  - Agregado `UserPreferences` interface
+  - Actualizado version de DB a 2
+  - Agregadas funciones: `saveSelectedStudentId`, `getSelectedStudentId`, `clearSelectedStudentId`
+
+- `src/features/auth/infrastructure/auth-storage.ts`:
+  - Expuestas nuevas funciones a través del AuthStorage interface
+
+- `src/features/auth/presentation/store/auth-store.ts`:
+  - Removido middleware `persist` de Zustand
+  - `hydrateFromStorage()` ahora carga selectedStudentId desde Dexie
+  - `selectStudent()` y `clearSelectedStudent()` escriben a Dexie
+  - `clearSession()` también limpia selectedStudentId de Dexie
+  - `hasHydrated` ahora se establece correctamente después de hydration
+
+### Estructura en Dexie (v2)
+```
+amauta-auth
+├── tokens (v1)
+│   └── amauta-tokens
+├── users (v1)
+│   └── amauta-user
+└── preferences (v2)    ← NUEVO
+    └── user-preferences  ← selectedStudentId
+```
+
+### Beneficios
+- selectedStudentId persiste offline correctamente
+- Estado de auth 100% en Dexie
+- Sin dependencia de localStorage para auth
+
+---
+
 ## Actualización: Fase 3 - TanStack Query como Capa de Sincronización
 
 ### Fecha: 21/04/2026
@@ -329,3 +368,69 @@ export const authKeys = {
 - **Sincronización**: TanStack Query maneja el cache y sync
 - **Sin flicker**: La hidratación ocurre antes del primer render
 - **Manejo de errores**: Si el refresh falla, se maneja gracefully
+
+---
+
+## Actualización: Fix hasHydrated + Simplificación main.ts
+
+### Fecha: 21/04/2026
+
+### Problema
+La app se quedaba en "Verificando sesión..." porque:
+- Se eliminó el middleware `persist` de Zustand
+- `hasHydrated` nunca se establecía en `true`
+- La lógica estaba invertida (esperaba hasHydrated=true para empezar)
+
+### Solución
+
+1. **`auth-store.ts`**:
+   - `hydrateFromStorage()` ahora establece `hasHydrated: true` al final en TODAS las ramas
+   - También establece `isVerifying: false`
+   - Sin debug logs (código limpio)
+
+2. **`useAuthInitializer.ts`**:
+   - Lógica corregida: llama a `hydrateFromStorage()` cuando `hasHydrated = false`
+   - Código simplificado
+   - Remueve variables no usadas
+
+3. **`main.tsx`**:
+   - Removido `PersistQueryClientProvider` y `createSyncStoragePersister`
+   - Ahora usa `QueryClientProvider` simple
+   - El cache de queries NO se persiste entre sesiones
+   - `query-cache.ts` queda reservado para futuro uso
+
+### Flujo Corregido
+
+```
+App inicia
+    │
+    ▼
+hasHydrated = false, isVerifying = true
+    │
+    ▼
+useAuthInitializer detecta hasHydrated = false
+    │
+    ▼
+Llama hydrateFromStorage()
+    │
+    ▼
+Carga desde Dexie → actualiza estado
+    │
+    ▼
+hasHydrated = true, isVerifying = false ✓
+    │
+    ▼
+UI muestra contenido real
+```
+
+### Por qué NO persistir React Query Cache
+
+1. **Límite de localStorage**: ~5MB vs 50MB+ de IndexedDB
+2. **Datos stale**: Las queries de API cambian frecuentemente
+3. **Complejidad**: PersistQueryClientProvider requiere sync storage
+4. **Mejor UX**: Queries se revalidan automáticamente al abrir
+
+### Archivos modificados
+- `auth-store.ts`: Fix `hydrateFromStorage()`
+- `useAuthInitializer.ts`: Lógica corregida
+- `main.tsx`: Simplificado a `QueryClientProvider`

@@ -1,7 +1,13 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 import type { AuthUser } from "@/features/auth/domain/types";
-import { loadAuthFromStorage, checkAuthValidity, clearAuth } from "@/features/auth/infrastructure/auth-storage";
+import { 
+  loadAuthFromStorage, 
+  checkAuthValidity, 
+  clearAuth,
+  saveSelectedStudentId as saveSelectedStudentIdDb,
+  getSelectedStudentId as getSelectedStudentIdDb,
+  clearSelectedStudentId as clearSelectedStudentIdDb
+} from "@/features/auth/infrastructure/auth-storage";
 export type { UserRole } from "@/features/auth/domain/types";
 
 interface AuthState {
@@ -20,89 +26,100 @@ interface AuthState {
   hydrateFromStorage: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set) => ({
+export const useAuthStore = create<AuthState>((set) => ({
+  isAuthenticated: false,
+  user: null,
+  hasHydrated: false,
+  selectedStudentId: null,
+  isVerifying: true,
+
+  setVerifying: (value) => set({ isVerifying: value }),
+
+  setAuthenticated: (value) => set({ isAuthenticated: value }),
+
+  setUser: (user) => {
+    set({
+      user,
+      isAuthenticated: user !== null,
+      selectedStudentId: null,
+    });
+  },
+
+  clearSession: async () => {
+    await clearAuth();
+    await clearSelectedStudentIdDb();
+    set({
       isAuthenticated: false,
       user: null,
-      hasHydrated: false,
       selectedStudentId: null,
-      isVerifying: true,
-      setVerifying: (value) => set({ isVerifying: value }),
+    });
+  },
 
-      setAuthenticated: (value) => set({ isAuthenticated: value }),
+  setHydrated: (value) => set({ hasHydrated: value }),
 
-      setUser: (user) => {
-        set({
-          user,
-          isAuthenticated: user !== null,
-          selectedStudentId: null,
-        });
-      },
+  selectStudent: (studentId: string) => {
+    const user = useAuthStore.getState().user;
 
-      clearSession: async () => {
-        await clearAuth();
-        set({
-          isAuthenticated: false,
-          user: null,
-          selectedStudentId: null,
-        });
-      },
-
-      setHydrated: (value) => set({ hasHydrated: value }),
-
-      selectStudent: (studentId: string) => {
-        const user = useAuthStore.getState().user;
-
-        if (user?.role === "student") {
-          return false;
-        }
-
-        if (user?.role === "parent") {
-          const childIds = user.children.map((c) => c.studentId);
-          if (!childIds.includes(studentId)) {
-            return false;
-          }
-          set({ selectedStudentId: studentId });
-          return true;
-        }
-
-        return false;
-      },
-
-      clearSelectedStudent: () => set({ selectedStudentId: null }),
-
-      hydrateFromStorage: async () => {
-        const isValid = await checkAuthValidity();
-        if (!isValid) {
-          await clearAuth();
-          set({
-            isAuthenticated: false,
-            user: null,
-          });
-          return;
-        }
-
-        const stored = await loadAuthFromStorage();
-        if (stored && stored.user) {
-          set({
-            isAuthenticated: true,
-            user: stored.user,
-          });
-        }
-      },
-    }),
-    {
-      name: "amauta-auth-ui",
-      partialize: (state) => ({
-        selectedStudentId: state.selectedStudentId,
-      }),
-      onRehydrateStorage: () => (state) => {
-        state?.setHydrated(true);
-      },
+    if (user?.role === "student") {
+      return false;
     }
-  )
-);
+
+    if (user?.role === "parent") {
+      const childIds = user.children.map((c) => c.studentId);
+      if (!childIds.includes(studentId)) {
+        return false;
+      }
+      set({ selectedStudentId: studentId });
+      void saveSelectedStudentIdDb(studentId);
+      return true;
+    }
+
+    return false;
+  },
+
+  clearSelectedStudent: () => {
+    set({ selectedStudentId: null });
+    void clearSelectedStudentIdDb();
+  },
+
+  hydrateFromStorage: async () => {
+    const isValid = await checkAuthValidity();
+    
+    if (!isValid) {
+      await clearAuth();
+      await clearSelectedStudentIdDb();
+      set({
+        isAuthenticated: false,
+        user: null,
+        selectedStudentId: null,
+        hasHydrated: true,
+        isVerifying: false,
+      });
+      return;
+    }
+
+    const stored = await loadAuthFromStorage();
+    const selectedStudentId = await getSelectedStudentIdDb();
+    
+    if (stored && stored.user) {
+      set({
+        isAuthenticated: true,
+        user: stored.user,
+        selectedStudentId,
+        hasHydrated: true,
+        isVerifying: false,
+      });
+    } else {
+      set({
+        isAuthenticated: false,
+        user: null,
+        selectedStudentId: null,
+        hasHydrated: true,
+        isVerifying: false,
+      });
+    }
+  },
+}));
 
 export const selectUser = (state: AuthState) => state.user;
 export const selectIsAuthenticated = (state: AuthState) => state.isAuthenticated;

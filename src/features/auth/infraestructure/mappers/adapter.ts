@@ -215,13 +215,13 @@ const realAdapter: AuthAdapter = {
     return response;
   },
 
-  async logout() {
-    try {
-      await httpClient.request("/auth/logout", { method: "POST" });
-    } finally {
-      await clearAuth();
-    }
-  },
+   async logout() {
+     try {
+       await httpClient.request("/auth/logout", { method: "POST" });
+     } finally {
+       await clearAuth();
+     }
+   },
 
   getToken: () => {
     return getAccessToken();
@@ -257,10 +257,10 @@ const mockAdapter: AuthAdapter = {
     return response;
   },
 
-  async logout() {
-    await delay(null, 300);
-    await clearAuth();
-  },
+   async logout() {
+     await delay(null, 300);
+     await clearAuth();
+   },
 
   getToken: () => {
     return getAccessToken();

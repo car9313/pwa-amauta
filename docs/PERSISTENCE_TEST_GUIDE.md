@@ -4,17 +4,49 @@
 
 | Storage | Contenido | Acceso |
 |---------|-----------|--------|
-| **IndexedDB (Dexie)** | Tokens, Session, User, React Query cache | Async, Fuente de verdad |
-| **localStorage** | selectedStudentId (Zustand), TanStack Query cache | Síncrono, UI |
+| **IndexedDB (Dexie)** | Tokens, User, selectedStudentId, Preferences | Async, Fuente de verdad |
+| **localStorage** | Ninguno para auth (simplificado) | - |
+| **Zustand (memoria)** | user, isAuthenticated, hasHydrated, isVerifying | Runtime state |
 
 ---
 
 ## Estructura de Datos en el Navegador
 
-### 1. IndexedDB (Dexie) - `amauta-auth`
+### 1. IndexedDB (Dexie) - `amauta-auth` (v2)
 
 Abre DevTools → Application → IndexedDB
 
+```
+IndexedDB
+├── amauta-auth (v2)
+│   ├── tokens (EntityTable)
+│   │   ├── id: "amauta-tokens"
+│   │   ├── accessToken: string
+│   │   ├── refreshToken: string
+│   │   ├── expiresAt: number (timestamp)
+│   │   └── createdAt: number
+│   │
+│   ├── users (EntityTable)
+│   │   ├── id: "amauta-user"
+│   │   ├── user: AuthUser
+│   │   │   ├── name: string
+│   │   │   ├── email: string
+│   │   │   ├── role: "student" | "parent" | "teacher"
+│   │   │   ├── tenantId: string
+│   │   │   └── ... (según rol)
+│   │   └── storedAt: number
+│   │
+│   └── preferences (EntityTable)     ← NUEVO v2
+│       ├── id: "user-preferences"
+│       ├── selectedStudentId: string | ""
+│       └── updatedAt: number
+```
+
+### 2. localStorage
+
+```
+localStorage
+└── (vacío para auth - simplificado)
 ```
 IndexedDB
 └── amauta-auth
