@@ -434,3 +434,161 @@ UI muestra contenido real
 - `auth-store.ts`: Fix `hydrateFromStorage()`
 - `useAuthInitializer.ts`: Lógica corregida
 - `main.tsx`: Simplificado a `QueryClientProvider`
+
+---
+
+## Actualización: Fase 4 - Offline Mutations + Background Sync
+
+### Fecha: 21/04/2026
+
+### Cambio
+Se implementó soporte offline para mutations (operaciones de escritura). Las mutations ahora se encolan cuando no hay conexión y se sincronizan automáticamente cuando la red vuelve.
+
+### Decisiones Técnicas
+
+| Decisión | Opción | Justificación |
+|---------|-------|------------|
+| Mutations offline | **Todas** | Simplicidad - no hay que discernir cuál necesita offline |
+| Retry attempts | **3 max** | Suficiente para recover de errores transitorios sin saturar |
+| Estrategia de conflicto | **Last-write-wins** | Simple, suficiente para datos de un dispositivo |
+| Prioridad | **Sí** | Mejor UX cuando hay muchas operaciones |
+
+### Por qué estas decisiones:
+
+- **Todas las mutations**: Cualquier mutation puede ser importante. Evita complejidad de configurar cada endpoint.
+- **3 retry**: 1er retry = error transitorio, 2do = ocupado, 3ero = error real. Más de 3 satura.
+- **Last-write-wins**: En Amauta, datos (progreso, ejercicios) se modifican desde un dispositivo a la vez. No hay multi-device sync.
+- **Con prioridad**: Auth crítico primero (alta), datos importantes (media), preferencias (baja).
+
+### Priority de Mutations
+
+| Prioridad | Tipo | Mutaciones |
+|----------|------|-----------|
+| **Alta (1)** | Auth crítico | login, logout, register |
+| **Media (2)** | Datos importantes | addChild, updateProgress |
+| **Baja (3)** | Preferencias | updateProfile, updatePreferences |
+
+### Exponential Backoff
+
+```typescript
+// Delay entre retries
+attempt 0 → 1s
+attempt 1 → 2s
+attempt 2 → 4s
+// Máximo: 30s
+```
+
+### Flujo de Mutation Offline
+
+```
+Usuario hace mutation (offline)
+    │
+    ▼
+Detectar navigator.onLine
+    │
+    ▼ (offline)
+Guardar en cola Dexie
+    │
+    ▼
+Mostrar toast "Guardado offline"
+    │
+    ▼ (cuando vuelve online)
+Background Sync detecta red
+    │
+    ▼
+Procesar cola por prioridad (1→2→3)
+    │
+    ▼
+Mutation exitosa → remover de cola → actualizar cache
+    │
+    ▼ (si falla)
+Retry con exponential backoff
+    │
+    ▼ (después de 3 fallos)
+Marcar como failed → notificar usuario
+```
+
+### Archivos nuevos
+
+```
+src/lib/
+├── api/storage/
+│   └── offline-queue.ts        # Cola de mutations en Dexie
+└── sync/
+    ├── retry.ts                    # Exponential backoff
+    ├── conflict.ts                # Last-write-wins resolver
+    ├── queue-manager.ts          # Lógica de cola
+    ├── background-sync.ts         # Background sync handler
+    └── useOfflineMutation.ts     # Hook para mutations
+```
+
+### Base de Datos: Offline Queue (Dexie)
+
+```
+amauta-offline-queue (v1)
+└── mutations
+    ├── id: string (UUID)
+    ├── type: MutationType
+    ├── payload: any
+    ├── endpoint: string
+    ├── method: POST|PUT|PATCH|DELETE
+    ├── priority: 1|2|3
+    ├── retryCount: number
+    ├── status: pending|syncing|done|failed
+    ├── createdAt: number
+    ├── lastAttemptAt: number|null
+    ├── errorMessage: string|null
+    └── result: any|null
+```
+
+### Uso del Hook
+
+```typescript
+import { useOfflineMutation } from "@/lib/sync/useOfflineMutation";
+
+const { mutate, isOnline, isQueued, pendingCount, error, retry } = useOfflineMutation({
+  type: "addChild",
+  endpoint: "/parents/{parentId}/children",
+  method: "POST",
+  onQueued: (mutationId) => {
+    toast.success("Hijo agregado. Se sincronizará cuando haya conexión.");
+  },
+});
+
+// En el componente
+const handleAddChild = () => {
+  mutate({ name: "Nuevo hijo", email: "hijo@email.com" });
+};
+
+// isOnline = true → mutation se ejecuta directamente
+// isOnline = false → mutation se encola
+// isQueued = true → mutation está en cola esperando sync
+// pendingCount = número de mutations pendientes
+```
+
+### Hooks Disponibles
+
+- **useOfflineMutation**: Para mutations que necesitan soporte offline
+- **usePendingMutations**: Para mostrar estado de cola en UI
+
+### Funciones Exportadas
+
+```typescript
+// queue-manager.ts
+isOnline() → boolean
+getQueueState() → { isOnline, isSyncing, pendingCount }
+getPendingMutationsCount() → number
+processQueue() → { processed, successful, failed, conflicts }
+queueMutation(type, payload, endpoint, method) → { online, queued, mutationId }
+triggerSync() → Promise<void>
+clearQueue() → Promise<void>
+
+// background-sync.ts
+initBackgroundSync({ intervalMs?, autoSync? }) → Promise<void>
+startBackgroundSync({ intervalMs?, autoSync? }) → {...}
+stopBackgroundSync() → void
+onSyncEvent((event) => void) → () => void
+```
+
+### Documentación adicional
+- `docs/PHASE4_PLAN.md` - Documentación completa de Fase 4

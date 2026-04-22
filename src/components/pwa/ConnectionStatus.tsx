@@ -1,31 +1,35 @@
 import { useEffect, useRef, useState } from "react"
 import { WifiOff, Wifi } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { processQueue } from '@/shared/services/syncService';
+import { triggerSync, getQueueState } from "@/lib/sync/queue-manager"
+import { usePendingMutations } from "@/lib/sync/useOfflineMutation"
 
 export function ConnectionStatus() {
   const [isOnline, setIsOnline] = useState<boolean>(() => typeof navigator !== "undefined" ? navigator.onLine : true)
   const [showStatus, setShowStatus] = useState<boolean>(false)
+  const [syncInProgress, setSyncInProgress] = useState<boolean>(false)
   const timeoutRef = useRef<number | null>(null)
+  const { pendingCount } = usePendingMutations()
 
   useEffect(() => {
-    // protección SSR: navigator existe sólo en cliente
     if (typeof navigator === "undefined") return
 
     const handleOnline = async () => {
       setIsOnline(true)
       setShowStatus(true)
 
-      // Intentar procesar la cola offline (si existe)
       try {
-        // processQueue puede ser async y manejar retries/backoff internamente
-        if (typeof processQueue === "function") await processQueue()
+        const state = await getQueueState()
+        if (state.pendingCount > 0 && !state.isSyncing) {
+          setSyncInProgress(true)
+          await triggerSync()
+          setSyncInProgress(false)
+        }
       } catch (err) {
-        // opcional: log o notificación de fallo en sync
-        console.warn("processQueue failed:", err)
+        console.warn("triggerSync failed:", err)
+        setSyncInProgress(false)
       }
 
-      // mostrar mensaje breve y ocultarlo
       if (timeoutRef.current) window.clearTimeout(timeoutRef.current)
       timeoutRef.current = window.setTimeout(() => {
         setShowStatus(false)
@@ -42,7 +46,6 @@ export function ConnectionStatus() {
       }
     }
 
-    // Inicializar
     setIsOnline(navigator.onLine)
 
     window.addEventListener("online", handleOnline)
@@ -55,10 +58,8 @@ export function ConnectionStatus() {
     }
   }, [])
 
-  // No mostrar nada si estamos online y no queremos mostrar estado
   if (!showStatus && isOnline) return null
 
-  // Respectar prefers-reduced-motion (tailwind: motion-safe/motion-reduce)
   return (
     <div
       role="status"
@@ -72,6 +73,9 @@ export function ConnectionStatus() {
         <>
           <Wifi className="w-4 h-4" />
           <span>¡De vuelta en línea!</span>
+          {pendingCount > 0 && (
+            <span className="text-xs opacity-80">({pendingCount} pendientes)</span>
+          )}
         </>
       ) : (
         <>
@@ -79,15 +83,21 @@ export function ConnectionStatus() {
           <span>Sin conexión a internet</span>
         </>
       )}
-      {/* Botón opcional para reintentar sincronización manual (útil para padres) */}
-      {!isOnline ? null : (
+      {isOnline && pendingCount > 0 && !syncInProgress && (
         <button
-          onClick={() => { if (typeof processQueue === "function") processQueue().catch(() => {}) }}
+          onClick={async () => {
+            setSyncInProgress(true)
+            await triggerSync()
+            setSyncInProgress(false)
+          }}
           className="ml-2 text-xs underline"
           aria-label="Reintentar sincronización"
         >
-          Reintentar
+          Sincronizar
         </button>
+      )}
+      {syncInProgress && (
+        <span className="text-xs animate-pulse">Sincronizando...</span>
       )}
     </div>
   )

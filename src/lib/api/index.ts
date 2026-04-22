@@ -1,5 +1,4 @@
 export {
-  authDb,
   saveAuthData,
   getStoredToken,
   getStoredUser,

@@ -1,39 +1,7 @@
-import Dexie, { type EntityTable } from "dexie";
 import type { AuthUser } from "@/features/auth/domain/types";
+import { db, type TokenData, type StoredUser } from "./db";
 
-export interface TokenData {
-  id: string;
-  accessToken: string;
-  refreshToken: string;
-  expiresAt: number;
-  createdAt: number;
-}
-
-export interface StoredUser {
-  id: string;
-  user: AuthUser;
-  storedAt: number;
-}
-
-export interface UserPreferences {
-  id: string;
-  selectedStudentId: string | null;
-  updatedAt: number;
-}
-
-interface AuthDatabase extends Dexie {
-  tokens: EntityTable<TokenData, "id">;
-  users: EntityTable<StoredUser, "id">;
-  preferences: EntityTable<UserPreferences, "id">;
-}
-
-export const authDb = new Dexie("amauta-auth") as AuthDatabase;
-
-authDb.version(2).stores({
-  tokens: "id",
-  users: "id",
-  preferences: "id",
-});
+export { type TokenData, type StoredUser } from "./db";
 
 export const AUTH_TOKEN_ID = "amauta-tokens";
 export const AUTH_USER_ID = "amauta-user";
@@ -47,8 +15,8 @@ export async function saveAuthData(
   const now = Date.now();
   const expiresAt = now + expiresIn * 1000;
 
-  await authDb.transaction("rw", [authDb.tokens, authDb.users], async () => {
-    await authDb.tokens.put({
+  await db.transaction("rw", [db.tokens, db.users], async () => {
+    await db.tokens.put({
       id: AUTH_TOKEN_ID,
       accessToken,
       refreshToken,
@@ -56,7 +24,7 @@ export async function saveAuthData(
       createdAt: now,
     });
 
-    await authDb.users.put({
+    await db.users.put({
       id: AUTH_USER_ID,
       user,
       storedAt: now,
@@ -65,11 +33,11 @@ export async function saveAuthData(
 }
 
 export async function getStoredToken(): Promise<TokenData | undefined> {
-  return authDb.tokens.get(AUTH_TOKEN_ID);
+  return db.tokens.get(AUTH_TOKEN_ID);
 }
 
 export async function getStoredUser(): Promise<StoredUser | undefined> {
-  return authDb.users.get(AUTH_USER_ID);
+  return db.users.get(AUTH_USER_ID);
 }
 
 export async function isAccessTokenValid(): Promise<boolean> {
@@ -80,10 +48,10 @@ export async function isAccessTokenValid(): Promise<boolean> {
 
 export async function clearAuthData(): Promise<void> {
   console.debug("[AuthDB] Starting clearAuthData transaction");
-  await authDb.transaction("rw", [authDb.tokens, authDb.users], async () => {
+  await db.transaction("rw", [db.tokens, db.users], async () => {
     console.debug("[AuthDB] Deleting tokens and users from Dexie");
-    await authDb.tokens.delete(AUTH_TOKEN_ID);
-    await authDb.users.delete(AUTH_USER_ID);
+    await db.tokens.delete(AUTH_TOKEN_ID);
+    await db.users.delete(AUTH_USER_ID);
     console.debug("[AuthDB] Tokens and users deleted successfully");
   });
   console.debug("[AuthDB] clearAuthData completed");
@@ -99,7 +67,7 @@ export async function updateAccessToken(
   const now = Date.now();
   const expiresAt = now + expiresIn * 1000;
 
-  await authDb.tokens.update(AUTH_TOKEN_ID, {
+  await db.tokens.update(AUTH_TOKEN_ID, {
     accessToken,
     expiresAt,
   });
@@ -107,7 +75,7 @@ export async function updateAccessToken(
 
 export async function saveSelectedStudentId(studentId: string | null): Promise<void> {
   const now = Date.now();
-  await authDb.preferences.put({
+  await db.preferences.put({
     id: "user-preferences",
     selectedStudentId: studentId ?? "",
     updatedAt: now,
@@ -115,11 +83,11 @@ export async function saveSelectedStudentId(studentId: string | null): Promise<v
 }
 
 export async function getSelectedStudentId(): Promise<string | null> {
-  const prefs = await authDb.preferences.get("user-preferences");
+  const prefs = await db.preferences.get("user-preferences");
   if (!prefs) return null;
   return prefs.selectedStudentId || null;
 }
 
 export async function clearSelectedStudentId(): Promise<void> {
-  await authDb.preferences.delete("user-preferences");
+  await db.preferences.delete("user-preferences");
 }
