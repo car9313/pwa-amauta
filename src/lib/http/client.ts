@@ -1,16 +1,29 @@
 import { getAccessToken } from "@/features/auth/infrastructure/auth-storage";
 import { refreshAccessToken } from "@/lib/api/refresh";
+import { mapHttpErrorToAuthError, type AuthErrorCode } from "@/features/auth/domain/auth-error";
 
 export interface HttpClientConfig {
   baseUrl: string;
   getStudentId?: () => string | null;
-  onUnauthorized?: () => void;
-  onRefreshFailed?: () => void;
+  onUnauthorized?: (error: AuthErrorCode) => void;
+  onRefreshFailed?: (error: AuthErrorCode) => void;
 }
 
 export interface RequestOptions extends RequestInit {
   studentId?: string | null;
   skipAuth?: boolean;
+}
+
+class HttpError extends Error {
+  constructor(
+    message: string,
+    public statusCode: number,
+    public code: AuthErrorCode,
+    public isOffline: boolean = false
+  ) {
+    super(message);
+    this.name = "HttpError";
+  }
 }
 
 let httpClientInstance: HttpClient | null = null;
@@ -19,8 +32,8 @@ let refreshInProgress: Promise<boolean> | null = null;
 export class HttpClient {
   private baseUrl: string;
   private getStudentId?: () => string | null;
-  private onUnauthorized?: () => void;
-  private onRefreshFailed?: () => void;
+  private onUnauthorized?: (error: AuthErrorCode) => void;
+  private onRefreshFailed?: (error: AuthErrorCode) => void;
 
   constructor(config: HttpClientConfig) {
     this.baseUrl = config.baseUrl;
@@ -30,6 +43,11 @@ export class HttpClient {
   }
 
   async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
+    if (!navigator.onLine) {
+      const offlineError = mapHttpErrorToAuthError(new Error("Network unavailable"), false);
+      throw new HttpError(offlineError.message, 0, offlineError.code, true);
+    }
+
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
       ...(options.headers as Record<string, string>),
@@ -47,25 +65,39 @@ export class HttpClient {
       headers["X-Student-Context"] = studentId;
     }
 
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      ...options,
-      headers,
-    });
+    let response: Response;
+    try {
+      response = await fetch(`${this.baseUrl}${endpoint}`, {
+        ...options,
+        headers,
+      });
+    } catch (error) {
+      const networkError = mapHttpErrorToAuthError(error as Error, false);
+      throw new HttpError(networkError.message, 0, networkError.code, true);
+    }
 
     if (response.status === 401 && !options.skipAuth) {
       const refreshed = await this.tryRefreshToken();
       if (refreshed) {
         return this.request<T>(endpoint, options);
       }
-      this.onUnauthorized?.();
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.message ?? "Unauthorized");
+      
+      const errorData = await response.json().catch(() => ({}));
+      const authError = mapHttpErrorToAuthError(
+        new Error(errorData.message ?? "Unauthorized"),
+        true
+      );
+      this.onUnauthorized?.(authError.code);
+      throw new HttpError(authError.message, 401, authError.code);
     }
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      const message = error.message ?? `Error ${response.status}`;
-      throw new Error(message);
+      const errorData = await response.json().catch(() => ({}));
+      const authError = mapHttpErrorToAuthError(
+        new Error(errorData.message ?? `Error ${response.status}`),
+        true
+      );
+      throw new HttpError(authError.message, response.status, authError.code);
     }
 
     return response.json();
@@ -80,8 +112,9 @@ export class HttpClient {
       try {
         await refreshAccessToken();
         return true;
-      } catch {
-        this.onRefreshFailed?.();
+      } catch (error) {
+        const authError = mapHttpErrorToAuthError(error as Error, navigator.onLine);
+        this.onRefreshFailed?.(authError.code);
         return false;
       } finally {
         refreshInProgress = null;
@@ -103,6 +136,20 @@ export function getHttpClient(): HttpClient {
   }
   return httpClientInstance;
 }
+
+export function isHttpError(error: unknown): error is HttpError {
+  return error instanceof HttpError;
+}
+
+export function getHttpErrorCode(error: unknown): AuthErrorCode | null {
+  if (isHttpError(error)) {
+    return error.code;
+  }
+  return null;
+}
+
+export { HttpError };
+export type { AuthErrorCode } from "@/features/auth/domain/auth-error";
 
 export const httpClient = {
   request: <T>(endpoint: string, options?: RequestOptions) =>

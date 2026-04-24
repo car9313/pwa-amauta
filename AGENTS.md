@@ -54,6 +54,67 @@ const { user } = useAuthStore((state) => state);
 - Styles: `src/index.css` (Tailwind + global)
 - PWA Service Worker: `src/sw.ts`
 
+---
+
+## Service Worker (PWA)
+
+⚠️ **ANTES de hacer cambios en el Service Worker, leer**: `docs/SERVICE_WORKER.md`
+
+### Arquitectura de Caching
+
+```
+┌────────────────────────────────────────────────────────────────────┐
+│ Cache Storage                                                     │
+├──────────────────┬───────────────────┬──────────────────────────┤
+│ precache-v2      │ navigation-cache  │ runtime caches            │
+│ (12 entries)     │ -v1               │ - images-cache-v1         │
+│                  │                   │ - api-get-cache-v1         │
+│ - index.html     │ NavigationRoute   │ - static-resources-v1     │
+│ - app JS/CSS     │ (StaleWhileReval)  │                           │
+│ - iconos         │ + PrecacheFallback │                           │
+└──────────────────┴───────────────────┴──────────────────────────┘
+```
+
+### Estrategias de Caching
+
+| Tipo | Estrategia | Offline Support |
+|------|------------|----------------|
+| App Shell (precache) | CacheFirst | Total |
+| **Navegación SPA** | StaleWhileRevalidate + PrecacheFallbackPlugin | Total |
+| API GET | NetworkFirst (5s timeout) | Partial |
+| Imágenes | CacheFirst | Total |
+| Scripts/CSS/Fonts | StaleWhileRevalidate | Total |
+| API POST | NetworkOnly + BackgroundSync | Cola offline |
+
+### Por Qué StaleWhileRevalidate para Navegación
+
+**Decisión**: Para educación infantil, "rápido y siempre disponible" > "datos siempre frescos".
+
+| Comportamiento | Online | Offline |
+|---------------|--------|---------|
+| Primera request | Sirve cache, actualiza en background | Sirve index.html del precache |
+| Requests siguientes | Instantáneo (cache actualizado) | Cache disponible |
+| F5 en cualquier ruta | NavigationRoute sirve index.html | PrecacheFallbackPlugin sirve index.html |
+
+### Registro del SW
+
+```typescript
+// src/main.tsx
+if ('serviceWorker' in navigator) {
+  registerServiceWorker()
+}
+```
+
+### Testing Offline
+
+1. `pnpm build && pnpm preview`
+2. DevTools → Application → Service Workers
+3. Navegar a una ruta (ej: `/dashboard/student`)
+4. Marcar "Offline"
+5. F5 → La app debe cargar desde precache
+
+---
+
 ## Documentación de Arquitectura
 
 ⚠️ **ANTES de hacer cambios en autenticación o persistencia, leer:**
@@ -63,6 +124,7 @@ const { user } = useAuthStore((state) => state);
 3. `docs/OUTBOX_PATTERN.md` - Patrón outbox para mutations offline
 4. `docs/PERSISTENCE_DEXIE.md` - Persistencia general (complementario)
 5. `docs/API_CONTRACT.md` - Contrato de API con el backend
+6. `docs/ERROR_HANDLING.md` - Manejo de errores y edge cases
 
 ⚠️ **IMPORTANTE**: Si necesitas información sobre **persistencia de datos**:
 - **Dexie**, **IndexedDB** → Leer `docs/DEXIE_INDEXEDDB_GUIDE.md`
@@ -125,16 +187,16 @@ const { user } = useAuthStore((state) => state);
 ┌─────────────────────────────────────────────────────┐
 │ Zustand Store (memoria) - Estado runtime          │
 │ ├── user, isAuthenticated, hasHydrated          │
-│ ├── isVerifying, selectedStudentId              │
-│ └── hasHydrated se establece en hydrateFromStorage│
+│ ├── isVerifying, selectedStudentId           │
+│ ├── isOfflineMode                          ← NUEVO │
+│ └── lastAuthError                         ← NUEVO │
 └─────────────────────────────────────────────────────┘
                             ↓ + precarga
 ┌─────────────────────────────────────────────────────┐
 │ React Query (QueryClient) - Cache                 │
 │ ├── exercises: [...]                           │
 │ ├── lessons: [...]                              │
-│ ├── students: [...]                           │
-│ └── se precarga desde Dexie al inicio            │
+│ └── students: [...]                             │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -159,11 +221,11 @@ const { user } = useAuthStore((state) => state);
 
 ## Fase 4: Offline Mutations + Background Sync
 
-⚠️ **ANTES de implementar mutations offline, leer**: `docs/PHASE4_PLAN.md`
+⚠️ **ANTES de implementar mutations offline, leer**: `docs/OFFLINE_MUTATIONS_PLAN.md`
 
-⚠️ **PARA PROBAR**, leer: `docs/PHASE4_TEST_GUIDE.md`
+⚠️ **PARA PROBAR**, leer: `docs/OFFLINE_MUTATIONS_TEST_GUIDE.md`
 
-⚠️ **PARA VER DIAGRAMAS**, leer: `docs/PHASE4_FLOW.md`
+⚠️ **PARA VER DIAGRAMAS**, leer: `docs/OFFLINE_MUTATIONS_FLOW.md`
 
 ### Integración Actual
 
@@ -252,3 +314,124 @@ const { mutate, isOnline, isQueued, pendingCount, error, retry } = useOfflineMut
 
 - **useOfflineMutation**: Para mutations que necesitan soporte offline
 - **usePendingMutations**: Para mostrar estado de cola en UI
+
+---
+
+## Fase 7: Errores y Edge Cases
+
+### Documentación
+
+⚠️ **ANTES de hacer cambios en manejo de errores, leer**: `docs/ERROR_HANDLING.md`
+
+### Códigos de Error
+
+```typescript
+// src/features/auth/domain/auth-error.ts
+export type AuthErrorCode =
+  | "TOKEN_EXPIRED"      // Token expiró
+  | "TOKEN_INVALID"      // Token no válido
+  | "TOKEN_REVOKED"     // Token fue revocado por seguridad
+  | "REFRESH_FAILED"    // No se pudo refresh
+  | "NETWORK_ERROR"   // Sin conexión
+  | "SESSION_NOT_FOUND"; // No hay sesión
+```
+
+### Edge Cases Implementados
+
+| Edge Case | Manejo |
+|----------|-------|
+| **Refresh fail + hay sesión offline** | Mantiene sesión, offlineMode = true, acceso read-only |
+| **Refresh fail + no hay sesión** | clearSession(), redirigir a /login |
+| **Token revocado** | clearSession() forzado, "Sesión cerrada por seguridad" |
+| **Outbox overflow** | MAX_OUTBOX_SIZE = 50, trim oldest when needed |
+
+### Componentes de Error
+
+| Componente | Archivo | Propósito |
+|-----------|--------|----------|
+| **ErrorBoundary** | `src/components/error/ErrorBoundary.tsx` | Clase para capturar errores |
+| **StudentFallback** | `src/components/error/FallbackUI.tsx` | Fallback amigable para niños |
+| **ParentFallback** | `src/components/error/FallbackUI.tsx` | Fallback profesional para padres |
+| **GenericFallback** | `src/components/error/FallbackUI.tsx` | Fallback genérico |
+| **ConnectionStatus** | `src/components/pwa/ConnectionStatus.tsx` | Banner offline |
+
+### Fallback Types
+
+```tsx
+import { ErrorBoundary } from "@/components/error";
+
+// Fallback para niño
+<ErrorBoundary fallbackType="student">
+  <Content />
+</ErrorBoundary>
+
+// Fallback para padre
+<ErrorBoundary fallbackType="parent">
+  <Content />
+</ErrorBoundary>
+
+// Fallback genérico
+<ErrorBoundary>
+  <Content />
+</ErrorBoundary>
+```
+
+### Hook useOfflineMode
+
+```tsx
+import { useOfflineMode } from "@/features/auth/hooks/useOfflineMode";
+
+function MyScreen() {
+  const { isOnline, isOfflineMode, errorMessage } = useOfflineMode();
+
+  if (isOfflineMode) {
+    return <div>Modo offline: {errorMessage}</div>;
+  }
+
+  return <Content />;
+}
+```
+
+### Manejo de Errores en HTTP
+
+```tsx
+import { isHttpError, getHttpErrorCode } from "@/lib/http/client";
+
+const mutation = useMutation({
+  mutationFn: doSomething,
+  onError: (error) => {
+    if (isHttpError(error)) {
+      const code = getHttpErrorCode(error);
+      console.log("Error code:", code);
+    }
+  },
+});
+```
+
+### Error Logging
+
+- `logError(error, context)` - Guarda en localStorage
+- `getErrorLogs()` - Recupera logs
+- `getErrorLogsGrouped()` - Agrupa por mensaje
+- Preparado para integración con Sentry futuro
+
+### Errores NO Capturados por ErrorBoundary
+
+| Tipo | Capturado? | Cómo Manejar |
+|------|------------|-------------|
+| Errores en render | ✅ Sí | ErrorBoundary |
+| Errores en useEffect | ⚠️ Solo thown | try-catch manual |
+| Errores async | ❌ No | try-catch obligatorio |
+| Errores en event handlers | ❌ No | try-catch obligatorio |
+
+---
+
+## Referencias
+
+| Tema | Documento |
+|------|---------|
+| Service Worker PWA | `docs/SERVICE_WORKER.md` |
+| Errores y Edge Cases | `docs/ERROR_HANDLING.md` |
+| Auth Flow | `docs/AUTH_FLOW.md` |
+| Outbox Pattern | `docs/OUTBOX_PATTERN.md` |
+| Dexie Guide | `docs/DEXIE_INDEXEDDB_GUIDE.md` |

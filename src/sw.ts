@@ -17,8 +17,8 @@ declare const self: ServiceWorkerGlobalScope & {
   __WB_MANIFEST?: Array<any>
 }
 
-import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching'
-import { registerRoute } from 'workbox-routing'
+import { precacheAndRoute, cleanupOutdatedCaches, PrecacheFallbackPlugin } from 'workbox-precaching'
+import { registerRoute, NavigationRoute } from 'workbox-routing'
 import {
   CacheFirst,
   NetworkFirst,
@@ -103,6 +103,22 @@ registerRoute(
     plugins: [bgSyncPlugin]
   }),
   'POST'
+)
+
+// 5) Navegación SPA -> stale-while-revalidate con fallback a precache
+// Pattern: "rápido primero, luego fresco si se puede" + offline fallback
+registerRoute(
+  new NavigationRoute(
+    new StaleWhileRevalidate({
+      cacheName: 'navigation-cache-v1',
+      plugins: [
+        new PrecacheFallbackPlugin({
+          fallbackURL: '/index.html'
+        }),
+        new CacheableResponsePlugin({ statuses: [0, 200] })
+      ]
+    })
+  )
 )
 
 /* -------------------------

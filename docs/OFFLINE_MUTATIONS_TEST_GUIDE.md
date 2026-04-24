@@ -1,4 +1,4 @@
-# Guía de Prueba - Fase 4: Offline Mutations
+# Guía de Prueba - Offline Mutations
 
 ## Visión General
 

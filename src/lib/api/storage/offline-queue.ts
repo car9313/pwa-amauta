@@ -13,6 +13,8 @@ export type MutationStatus = "pending" | "syncing" | "done" | "failed";
 
 export type MutationPriority = 1 | 2 | 3;
 
+export const MAX_OUTBOX_SIZE = 50;
+
 export const MUTATION_PRIORITY: Record<MutationType, MutationPriority> = {
   login: 1,
   logout: 1,
@@ -27,12 +29,27 @@ export function generateMutationId(): string {
   return `mut_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 }
 
+async function trimOldestWhenNeeded(): Promise<void> {
+  const count = await db.mutations.count();
+  if (count >= MAX_OUTBOX_SIZE) {
+    const oldest = await db.mutations
+      .orderBy("createdAt")
+      .limit(count - MAX_OUTBOX_SIZE + 10)
+      .toArray();
+    
+    const idsToDelete = oldest.map((m) => m.id);
+    await db.mutations.bulkDelete(idsToDelete);
+  }
+}
+
 export async function enqueueMutation(
   type: MutationType,
   payload: unknown,
   endpoint: string,
   method: "POST" | "PUT" | "PATCH" | "DELETE" = "POST"
 ): Promise<string> {
+  await trimOldestWhenNeeded();
+
   const mutation: QueuedMutation = {
     id: generateMutationId(),
     type,

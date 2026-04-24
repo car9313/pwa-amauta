@@ -1,4 +1,4 @@
-# Fase 4: Offline Mutations + Background Sync
+# Plan de Offline Mutations
 
 ## Fecha de Implementación
 21/04/2026

@@ -9,6 +9,7 @@ import {
   clearSelectedStudentId as clearSelectedStudentIdDb
 } from "@/features/auth/infrastructure/auth-storage";
 export type { UserRole } from "@/features/auth/domain/types";
+import type { AuthErrorCode } from "@/features/auth/domain/auth-error";
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -16,6 +17,8 @@ interface AuthState {
   hasHydrated: boolean;
   selectedStudentId: string | null;
   isVerifying: boolean;
+  isOfflineMode: boolean;
+  lastAuthError: AuthErrorCode | null;
   setVerifying: (value: boolean) => void;
   setAuthenticated: (value: boolean) => void;
   setUser: (user: AuthUser | null) => void;
@@ -24,14 +27,19 @@ interface AuthState {
   selectStudent: (studentId: string) => boolean;
   clearSelectedStudent: () => void;
   hydrateFromStorage: () => Promise<void>;
+  setOfflineMode: (value: boolean) => void;
+  setAuthError: (error: AuthErrorCode | null) => void;
+  handleAuthFailure: (error: AuthErrorCode) => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   isAuthenticated: false,
   user: null,
   hasHydrated: false,
   selectedStudentId: null,
   isVerifying: true,
+  isOfflineMode: false,
+  lastAuthError: null,
 
   setVerifying: (value) => set({ isVerifying: value }),
 
@@ -52,13 +60,15 @@ export const useAuthStore = create<AuthState>((set) => ({
       isAuthenticated: false,
       user: null,
       selectedStudentId: null,
+      isOfflineMode: false,
+      lastAuthError: null,
     });
   },
 
   setHydrated: (value) => set({ hasHydrated: value }),
 
   selectStudent: (studentId: string) => {
-    const user = useAuthStore.getState().user;
+    const user = get().user;
 
     if (user?.role === "student") {
       return false;
@@ -119,6 +129,48 @@ export const useAuthStore = create<AuthState>((set) => ({
       });
     }
   },
+
+  setOfflineMode: (value) => set({ isOfflineMode: value }),
+
+  setAuthError: (error) => set({ lastAuthError: error }),
+
+  handleAuthFailure: async (error: AuthErrorCode) => {
+    const state = get();
+    const hasLocalSession = state.user !== null && state.hasHydrated;
+
+    const needsFullLogout = error === "TOKEN_REVOKED" || error === "SESSION_NOT_FOUND";
+
+    if (needsFullLogout) {
+      await state.clearSession();
+      return;
+    }
+
+    if (error === "NETWORK_ERROR" && hasLocalSession) {
+      set({
+        isOfflineMode: true,
+        lastAuthError: error,
+      });
+      return;
+    }
+
+    if (error === "TOKEN_EXPIRED" && hasLocalSession) {
+      set({
+        isOfflineMode: true,
+        lastAuthError: error,
+      });
+      return;
+    }
+
+    if (error === "REFRESH_FAILED" && hasLocalSession) {
+      set({
+        isOfflineMode: true,
+        lastAuthError: error,
+      });
+      return;
+    }
+
+    await state.clearSession();
+  },
 }));
 
 export const selectUser = (state: AuthState) => state.user;
@@ -143,3 +195,5 @@ export const selectStudentId = (state: AuthState): string | null => {
   }
   return null;
 };
+export const selectIsOfflineMode = (state: AuthState) => state.isOfflineMode;
+export const selectLastAuthError = (state: AuthState) => state.lastAuthError;

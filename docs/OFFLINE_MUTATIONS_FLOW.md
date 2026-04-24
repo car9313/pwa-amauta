@@ -1,4 +1,4 @@
-# Fase 4: Flujo de Offline Mutations - Diagrama
+# Offline Mutations - Flujo y Arquitectura
 
 ## Arquitectura General
 
