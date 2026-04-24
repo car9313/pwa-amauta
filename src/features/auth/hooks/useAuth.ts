@@ -4,21 +4,24 @@ import { login, register, getParentDashboard, getStudentProgress, logout } from 
 import type { ParentDashboard, StudentProgress } from "@/features/exercises/domain/exercise.types";
 import { useAuthStore } from "@/features/auth/presentation/store/auth-store";
 import { authKeys } from "@/lib/query/keys";
-import { redirectToDashboard, redirectToRoles } from "@/features/auth/presentation/routing/auth-navigation";
+import { saveAuthResponse } from "../infrastructure/auth-storage";
+import { redirectToDashboard, redirectToRoles } from "../presentation/routing/auth-navigation";
 import type { RegisterFormValues } from "../domain/register-form.types";
 import type { LoginFormValues } from "../domain/login-form.types";
 
 export function useLogin() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const setAuthenticated = useAuthStore((state) => state.setAuthenticated);
   const setUser = useAuthStore((state) => state.setUser);
 
   const mutation = useMutation({
     mutationFn: (credentials: LoginFormValues) => login(credentials),
-    onSuccess: (result) => {
-        console.log('[useLogin] onSuccess, setting user');
+    onSuccess: async (result) => {
+      await saveAuthResponse(result);
       setAuthenticated(true);
       setUser(result.user);
+      queryClient.setQueryData(authKeys.session(), result.user);
 
       if (result.user.role) {
         redirectToDashboard(navigate, result.user.role);
@@ -38,14 +41,17 @@ export function useLogin() {
 
 export function useRegister() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const setAuthenticated = useAuthStore((state) => state.setAuthenticated);
   const setUser = useAuthStore((state) => state.setUser);
 
   const mutation = useMutation({
     mutationFn: (input: RegisterFormValues) => register(input),
-    onSuccess: (result) => {
+    onSuccess: async (result) => {
+      await saveAuthResponse(result);
       setAuthenticated(true);
       setUser(result.user);
+      queryClient.setQueryData(authKeys.session(), result.user);
 
       if (result.user.role) {
         redirectToDashboard(navigate, result.user.role);
@@ -66,16 +72,23 @@ export function useRegister() {
 export function useLogout() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const clearSession = useAuthStore((state) => state.clearSession);
+  const setAuthenticated = useAuthStore((state) => state.setAuthenticated);
+  const setUser = useAuthStore((state) => state.setUser);
 
   const mutation = useMutation({
     mutationFn: () => logout(),
-    onSuccess: () => {
-      // 1. Limpiar store de Zustand
-      clearSession();
-      // 2. Limpiar toda la caché de React Query
-      queryClient.clear();
-      // 3. Redirigir a /login (replace evita volver atrás a rutas protegidas)
+    onSuccess: async () => {
+      setAuthenticated(false);
+      setUser(null);
+      await queryClient.clear();
+      queryClient.setQueryData(authKeys.session(), null);
+      navigate("/login", { replace: true });
+    },
+    onError: async () => {
+      setAuthenticated(false);
+      setUser(null);
+      await queryClient.clear();
+      queryClient.setQueryData(authKeys.session(), null);
       navigate("/login", { replace: true });
     },
   });

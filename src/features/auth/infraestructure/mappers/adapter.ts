@@ -8,23 +8,11 @@ import { addChildRequestSchema } from "../../domain/types";
 import { loginFormSchema, type LoginFormValues } from "../../domain/login-form.types";
 import { registerFormSchema, type RegisterFormValues } from "../../domain/register-form.types";
 import { httpClient } from "@/lib/http/client";
+import { saveAuthResponse, clearAuth, getAccessToken, getStoredToken } from "../../infrastructure/auth-storage";
 
 const USE_MOCKS = import.meta.env.VITE_USE_MOCK === "true";
- const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
-/*const API_VERSION = import.meta.env.VITE_API_VERSION ?? "v1";
-const API_URL = `${API_BASE_URL}/${API_VERSION}`; */
-
- function getToken(): string | null {
-  return localStorage.getItem(import.meta.env.VITE_AUTH_TOKEN_KEY ?? "amauta_token");
-}
-
-function setToken(token: string): void {
-  localStorage.setItem(import.meta.env.VITE_AUTH_TOKEN_KEY ?? "amauta_token", token);
-}
-
-function clearToken(): void {
-  localStorage.removeItem(import.meta.env.VITE_AUTH_TOKEN_KEY ?? "amauta_token");
-}
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
+const ACCESS_TOKEN_EXPIRY = 900;
 /* 
 async function fetchApi<T>(
   endpoint: string,
@@ -141,6 +129,8 @@ function mockLogin(credentials: LoginFormValues): AuthResponse {
   return {
     user: mockUser.data,
     token: `mock_token_${identifier}_${Date.now()}`,
+    refresh: `mock_refresh_${identifier}_${Date.now()}`,
+    expiresIn: ACCESS_TOKEN_EXPIRY,
     tenantId: mockUser.tenantId,
   };
 }
@@ -162,9 +152,11 @@ function mockRegister(input: RegisterFormValues): AuthResponse {
     children: [],
   };
 
-  return {
+return {
     user: newUser,
     token: `mock_token_${parentId}_${Date.now()}`,
+    refresh: `mock_refresh_${parentId}_${Date.now()}`,
+    expiresIn: ACCESS_TOKEN_EXPIRY,
     tenantId: "tenant_001",
   };
 }
@@ -191,65 +183,61 @@ function mockAddChild(_parentId: string, input: AddChildRequest): ChildResponse 
     streakDays: 0,
   };
 }
-// Type guards (agregados al inicio del archivo después de imports)
-function isStudentUser(user: AuthResponse['user']): user is Extract<AuthResponse['user'], { role: 'student' }> {
-  return user.role === 'student';
-}
-function isParentUser(user: AuthResponse['user']): user is Extract<AuthResponse['user'], { role: 'parent' }> {
-  return user.role === 'parent';
-}
-function isTeacherUser(user: AuthResponse['user']): user is Extract<AuthResponse['user'], { role: 'teacher' }> {
-  return user.role === 'teacher';
-}
+
 export interface AuthAdapter {
   login: (credentials: LoginFormValues) => Promise<AuthResponse>;
   register: (input: RegisterFormValues) => Promise<AuthResponse>;
   logout: () => Promise<void>;
-  getToken: () => string | null;
+  getToken: () => Promise<string | null>;
   addChild: (parentId: string, input: AddChildRequest) => Promise<ChildResponse>;
   me: () => Promise<AuthResponse['user']>;
 }
 
 const realAdapter: AuthAdapter = {
- 
-async login(credentials) {
-  const validated = validateInput(loginFormSchema, credentials);
-  const response = await httpClient.request<AuthResponse>("/auth/login", {
-    method: "POST",
-    body: JSON.stringify(validated),
-  });
-  setToken(response.token);
-  return response;
-},
-async register(input) {
-  const validated = validateInput(registerFormSchema, input);
-  const response = await httpClient.request<AuthResponse>("/auth/register", {
-    method: "POST",
-    body: JSON.stringify(validated),
-  });
-  setToken(response.token);
-  return response;
-},
 
- async logout() {
-  try {
-    await httpClient.request("/auth/logout", { method: "POST" });
-  } finally {
-    clearToken();
-  }
-},
-
-  getToken,
-
-async addChild(_parentId, input) {
-    await delay(null, 800 + Math.random() * 700);
-    const validated = validateInput(addChildRequestSchema, input) as AddChildRequest;
-    return mockAddChild(_parentId, validated);
+  async login(credentials) {
+    const validated = validateInput(loginFormSchema, credentials);
+    const response = await httpClient.request<AuthResponse>("/auth/login", {
+      method: "POST",
+      body: JSON.stringify(validated),
+    });
+    await saveAuthResponse(response);
+    return response;
   },
- async me() {
-  return httpClient.request<AuthResponse['user']>('/auth/me');
-},
 
+  async register(input) {
+    const validated = validateInput(registerFormSchema, input);
+    const response = await httpClient.request<AuthResponse>("/auth/register", {
+      method: "POST",
+      body: JSON.stringify(validated),
+    });
+    await saveAuthResponse(response);
+    return response;
+  },
+
+   async logout() {
+     try {
+       await httpClient.request("/auth/logout", { method: "POST" });
+     } finally {
+       await clearAuth();
+     }
+   },
+
+  getToken: () => {
+    return getAccessToken();
+  },
+
+  async addChild(_parentId, input) {
+    const validated = validateInput(addChildRequestSchema, input) as AddChildRequest;
+    return httpClient.request<ChildResponse>(`/parents/${_parentId}/children`, {
+      method: "POST",
+      body: JSON.stringify(validated),
+    });
+  },
+
+  async me() {
+    return httpClient.request<AuthResponse['user']>('/auth/me');
+  },
 };
 
 const mockAdapter: AuthAdapter = {
@@ -257,25 +245,25 @@ const mockAdapter: AuthAdapter = {
     await delay(null, 800 + Math.random() * 700);
     const validated = validateInput(loginFormSchema, credentials) as LoginFormValues;
     const response = mockLogin(validated);
-    setToken(response.token); // <-- Añadir esta línea
+    await saveAuthResponse(response);
     return response;
   },
 
-    async register(input) {
+  async register(input) {
     await delay(null, 800 + Math.random() * 700);
     const validated = validateInput(registerFormSchema, input) as RegisterFormValues;
     const response = mockRegister(validated);
-    setToken(response.token); // <-- Añadir esta línea
+    await saveAuthResponse(response);
     return response;
   },
 
-  async logout() {
-    await delay(null, 300);
-  },
+   async logout() {
+     await delay(null, 300);
+     await clearAuth();
+   },
 
   getToken: () => {
-    const stored = localStorage.getItem("amauta_token");
-    return stored ?? null;
+    return getAccessToken();
   },
 
   async addChild(_parentId, input) {
@@ -283,24 +271,21 @@ const mockAdapter: AuthAdapter = {
     const validated = validateInput(addChildRequestSchema, input) as AddChildRequest;
     return mockAddChild(_parentId, validated);
   },
-  
+
   async me() {
     await delay(null, 300);
-    const token = getToken();
-    if (!token || !token.startsWith('mock_token_')) {
-      throw new Error('Invalid token');
+    const stored = await getStoredToken();
+    if (!stored) {
+      throw new Error('No token stored');
     }
-    const parts = token.split('_');
-    const identifier = parts[2];
-    const userEntry = Object.values(MOCK_USERS).find(entry => {
-      const user = entry.data;
-      if (isStudentUser(user) && user.studentId === identifier) return true;
-      if (isParentUser(user) && user.parentId === identifier) return true;
-      if (isTeacherUser(user) && user.teacherId === identifier) return true;
-      return false;
-    });
-    if (!userEntry) throw new Error('User not found');
-    return userEntry.data;
+    return {
+      name: 'Mock User',
+      email: 'mock@amauta.com',
+      role: 'parent' as const,
+      parentId: 'mock_parent',
+      tenantId: 'tenant_001',
+      children: [],
+    };
   },
 };
 
