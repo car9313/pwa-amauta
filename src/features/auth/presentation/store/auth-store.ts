@@ -173,27 +173,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 }));
 
-export const selectUser = (state: AuthState) => state.user;
-export const selectIsAuthenticated = (state: AuthState) => state.isAuthenticated;
-export const selectSelectedStudentId = (state: AuthState) => state.selectedStudentId;
-export const selectIsParent = (state: AuthState) => state.user?.role === "parent";
-export const selectIsStudent = (state: AuthState) => state.user?.role === "student";
-export const selectIsTeacher = (state: AuthState) => state.user?.role === "teacher";
-export const selectUserRole = (state: AuthState) => state.user?.role ?? null;
-export const selectTenantId = (state: AuthState) => state.user?.tenantId ?? null;
-export const selectChildren = (state: AuthState) =>
-  state.user?.role === "parent" ? state.user.children : [];
-export const selectStudentId = (state: AuthState): string | null => {
-  if (state.user?.role === "student") {
-    return "studentId" in state.user ? state.user.studentId : null;
-  }
-  if (state.user?.role === "parent" && state.selectedStudentId) {
-    const childIds = state.user.children.map((c) => c.studentId);
-    if (childIds.includes(state.selectedStudentId)) {
-      return state.selectedStudentId;
-    }
-  }
-  return null;
-};
+// Preferir inline selectors: useAuthStore((s) => s.campo)
+// Crear named selector solo cuando sea compartido por 2+ componentes
 export const selectIsOfflineMode = (state: AuthState) => state.isOfflineMode;
 export const selectLastAuthError = (state: AuthState) => state.lastAuthError;
