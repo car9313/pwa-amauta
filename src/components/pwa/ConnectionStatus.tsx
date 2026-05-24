@@ -30,7 +30,7 @@ export function ConnectionStatus() {
       <span className="text-sm font-medium">
         {errorMessage || "Sin conexión a internet"}
       </span>
-      {canRetry && isOnline && (
+      {canRetry && (
         <Button
           variant="ghost"
           size="sm"

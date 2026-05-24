@@ -11,6 +11,7 @@ import { getNextExercise } from "@/services/exercise.service"
 import { exerciseKeys } from "@/lib/query/keys"
 import { useAuthStore } from "@/features/auth/presentation/store/auth-store"
 import { difficultyToStars } from "@/features/exercises/domain/exercise.types"
+import { DownloadLesson } from "@/components/DownloadLesson"
 
 // ------------------------------------------------------------
 // Props
@@ -354,6 +355,14 @@ export function LessonPage({
           </div>
         </div>
       </div>
+      <DownloadLesson
+        lessonId={title}
+        getLessonAssets={() => {
+          // TODO: recopilar imageUrl/audioUrl de lesson.steps
+          // cuando el backend sirva assets de lección
+          return [];
+        }}
+      />
     </div>
   )
 }

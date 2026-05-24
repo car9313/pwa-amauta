@@ -129,9 +129,6 @@ importers:
       vitest:
         specifier: ^4.0.18
         version: 4.0.18(@types/node@24.11.0)(jiti@2.6.1)(lightningcss@1.31.1)(msw@2.12.10(@types/node@24.11.0)(typescript@5.9.3))(terser@5.46.0)
-      workbox-background-sync:
-        specifier: ^7.4.0
-        version: 7.4.0
       workbox-cacheable-response:
         specifier: ^7.4.0
         version: 7.4.0

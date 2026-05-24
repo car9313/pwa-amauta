@@ -55,15 +55,13 @@ cleanupOutdatedCaches()
 | **API POST** | NetworkOnly | (BackgroundSync) | Cola offline con retry automático |
 | **Navegación SPA** | StaleWhileRevalidate + PrecacheFallback | `navigation-cache-v1` | Offline-first routing |
 
-### 3. Background Sync
+### 3. Background Sync (App-Level Outbox)
 
-Las mutaciones POST que fallan offline se encolan en `amauta-outbox-queue` y se procesan cuando vuelve la conectividad.
+> ⚠️ **El Service Worker NO maneja la cola offline.**
+> Ver [`OFFLINE_QUEUE_SYSTEM.md`](./OFFLINE_QUEUE_SYSTEM.md) para el sistema actual.
 
-```typescript
-const bgSyncPlugin = new BackgroundSyncPlugin('amauta-outbox-queue', {
-  maxRetentionTime: 24 * 60 // 24 horas
-})
-```
+Las mutaciones POST se manejan mediante **app-level outbox** (Dexie + queue-manager + background-sync).
+El SW solo usa `NetworkOnly` para POSTs — no hay `BackgroundSyncPlugin` ni doble encolado.
 
 ---
 
@@ -181,71 +179,10 @@ registerRoute(
 
 ---
 
-## Diagrama de Flujo - Background Sync (Mutations Offline)
+## Diagrama de Flujo — Mutaciones Offline (App-Level)
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                     BACKGROUND SYNC FLOW                                    │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-    USUARIO EN MODO OFFLINE HACE SUBMIT
-                    │
-                    ▼
-    ┌───────────────────────────────────┐
-    │   HTTP POST /api/...              │
-    │   (Registro de progreso, etc.)   │
-    └──────────────┬────────────────────┘
-                   │
-                   ▼
-    ┌───────────────────────────────────┐
-    │   NetworkOnly + bgSyncPlugin    │
-    │   request.mode === 'navigate' ? NO│
-    └──────────────┬────────────────────┘
-                   │
-                   ▼
-    ┌───────────────────────────────────┐
-    │   Fetch FALLA (offline)           │
-    │   → Request encolado en          │
-    │     amauta-outbox-queue (Dexie)   │
-    └──────────────┬────────────────────┘
-                   │
-                   ▼
-    ┌───────────────────────────────────┐
-    │   UI Muestra "Guardado offline"  │
-    │   User puede continuar usando app │
-    └──────────────┬────────────────────┘
-                   │
-                   │
-    ════════════════════════════════════
-         USUARIO RECUPERA CONEXIÓN
-    ════════════════════════════════════
-                   │
-                   ▼
-    ┌───────────────────────────────────┐
-    │   Background Sync Trigger         │
-    │   (browser.event 'sync')         │
-    │   tag: "workbox-background-sync:  │
-    │        amauta-outbox-queue"       │
-    └──────────────┬────────────────────┘
-                   │
-                   ▼
-    ┌───────────────────────────────────┐
-    │   SW procesa cola (FIFO)         │
-    │   ┌─────────────────────────┐    │
-    │   │ 1. Dequeue oldest       │    │
-    │   │ 2. POST al servidor     │    │
-    │   │ 3. Success? → delete    │    │
-    │   │ 4. Fail? → requeue      │    │
-    │   │    (max 3 intentos)    │    │
-    │   └─────────────────────────┘    │
-    └──────────────┬────────────────────┘
-                   │
-                   ▼
-    ┌───────────────────────────────────┐
-    │   Mutación sincronizada           │
-    │   UI puede invalidar queries      │
-    └───────────────────────────────────┘
-```
+> El manejo de mutations offline se realiza completamente a nivel de aplicación.
+> Ver [`OFFLINE_QUEUE_SYSTEM.md`](./OFFLINE_QUEUE_SYSTEM.md) para el diagrama actualizado.
 
 ---
 
@@ -325,7 +262,7 @@ VitePWA({
               ┌─────────────────┐
               │  Fetch Events   │◄──── Intercepta requests
               │  Message Events │◄──── Comunic. con UI
-              │  Sync Events    │◄──── Background sync
+               │  Message Events │◄──── Comunic. con UI
               └─────────────────┘
 ```
 
@@ -364,11 +301,11 @@ VitePWA({
 2. Ir a Application → Cache Storage → verificar que `precache-v2` tiene entries
 3. En la consola del SW, verificar que no hay errores `no-response`
 
-### Background Sync No Funciona
+### Mutaciones Offline No Sincronizan
 
-1. Verificar que `amauta-outbox-queue` existe en Cache Storage
-2. En DevTools → Application → Background Sync, verificar que hay pending syncs
-3. Revisar consola del SW para errores de sync
+1. Verificar que `initBackgroundSync()` se llama en `App.tsx`
+2. Application → IndexedDB → `amauta-db` → `mutations` → verificar mutations pendientes
+3. Ver [`OFFLINE_QUEUE_SYSTEM.md`](./OFFLINE_QUEUE_SYSTEM.md) para debugging del sistema de cola
 
 ---
 
@@ -377,6 +314,7 @@ VitePWA({
 - [Workbox Documentation](https://developer.chrome.com/docs/workbox/)
 - [vite-plugin-pwa](https://vite-pwa.dev/)
 - [MDN Service Worker API](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API)
+- [`OFFLINE_QUEUE_SYSTEM.md`](./OFFLINE_QUEUE_SYSTEM.md) — Sistema de cola offline (app-level outbox)
 
 ---
 
@@ -386,4 +324,7 @@ VitePWA({
 |-------|--------|-------|
 | 2026-04-24 | Agregado NavigationRoute con PrecacheFallbackPlugin | Fix offline refresh en rutas SPA |
 | 2026-04-24 | Migrado a StaleWhileRevalidate para navegación | Balance entre speed y freshness |
-| 2026-04-24 | Implementado BackgroundSync para POSTs offline | Cola de mutaciones confiable |
+| 2026-04-24 | Implementado BackgroundSync para POSTs offline | Cola de mutaciones confiable
+2026-05-24 | Eliminado BackgroundSyncPlugin del SW | Evitar doble encolado con app-level outbox
+2026-05-24 | Eliminado listener sync nativo del SW | No hay registration.sync.register() en la app
+2026-05-24 | Agregado ConnectionStatus, UpdateToast, initBackgroundSync | Integración PWA completa |

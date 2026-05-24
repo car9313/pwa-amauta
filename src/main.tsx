@@ -28,10 +28,6 @@ window.addEventListener('sw:need-refresh', () => {
   window.dispatchEvent(new CustomEvent('app:show-update-toast'))
 })
 
-window.addEventListener('sw:offline-ready', () => {
-  console.log('PWA: offline ready (precached)')
-})
-
 navigator.serviceWorker?.addEventListener('message', (evt) => {
   const data = evt.data
   if (!data) return
@@ -45,9 +41,6 @@ navigator.serviceWorker?.addEventListener('message', (evt) => {
       break
     case 'SW_ACTIVATED':
       window.dispatchEvent(new CustomEvent('app:sw-activated'))
-      break
-    case 'SYNC_EVENT':
-      console.log('SW Sync event', data.tag)
       break
     default:
       break

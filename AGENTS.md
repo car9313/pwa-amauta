@@ -84,7 +84,7 @@ const { user } = useAuthStore((state) => state);
 | API GET | NetworkFirst (5s timeout) | Partial |
 | Imágenes | CacheFirst | Total |
 | Scripts/CSS/Fonts | StaleWhileRevalidate | Total |
-| API POST | NetworkOnly + BackgroundSync | Cola offline |
+| API POST | NetworkOnly (sin plugins) | App-level outbox |
 
 ### Por Qué StaleWhileRevalidate para Navegación
 
@@ -119,16 +119,18 @@ if ('serviceWorker' in navigator) {
 
 ⚠️ **ANTES de hacer cambios en autenticación o persistencia, leer:**
 
-1. `docs/ARCHITECTURE_LAYERS.md` - Flujo completo de capas de la aplicación
-2. `docs/DEXIE_INDEXEDDB_GUIDE.md` - Guía completa de Dexie/IndexedDB
-3. `docs/OUTBOX_PATTERN.md` - Patrón outbox para mutations offline
-4. `docs/PERSISTENCE_DEXIE.md` - Persistencia general (complementario)
-5. `docs/API_CONTRACT.md` - Contrato de API con el backend
-6. `docs/ERROR_HANDLING.md` - Manejo de errores y edge cases
+1. `docs/README.md` — **Índice general con orden de lectura recomendado**
+2. `docs/ARCHITECTURE_LAYERS.md` — Flujo completo de capas de la aplicación
+3. `docs/DEXIE_INDEXEDDB_GUIDE.md` — Guía completa de Dexie/IndexedDB
+4. `docs/OFFLINE_QUEUE_SYSTEM.md` — **(Nuevo)** Sistema de cola offline actual
+5. `docs/OUTBOX_PATTERN.md` — Patrón outbox (actualizado)
+6. `docs/PERSISTENCE_DEXIE.md` — Persistencia general (complementario)
+7. `docs/API_CONTRACT.md` — Contrato de API con el backend
+8. `docs/ERROR_HANDLING.md` — Manejo de errores y edge cases
 
-⚠️ **IMPORTANTE**: Si necesitas información sobre **persistencia de datos**:
-- **Dexie**, **IndexedDB** → Leer `docs/DEXIE_INDEXEDDB_GUIDE.md`
-- **Outbox**, **mutation offline**, **cola de sync** → Leer `docs/OUTBOX_PATTERN.md`
+⚠️ **IMPORTANTE**: Si necesitas información sobre:
+- **Persistencia de datos** → Leer `docs/DEXIE_INDEXEDDB_GUIDE.md`
+- **Sistema de cola offline actual** → Leer `docs/OFFLINE_QUEUE_SYSTEM.md`
 
 ---
 
@@ -219,52 +221,42 @@ if ('serviceWorker' in navigator) {
 
 ---
 
-## Fase 4: Offline Mutations + Background Sync
+## Sistema de Cola Offline (Actual)
 
-⚠️ **ANTES de implementar mutations offline, leer**: `docs/OFFLINE_MUTATIONS_PLAN.md`
+⚠️ **ANTES de implementar mutations offline, leer**: `docs/OFFLINE_QUEUE_SYSTEM.md`
 
 ⚠️ **PARA PROBAR**, leer: `docs/OFFLINE_MUTATIONS_TEST_GUIDE.md`
-
-⚠️ **PARA VER DIAGRAMAS**, leer: `docs/OFFLINE_MUTATIONS_FLOW.md`
 
 ### Integración Actual
 
 | Componente | Archivo | Estado |
 |------------|---------|--------|
-| **Hook useOfflineMutation** | `src/lib/sync/useOfflineMutation.ts` | ✅ Usado en components |
-| **Hook usePendingMutations** | `src/lib/sync/useOfflineMutation.ts` | ✅ Usado en ConnectionStatus |
-| **ConnectionStatus** | `src/components/pwa/ConnectionStatus.tsx` | ✅ Integrado |
-| **Init Background Sync** | `src/lib/sync/background-sync.ts` | Listo para usar |
+| **Hook useSafeMutation** | `src/lib/sync/useSafeMutation.ts` | ✅ Único hook de mutaciones |
+| **ConnectionStatus** | `src/components/pwa/ConnectionStatus.tsx` | ✅ Integrado en `AmautaLayout` |
+| **UpdateToast** | `src/components/UpdateToast.tsx` | ✅ Integrado en `App.tsx` |
+| **initBackgroundSync** | `src/lib/sync/background-sync.ts` | ✅ Llamado en `App.tsx` |
+| **DownloadLesson** | `src/components/DownloadLesson.tsx` | ✅ Integrado en `LessonPage` |
 
-### Cómo Usar useOfflineMutation
+### Cómo Usar useSafeMutation
 
 ```typescript
-import { useOfflineMutation } from "@/lib/sync/useOfflineMutation";
+import { useSafeMutation } from "@/lib/sync/useSafeMutation";
 
-const { mutate, isOnline, isQueued, pendingCount, error, retry } = useOfflineMutation({
-  type: "addChild",
-  endpoint: "/parents/{parentId}/children",
-  method: "POST",
-  onQueued: (mutationId) => {
-    toast.success("Guardado offline");
+const { mutate, isPending } = useSafeMutation({
+  mutationFn: (payload) => submitAnswer(studentId, payload),
+  queryKey: exerciseKeys.next(studentId),
+  tentativeOnly: true,
+  optimisticUpdate: (old) => ({ ...old, _submitted: true }),
+  offline: {
+    type: "submitAnswer",
+    endpoint: `/students/${studentId}/exercises/${exerciseId}/submit`,
+    method: "POST",
   },
 });
 
-// En el UI
-<button onClick={() => mutate({ name: "Nuevo", email: "x@x.com" })}>
-  Agregar
+<button onClick={() => mutate({ answer: "15/8" })} disabled={isPending}>
+  {isPending ? "Verificando..." : "Contestar"}
 </button>
-```
-
-### Inicialización (Recomendado en App.tsx)
-
-```typescript
-import { initBackgroundSync } from "@/lib/sync/background-sync";
-
-initBackgroundSync({
-  intervalMs: 30000,  // cada 30 segundos
-  autoSync: true,
-});
 ```
 
 ### Decisiones Técnicas
@@ -272,48 +264,40 @@ initBackgroundSync({
 | Decisión | Opción | Justificación |
 |---------|-------|------------|
 | Mutations offline | Todas | Simplicidad - no hay que discernir cuál necesita offline |
+| Hook único | useSafeMutation | Reemplaza useOfflineMutation (eliminado) |
 | Retry attempts | 3 max | Suficiente para recover de errores transitorios |
 | Estrategia de conflicto | Last-write-wins | Simple, suficiente para datos de un dispositivo |
 | Prioridad | Sí | Mejor UX cuando hay muchas operaciones |
+| Optimistic updates | tentativeOnly | Feedback instantáneo sin score falso para el niño |
+| Cola offline | App-level outbox | Dexie + queue-manager (sin Workbox BackgroundSyncPlugin) |
 
 ### Priority de Mutations
 
 | Prioridad | Mutaciones |
 |----------|----------|
-| Alta (1) | login, logout, register |
+| Alta (1) | login, logout, register, **submitAnswer** |
 | Media (2) | addChild, updateProgress |
 | Baja (3) | updateProfile, updatePreferences |
 
-### Archivos Creados
+### Archivos del Sistema
 
 ```
 src/lib/
 ├── api/storage/
-│   └── offline-queue.ts        # Cola de mutations en Dexie
+│   ├── db.ts                        # Schema Dexie unificado (amauta-db)
+│   └── offline-queue.ts             # CRUD de mutations en Dexie
 └── sync/
-    ├── retry.ts                    # Exponential backoff
-    ├── conflict.ts                # Last-write-wins resolver
-    ├── queue-manager.ts          # Lógica de cola
-    ├── background-sync.ts         # Background sync handler
-    └── useOfflineMutation.ts     # Hook para mutations
-```
-
-### Uso
-
-```typescript
-import { useOfflineMutation } from "@/lib/sync/useOfflineMutation";
-
-const { mutate, isOnline, isQueued, pendingCount, error, retry } = useOfflineMutation({
-  type: "addChild",
-  endpoint: "/parents/{parentId}/children",
-  method: "POST",
-});
+    ├── useSafeMutation.ts           # Hook único para mutations (NUEVO)
+    ├── queue-manager.ts             # Lógica de cola + ejecución HTTP
+    ├── background-sync.ts           # Sync automático (interval + eventos)
+    ├── retry.ts                     # Exponential backoff
+    └── conflict.ts                  # Last-write-wins resolver
 ```
 
 ### Hooks Disponibles
 
-- **useOfflineMutation**: Para mutations que necesitan soporte offline
-- **usePendingMutations**: Para mostrar estado de cola en UI
+- **useSafeMutation**: Hook único para mutations con soporte offline + optimistic updates
+- **useOfflineMode**: Hook de auth para detectar modo offline en UI
 
 ---
 
@@ -430,8 +414,11 @@ const mutation = useMutation({
 
 | Tema | Documento |
 |------|---------|
+| **Índice general** | `docs/README.md` |
+| **Sistema de cola offline** | `docs/OFFLINE_QUEUE_SYSTEM.md` |
 | Service Worker PWA | `docs/SERVICE_WORKER.md` |
 | Errores y Edge Cases | `docs/ERROR_HANDLING.md` |
 | Auth Flow | `docs/AUTH_FLOW.md` |
 | Outbox Pattern | `docs/OUTBOX_PATTERN.md` |
 | Dexie Guide | `docs/DEXIE_INDEXEDDB_GUIDE.md` |
+| Arquitectura de capas | `docs/ARCHITECTURE_LAYERS.md` |

@@ -178,15 +178,4 @@ self.addEventListener('activate', (event: ExtendableEvent) => {
   })())
 })
 
-/* -------------------------
-   Sync event (optional fallback)
-   ------------------------- */
-self.addEventListener('sync', (event: any) => {
-  // Event tags provienen de Background Sync (workbox) o de registration.sync.register(tag)
-  // Se utiliza como fallback para ejecutar tareas cuando el navegador lo permita.
-  // Podrías procesar una cola propia aquí si la mantienes en IndexedDB.
-  // Por ahora notificamos al cliente para que active su reconciliador (fallback).
-  event.waitUntil((async () => {
-    await notifyClients({ type: 'SYNC_EVENT', tag: event.tag })
-  })())
-})
+

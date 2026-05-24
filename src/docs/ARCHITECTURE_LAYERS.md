@@ -203,7 +203,7 @@
 │                                                                     │
 │  1. EFECTO - Usuario hace acción                                │
 │  ┌─────────────────────────────────────────────────────────┐        │
-│  │ useOfflineMutation({ type: "addChild" })               │        │
+│  │ useSafeMutation({ offline: { type: "addChild" } })     │        │
 │  │ mutate({ name: "Juan", email: "juan@email.com" })     │        │
 │  └─────────────────────────────────────────────────────────┘        │
 │                        │                                          │
@@ -216,9 +216,9 @@
 │                        │                                          │
 │  3. ENQUEUE - Guardar en Dexie                                 │
 │  ┌─────────────────────────────────────────────────────────┐        │
-│  │ enqueueMutation(type, payload, endpoint, priority)      │        │
+│  │ queueMutation() → enqueueMutation(type, payload, endpoint)│       │
 │  │                                                         │        │
-│  │ IndexedDB: amauta-offline-queue                      │        │
+│  │ IndexedDB: amauta-db (mutations)                        │        │
 │  │ mutations.put({                                    │        │
 │  │   id: "mut_1713792345678_abc",                    │        │
 │  │   type: "addChild",                              │        │
@@ -233,8 +233,8 @@
 │                        │                                          │
 │  4. UI - Feedback                                            │
 │  ┌─────────────────────────────────────────────────────────┐        │
-│  │ useOfflineMutation retorna isQueued: true              │        │
-│  │ onQueued(mutationId) → toast "Guardado offline"     │        │
+│  │ useSafeMutation retorna QUEUED_OFFLINE (symbol)         │        │
+│  │ Componente muestra "Guardado offline"                   │        │
 │  └─────────────────────────────────────────────────────────┘        │
 │                        │                                          │
 │  5. SYNC - Cuando vuelve online                                │
@@ -288,7 +288,7 @@ USUARIO (UI)
     ▼
 COMPONENT (React)
     │
-    ├──► useOfflineMutation() ──► TanStack Query useMutation()
+    ├──► useSafeMutation() ──► TanStack Query useMutation()
     │                              │
     │                              ▼
     │                        OFFLINE?
@@ -300,7 +300,7 @@ COMPONENT (React)
     │             │           │
     │             ▼           ▼
     │         DEXIE       HTTP Client
-    │    (offline-queue)     │
+    │    (mutations table)   │
     │                         ▼
     │                    API Server
     │
@@ -315,5 +315,5 @@ INDEXEDDB (Dexie)
     │
     ├── amauta-auth (tokens + user + preferences)
     │
-    └── amauta-offline-queue (mutations pendientes)
+    └── amauta-db → tabla mutations (mutations pendientes)
 ```

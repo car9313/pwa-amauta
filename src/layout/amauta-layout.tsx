@@ -4,6 +4,7 @@ import { AppHeader } from "./app-header"
 import { Breadcrumbs } from "@/components/ui/breadcrumb"
 import { ErrorBoundary } from "@/components/error"
 import { useAuthStore } from "@/features/auth/presentation/store/auth-store"
+import { ConnectionStatus } from "@/components/pwa/ConnectionStatus"
 
 const LAYOUT_ROUTES = ["/dashboard", "/lessons", "/progress"]
 
@@ -25,6 +26,7 @@ export function AmautaLayout() {
   return (
     <ErrorBoundary fallbackType={layoutFallbackType}>
       <div className="min-h-screen bg-background text-foreground">
+        <ConnectionStatus />
         <AppHeader /> 
         <main className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           {showBreadcrumb && (
