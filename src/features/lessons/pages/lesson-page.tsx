@@ -1,11 +1,15 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useQueryClient } from "@tanstack/react-query"
 import { Star, ChevronRight, HelpCircle, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 import { cn } from "@/lib/utils"
 import { useNextExercise, useSubmitAnswer } from "@/features/exercises/hooks/useExercise"
+import { getNextExercise } from "@/services/exercise.service"
+import { exerciseKeys } from "@/lib/query/keys"
+import { useAuthStore } from "@/features/auth/presentation/store/auth-store"
 import { difficultyToStars } from "@/features/exercises/domain/exercise.types"
 
 // ------------------------------------------------------------
@@ -41,6 +45,8 @@ export function LessonPage({
   onBack,
   onSkip,
 }: LessonPageProps) {
+  const queryClient = useQueryClient()
+  const tenantId = useAuthStore((state) => state.user?.tenantId ?? null)
   const [isVisible, setIsVisible]   = useState(false)
   const [answer, setAnswer]         = useState("")
   const [submitted, setSubmitted]   = useState(false)
@@ -50,11 +56,19 @@ export function LessonPage({
 
   const { data: exercise, isLoading, isError, error } = useNextExercise(
     studentId,
-)
+  )
 
   const { mutate: submitAnswer, isPending } = useSubmitAnswer(studentId)
 
   useEffect(() => { setIsVisible(true) }, [])
+
+  const prefetchNextExercise = () => {
+    queryClient.prefetchQuery({
+      queryKey: exerciseKeys.next(studentId, tenantId),
+      queryFn: () => getNextExercise(studentId),
+      staleTime: Number(import.meta.env.VITE_QUERY_STALE_TIME ?? 60) * 1000,
+    });
+  };
 
   const handleSubmit = () => {
     if (!answer.trim() || submitted || !exercise) return
@@ -63,6 +77,7 @@ export function LessonPage({
       { exerciseId: exercise.exerciseId, answer },
       {
         onSuccess: () => {
+          prefetchNextExercise();
           // TODO: navegar a FeedbackPage pasando el ExerciseResult
           // onNext(result)
         },
