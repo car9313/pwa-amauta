@@ -1,4 +1,4 @@
-import { httpClient } from "@/lib/http/client";
+import { httpClient as requestJson } from "@/lib/auth/http-client";
 import { shouldRetry, getRetryDelay } from "./retry";
 import type { QueuedMutation } from "@/lib/api/storage/db";
 import {
@@ -41,12 +41,12 @@ async function executeMutation(
       mutation.method === "PUT" ||
       mutation.method === "PATCH"
     ) {
-      response = await httpClient.request(mutation.endpoint, {
+      response = await requestJson(mutation.endpoint, {
         method: mutation.method,
         body: JSON.stringify(mutation.payload),
       });
     } else if (mutation.method === "DELETE") {
-      response = await httpClient.request(mutation.endpoint, {
+      response = await requestJson(mutation.endpoint, {
         method: mutation.method,
       });
     }
@@ -130,6 +130,11 @@ export async function processQueue(
   }
 }
 
+export type QueueMutationResult =
+  | { online: true; queued: false; data: unknown }
+  | { online: true; queued: true; mutationId: string; error: string }
+  | { online: false; queued: true; mutationId: string };
+
 export async function queueMutation<
   T extends
     | "login"
@@ -139,16 +144,27 @@ export async function queueMutation<
     | "updateProgress"
     | "updateProfile"
     | "updatePreferences"
+    | "submitAnswer"
 >(
   type: T,
   payload: unknown,
   endpoint: string,
   method?: "POST" | "PUT" | "PATCH" | "DELETE"
-): Promise<{ online: boolean; queued: boolean; mutationId?: string }> {
+): Promise<QueueMutationResult> {
   const online = isOnline();
 
   if (online) {
-    return { online: true, queued: false };
+    try {
+      const data = await requestJson(endpoint, {
+        method: method ?? "POST",
+        body: JSON.stringify(payload),
+      });
+      return { online: true, queued: false, data };
+    } catch (error) {
+      const mutationId = await enqueueMutation(type, payload, endpoint, method);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      return { online: true, queued: true, mutationId, error: errorMessage };
+    }
   }
 
   const mutationId = await enqueueMutation(type, payload, endpoint, method);

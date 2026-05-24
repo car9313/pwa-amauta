@@ -27,7 +27,6 @@ import {
 } from 'workbox-strategies'
 import { ExpirationPlugin } from 'workbox-expiration'
 import { CacheableResponsePlugin } from 'workbox-cacheable-response'
-import { BackgroundSyncPlugin } from 'workbox-background-sync'
 
 
 /* -------------------------
@@ -50,13 +49,6 @@ async function notifyClients(message: Record<string, any>) {
     console.warn('notifyClients error', err)
   }
 }
-
-/* -------------------------
-   Background Sync plugin
-   ------------------------- */
-const bgSyncPlugin = new BackgroundSyncPlugin('amauta-outbox-queue', {
-  maxRetentionTime: 24 * 60 // minutos (24h)
-})
 
 /* -------------------------
    Runtime caching routes
@@ -96,12 +88,10 @@ registerRoute(
   })
 )
 
-// 4) POSTs a /api/ -> NetworkOnly + BackgroundSync (se encolan si offline)
+// 4) POSTs a /api/ -> NetworkOnly (el app-level outbox maneja retries)
 registerRoute(
   ({ url, request }) => request.method === 'POST' && url.pathname.startsWith('/api/'),
-  new NetworkOnly({
-    plugins: [bgSyncPlugin]
-  }),
+  new NetworkOnly(),
   'POST'
 )
 

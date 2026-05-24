@@ -7,7 +7,8 @@ export type MutationType =
   | "addChild"
   | "updateProgress"
   | "updateProfile"
-  | "updatePreferences";
+  | "updatePreferences"
+  | "submitAnswer";
 
 export type MutationStatus = "pending" | "syncing" | "done" | "failed";
 
@@ -19,6 +20,7 @@ export const MUTATION_PRIORITY: Record<MutationType, MutationPriority> = {
   login: 1,
   logout: 1,
   register: 1,
+  submitAnswer: 1,
   addChild: 2,
   updateProgress: 2,
   updateProfile: 3,

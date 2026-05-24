@@ -5,45 +5,10 @@ import type {
   StudentDashboard,
 } from "@/features/exercises/domain/exercise.types";
 import { saveExercise, getAllExercises } from "@/lib/api/storage/exercises-db";
+import { api } from "@/lib/auth/http-client";
 
 const USE_MOCKS = import.meta.env.VITE_USE_MOCK === "true";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
-const API_VERSION = import.meta.env.VITE_API_VERSION ?? "v1";
-const API_URL = `${API_BASE_URL}/${API_VERSION}`;
-
-
-function getToken(): string | null {
-  return localStorage.getItem(
-    import.meta.env.VITE_AUTH_TOKEN_KEY ?? "amauta_token",
-  );
-}
-
-async function fetchApi<T>(
-  endpoint: string,
-  options: RequestInit = {},
-): Promise<T> {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
-
-  const token = getToken();
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
-
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    const message = error.message ?? `Error ${response.status}`;
-    throw new Error(message);
-  }
-
-  return response.json();
-}
 
 function delay<T>(data: T, ms = 800): Promise<T> {
   return new Promise((resolve) => setTimeout(() => resolve(data), ms));
@@ -161,7 +126,7 @@ export async function getNextExercise(studentId: string): Promise<Exercise> {
     return delay({ ...exercise, exerciseId: random?.id ?? "ex_001" });
   }
 
-  return fetchApi<Exercise>(`/students/${studentId}/next-exercise`);
+  return api.get<Exercise>(`/students/${studentId}/next-exercise`);
 }
 
 export async function submitAnswer(
@@ -172,12 +137,9 @@ export async function submitAnswer(
     return delay(mockExerciseResult);
   }
 
-  return fetchApi<ExerciseResult>(
+  return api.post<ExerciseResult>(
     `/students/${studentId}/exercises/${payload.exerciseId}/submit`,
-    {
-      method: "POST",
-      body: JSON.stringify({ answer: payload.answer }),
-    },
+    { answer: payload.answer },
   );
 }
 
@@ -191,5 +153,5 @@ export async function getStudentDashboard(
     });
   }
 
-  return fetchApi<StudentDashboard>(`/students/${studentId}/dashboard`);
+  return api.get<StudentDashboard>(`/students/${studentId}/dashboard`);
 }
