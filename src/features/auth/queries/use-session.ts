@@ -51,11 +51,11 @@ export function useSession() {
       queryClient.setQueryData(authKeys.session(), result.user);
       const role = result.user.role;
       if (role === "student") {
-        navigate("/student/dashboard", { replace: true });
+        navigate("/dashboard/student", { replace: true });
       } else if (role === "parent") {
-        navigate("/parent/dashboard", { replace: true });
+        navigate("/dashboard/parent", { replace: true });
       } else if (role === "teacher") {
-        navigate("/teacher/dashboard", { replace: true });
+        navigate("/dashboard/teacher", { replace: true });
       } else {
         navigate("/", { replace: true });
       }
@@ -71,11 +71,11 @@ export function useSession() {
       queryClient.setQueryData(authKeys.session(), result.user);
       const role = result.user.role;
       if (role === "student") {
-        navigate("/student/dashboard", { replace: true });
+        navigate("/dashboard/student", { replace: true });
       } else if (role === "parent") {
-        navigate("/parent/dashboard", { replace: true });
+        navigate("/dashboard/parent", { replace: true });
       } else if (role === "teacher") {
-        navigate("/teacher/dashboard", { replace: true });
+        navigate("/dashboard/teacher", { replace: true });
       } else {
         navigate("/", { replace: true });
       }

@@ -115,7 +115,6 @@ const mockStudentProgress: StudentProgress = {
 };
 
 export const login = async (credentials: LoginFormValues) => {
-  console.log(credentials)
   return authAdapter.login(credentials);
 };
 

@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "FASE3-MUTACIONES-UNIFICADAS.md",
+                "file": "SERVICE_WORKER.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "FASE3-MUTACIONES-UNIFICADAS"
+              "title": "SERVICE_WORKER"
             }
           }
         ]
@@ -185,6 +185,11 @@
   },
   "active": "b58dcd5101bd4191",
   "lastOpenFiles": [
+    "TESTING_STRATEGY_GUIDE.md",
+    "VISION_GENERAL.md",
+    "DEXIE_INDEXEDDB_GUIDE.md",
+    "README.md",
+    "ARCHITECTURE_LAYERS.md",
     "API_CONTRACT.md",
     "FASE3-MUTACIONES-UNIFICADAS.md"
   ]
