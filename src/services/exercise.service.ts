@@ -5,7 +5,7 @@ import type {
   StudentDashboard,
 } from "@/features/exercises/domain/exercise.types";
 import { saveExercise, getAllExercises } from "@/lib/api/storage/exercises-db";
-import { api } from "@/lib/auth/http-client";
+import { httpClient } from "@/lib/http/client";
 
 const USE_MOCKS = import.meta.env.VITE_USE_MOCK === "true";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
@@ -84,8 +84,8 @@ async function ensureMockExercises() {
   mockInitialized = true;
 }
 
-const mockExerciseResult: ExerciseResult = {
-  attemptId: "att_001",
+const mockExcellentResult: ExerciseResult = {
+  attemptId: `att_${Date.now()}`,
   score: 100,
   passed: true,
   mistakes: [],
@@ -96,6 +96,50 @@ const mockExerciseResult: ExerciseResult = {
     pedagogy: "VISUAL",
   },
 };
+
+const mockGoodResult: ExerciseResult = {
+  attemptId: `att_${Date.now()}`,
+  score: 75,
+  passed: true,
+  mistakes: [{ type: "CALCULATION_ERROR", severity: 0.3 }],
+  feedbackSummary: "¡Buen intento! Revisa los signos.",
+  nextAction: {
+    action: "REINFORCE",
+    topicId: "math_addition",
+    pedagogy: "TEXT",
+  },
+};
+
+const mockFailedResult: ExerciseResult = {
+  attemptId: `att_${Date.now()}`,
+  score: 40,
+  passed: false,
+  mistakes: [{ type: "SIGN_ERROR", severity: 0.6 }],
+  feedbackSummary: "Casi, revisa si es suma o resta.",
+  nextAction: {
+    action: "REMEDIATE",
+    topicId: "math_addition",
+    pedagogy: "VISUAL",
+  },
+};
+
+function getMockResult(payload: SubmitAnswerPayload): ExerciseResult {
+  const answer = parseInt(payload.answer, 10);
+
+  if (isNaN(answer) || answer < 0) {
+    return { ...mockFailedResult, attemptId: `att_${Date.now()}` };
+  }
+
+  if (answer > 10) {
+    return { ...mockExcellentResult, attemptId: `att_${Date.now()}` };
+  }
+
+  if (answer > 5) {
+    return { ...mockGoodResult, attemptId: `att_${Date.now()}` };
+  }
+
+  return { ...mockFailedResult, attemptId: `att_${Date.now()}` };
+}
 
 const mockStudentDashboard: StudentDashboard = {
   student: {
@@ -126,7 +170,7 @@ export async function getNextExercise(studentId: string): Promise<Exercise> {
     return delay({ ...exercise, exerciseId: random?.id ?? "ex_001" });
   }
 
-  return api.get<Exercise>(`/students/${studentId}/next-exercise`);
+  return httpClient.get<Exercise>(`/students/${studentId}/next-exercise`);
 }
 
 export async function submitAnswer(
@@ -134,10 +178,10 @@ export async function submitAnswer(
   payload: SubmitAnswerPayload,
 ): Promise<ExerciseResult> {
   if (USE_MOCKS || !API_BASE_URL) {
-    return delay(mockExerciseResult);
+    return delay(getMockResult(payload));
   }
 
-  return api.post<ExerciseResult>(
+  return httpClient.post<ExerciseResult>(
     `/students/${studentId}/exercises/${payload.exerciseId}/submit`,
     { answer: payload.answer },
   );
@@ -153,5 +197,5 @@ export async function getStudentDashboard(
     });
   }
 
-  return api.get<StudentDashboard>(`/students/${studentId}/dashboard`);
+  return httpClient.get<StudentDashboard>(`/students/${studentId}/dashboard`);
 }

@@ -44,9 +44,8 @@ async function notifyClients(message: Record<string, any>) {
     for (const client of clients) {
       client.postMessage(message)
     }
-  } catch (err) {
+  } catch {
     // no bloquear en caso de fallo
-    console.warn('notifyClients error', err)
   }
 }
 
@@ -67,8 +66,13 @@ registerRoute(
 )
 
 // 2) API GET -> NetworkFirst con timeout y fallback a cache
+//    Match: URLs relativas /api/* (Vite proxy) o absolutas a *.amauta.axentra.io
 registerRoute(
-  ({ url, request }) => request.method === 'GET' && url.pathname.startsWith('/api/'),
+  ({ url, request }) => request.method === 'GET' && (
+    url.pathname.startsWith('/api/') ||
+    url.pathname.startsWith('/v1/') ||
+    url.hostname.endsWith('.amauta.axentra.io')
+  ),
   new NetworkFirst({
     cacheName: 'api-get-cache-v1',
     networkTimeoutSeconds: 5,
@@ -173,6 +177,7 @@ self.addEventListener('install', () => {
 
 self.addEventListener('activate', (event: ExtendableEvent) => {
   event.waitUntil((async () => {
+    await caches.delete('navigation-cache-v1')
     await self.clients.claim()
     await notifyClients({ type: 'SW_ACTIVATED' })
   })())

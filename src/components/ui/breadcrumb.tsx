@@ -17,6 +17,8 @@ const ROUTE_MAP: Record<string, string> = {
   "roles": "Seleccionar Rol",
   "register": "Registrarse",
   "login": "Iniciar Sesión",
+  "practice": "Práctica",
+  "games": "Juegos",
 }
 
 const EXCLUDED_ROUTES = ["/", "/login", "/register", "/roles"]

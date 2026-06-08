@@ -1,5 +1,8 @@
-import { httpClient as requestJson } from "@/lib/auth/http-client";
+import { httpClient as requestJson } from "@/lib/http/client";
+import { refreshAccessToken } from "@/lib/api/refresh";
+import { useAuthStore } from "@/features/auth/presentation/store/auth-store";
 import { shouldRetry, getRetryDelay } from "./retry";
+import { resolveMutationConflict } from "./conflict";
 import type { QueuedMutation } from "@/lib/api/storage/db";
 import {
   enqueueMutation,
@@ -41,12 +44,12 @@ async function executeMutation(
       mutation.method === "PUT" ||
       mutation.method === "PATCH"
     ) {
-      response = await requestJson(mutation.endpoint, {
+      response = await requestJson.request(mutation.endpoint, {
         method: mutation.method,
         body: JSON.stringify(mutation.payload),
       });
     } else if (mutation.method === "DELETE") {
-      response = await requestJson(mutation.endpoint, {
+      response = await requestJson.request(mutation.endpoint, {
         method: mutation.method,
       });
     }
@@ -81,6 +84,17 @@ export async function processQueue(
   isSyncing = true;
 
   try {
+    const authState = useAuthStore.getState();
+    if (authState.isOfflineMode && authState.lastAuthError === "TOKEN_EXPIRED") {
+      try {
+        await refreshAccessToken();
+        authState.setOfflineMode(false);
+        authState.setAuthError(null);
+      } catch {
+        throw new Error("Cannot process queue: token refresh failed");
+      }
+    }
+
     const mutations = await getQueuedMutationsByPriority();
     const pendingMutations = mutations.slice(0, maxPerBatch);
 
@@ -97,7 +111,18 @@ export async function processQueue(
       const result = await executeMutation(mutation);
 
       if (result.success) {
-        await updateMutationStatus(mutation.id, "done", null, result.data);
+        const resolved = resolveMutationConflict(
+          mutation.type,
+          mutation.payload,
+          result.data,
+          mutation.createdAt,
+        );
+
+        if (resolved.source !== "no-conflict") {
+          conflicts++;
+        }
+
+        await updateMutationStatus(mutation.id, "done", null, resolved.resolved);
         await removeMutation(mutation.id);
         successful++;
       } else {
@@ -155,11 +180,19 @@ export async function queueMutation<
 
   if (online) {
     try {
-      const data = await requestJson(endpoint, {
+      const data = await requestJson.request(endpoint, {
         method: method ?? "POST",
         body: JSON.stringify(payload),
       });
-      return { online: true, queued: false, data };
+
+      const resolved = resolveMutationConflict(
+        type,
+        payload,
+        data,
+        Date.now(),
+      );
+
+      return { online: true, queued: false, data: resolved.resolved };
     } catch (error) {
       const mutationId = await enqueueMutation(type, payload, endpoint, method);
       const errorMessage = error instanceof Error ? error.message : "Unknown error";

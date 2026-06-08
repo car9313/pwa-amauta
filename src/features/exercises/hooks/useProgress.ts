@@ -11,7 +11,7 @@ import {
 import { progressKeys } from "@/lib/query/keys";
 import type { StudentProgress } from "@/lib/api/storage/db";
 import { useSafeMutation } from "@/lib/sync/useSafeMutation";
-import { api } from "@/lib/auth/http-client";
+import { httpClient } from "@/lib/http/client";
 
 export function useProgressByStudent(studentId: string) {
   return useQuery<StudentProgress[], Error>({
@@ -52,7 +52,7 @@ export function useUpdateProgress() {
     mutationFn: async ({ studentId, lessonId, updates }) => {
       await updateProgressDb(studentId, lessonId, updates);
       if (navigator.onLine) {
-        await api.patch(`/students/${studentId}/progress/${lessonId}`, updates);
+        await httpClient.patch(`/students/${studentId}/progress/${lessonId}`, updates);
       }
     },
     queryKey: (payload) => progressKeys.student(payload.studentId),

@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "SERVICE_WORKER.md",
+                "file": "OUTBOX_PATTERN.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "SERVICE_WORKER"
+              "title": "OUTBOX_PATTERN"
             }
           }
         ]
@@ -78,7 +78,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
     "id": "ff89178a156f21db",
@@ -185,9 +186,19 @@
   },
   "active": "b58dcd5101bd4191",
   "lastOpenFiles": [
+    "DEXIE_INDEXEDDB_GUIDE.md",
+    "testing/FASE4-TESTS-AUTH-ERROR.md",
+    "testing/FASE3C-TESTS-CLIENT.md",
+    "testing/FASE3B-TESTS-KEYS.md",
+    "testing/FASE3-TESTS-CONFLICT.md",
+    "TODOS.md",
+    "testing/CONFLICTOS.md",
+    "testing/FASE2-TESTS-RETRY.md",
+    "testing/FASE1-INFRAESTRUCTURA.md",
+    "ROADMAP.md",
     "TESTING_STRATEGY_GUIDE.md",
     "VISION_GENERAL.md",
-    "DEXIE_INDEXEDDB_GUIDE.md",
+    "SERVICE_WORKER.md",
     "README.md",
     "ARCHITECTURE_LAYERS.md",
     "API_CONTRACT.md",

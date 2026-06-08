@@ -19,7 +19,7 @@ export async function triggerUpdate() {
   if (updateFn) {
     try {
       await updateFn()
-    } catch (err) {
+    } catch {
       // fallback: enviar mensaje al SW si la función virtual no está disponible
       navigator.serviceWorker.controller?.postMessage({ type: 'SKIP_WAITING' })
     }

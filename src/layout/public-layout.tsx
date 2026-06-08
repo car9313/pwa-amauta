@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { Outlet } from "react-router-dom";
+import { PublicConnectionBanner } from "@/features/auth/presentation/components/PublicConnectionBanner";
 
 function PublicFallback() {
   return (
@@ -12,6 +13,7 @@ function PublicFallback() {
 export function PublicLayout() {
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <PublicConnectionBanner />
       <Suspense fallback={<PublicFallback />}>
         <Outlet />
       </Suspense>

@@ -6,6 +6,9 @@ import App from './App'
 import { registerServiceWorker } from './serviceWorkerRegistration'
 import { BrowserRouter } from 'react-router-dom'
 import { AuthInitializer } from './features/auth/presentation/components/AuthInitializer'
+import { initSentry } from './lib/sentry'
+
+initSentry()
 
 const queryClient = new QueryClient({
   defaultOptions: {

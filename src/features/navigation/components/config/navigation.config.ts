@@ -7,7 +7,8 @@ import {
   Gamepad2,
   TrendingUp,
   Users,
- } from "lucide-react";
+  GraduationCap,
+  } from "lucide-react";
 
 export type NavigationItem = {
   label: string;
@@ -53,6 +54,12 @@ export const navigationItems: NavigationItem[] = [
     path: "/dashboard/parent",
     icon: Users,
     roles: ["parent"],
+  },
+  {
+    label: "Panel Docente",
+    path: "/dashboard/teacher",
+    icon: GraduationCap,
+    roles: ["teacher"],
   },
   /* {
     label: "Iniciar sesión",

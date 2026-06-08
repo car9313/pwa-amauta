@@ -15,13 +15,23 @@ export function UpdateToast() {
   }, [])
 
   useEffect(() => {
-    // reload cuando el controller cambie (nueva SW controla)
     const handler = () => {
-      // puedes mostrar un mensaje antes de reload si quieres
-      window.location.reload()
+      if (navigator.onLine) {
+        window.location.reload()
+      }
     }
     navigator.serviceWorker?.addEventListener('controllerchange', handler)
     return () => navigator.serviceWorker?.removeEventListener('controllerchange', handler)
+  }, [])
+
+  useEffect(() => {
+    const goOnline = () => {
+      if ('serviceWorker' in navigator) {
+        window.location.reload()
+      }
+    }
+    window.addEventListener('online', goOnline)
+    return () => window.removeEventListener('online', goOnline)
   }, [])
 
   if (!visible) return null

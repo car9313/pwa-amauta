@@ -1,0 +1,260 @@
+import { useEffect, useState } from "react"
+import { useNavigate, useLocation } from "react-router-dom"
+import { CheckCircle, Star, RefreshCw, Home, Sparkles, AlertTriangle, ChevronRight } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+import type { ExerciseResult, Mistake } from "@/features/exercises/domain/exercise.types"
+
+const SCORE_COLORS = {
+  excellent: { text: "text-emerald-600", stroke: "stroke-emerald-500", bg: "bg-emerald-50", border: "border-emerald-200", ring: "ring-emerald-200" },
+  good: { text: "text-[#f4701f]", stroke: "stroke-[#f4701f]", bg: "bg-orange-50", border: "border-orange-200", ring: "ring-orange-200" },
+  failed: { text: "text-red-500", stroke: "stroke-red-400", bg: "bg-red-50", border: "border-red-200", ring: "ring-red-200" },
+}
+
+const MISTAKE_LABELS: Record<Mistake["type"], string> = {
+  CARRY_MISSED: "Olvidaste llevar el número",
+  COLUMN_MISALIGN: "Desalineaste las columnas",
+  SIGN_ERROR: "Confundiste suma con resta",
+  CALCULATION_ERROR: "Error en el cálculo",
+}
+
+function ScoreCircle({ score, size = 120 }: { score: number; size?: number }) {
+  const radius = (size - 12) / 2
+  const circumference = 2 * Math.PI * radius
+  const offset = circumference * (1 - score / 100)
+  const colors = score >= 80 ? SCORE_COLORS.excellent : score >= 70 ? SCORE_COLORS.good : SCORE_COLORS.failed
+
+  return (
+    <div className="relative inline-flex items-center justify-center">
+      <svg width={size} height={size} className="-rotate-90">
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          strokeWidth="8"
+          className="stroke-slate-100"
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          strokeWidth="8"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          className={`${colors.stroke} transition-all duration-1000 ease-out`}
+        />
+      </svg>
+      <span className={cn("absolute text-3xl font-bold", colors.text)}>
+        {score}
+      </span>
+    </div>
+  )
+}
+
+export function FeedbackPage() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const state = location.state as { result?: ExerciseResult; queued?: boolean } | null
+  const [isVisible, setIsVisible] = useState(false)
+
+  useEffect(() => {
+    setIsVisible(true)
+  }, [])
+
+  if (!state?.result && !state?.queued) {
+    navigate("/lessons", { replace: true })
+    return null
+  }
+
+  if (state?.queued) {
+    return (
+      <div
+        className={cn(
+          "flex items-center justify-center min-h-[60vh] transition-all duration-700",
+          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+        )}
+      >
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 max-w-md w-full text-center space-y-6">
+          <div className="flex justify-center">
+            <div className="w-20 h-20 rounded-full bg-amber-50 flex items-center justify-center">
+              <CheckCircle className="h-10 w-10 text-amber-500" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold text-slate-800">
+              ¡Respuesta guardada!
+            </h1>
+            <p className="text-slate-500">
+              Se enviará automáticamente cuando tengas conexión a internet.
+            </p>
+          </div>
+          <Button
+            onClick={() => navigate("/lessons")}
+            className="w-full h-12 bg-[#1f4fa3] hover:bg-[#17306d] text-base font-bold"
+          >
+            Continuar
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  const result = state.result!
+  const isExcellent = result.passed && result.score >= 80
+  const isGood = result.passed && result.score < 80
+  const isFailed = !result.passed
+
+  const colors = isExcellent ? SCORE_COLORS.excellent : isGood ? SCORE_COLORS.good : SCORE_COLORS.failed
+
+  return (
+    <div
+      className={cn(
+        "pb-6 transition-all duration-700",
+        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+      )}
+    >
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        {/* Header with score */}
+        <div className={cn("p-6 sm:p-8 text-center space-y-4", colors.bg)}>
+          {isExcellent && (
+            <div className="flex justify-center gap-1 animate-bounce">
+              {[1, 2, 3].map((i) => (
+                <Star
+                  key={i}
+                  className="h-8 w-8 text-amber-400 fill-amber-400"
+                  style={{ animationDelay: `${i * 150}ms` }}
+                />
+              ))}
+            </div>
+          )}
+
+          <ScoreCircle score={result.score} />
+
+          <div className="space-y-1">
+            {isExcellent && (
+              <>
+                <h1 className="text-2xl sm:text-3xl font-bold text-emerald-700">
+                  ¡Excelente trabajo!
+                </h1>
+                <p className="text-emerald-600">{result.feedbackSummary}</p>
+              </>
+            )}
+            {isGood && (
+              <>
+                <h1 className="text-2xl sm:text-3xl font-bold text-[#f4701f]">
+                  ¡Buen trabajo!
+                </h1>
+                <p className="text-orange-600">{result.feedbackSummary}</p>
+              </>
+            )}
+            {isFailed && (
+              <>
+                <h1 className="text-2xl sm:text-3xl font-bold text-red-600">
+                  ¡Sigue intentando!
+                </h1>
+                <p className="text-red-500">{result.feedbackSummary}</p>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Mistakes breakdown */}
+        {result.mistakes.length > 0 && (
+          <div className="px-6 sm:px-8 py-4 border-b border-slate-100">
+            <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">
+              Revisa tus errores
+            </h2>
+            <div className="space-y-2">
+              {result.mistakes.map((mistake, i) => (
+                <div
+                  key={i}
+                  className="flex items-start gap-3 p-3 rounded-xl bg-red-50 border border-red-100"
+                >
+                  <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <AlertTriangle className="w-3.5 h-3.5 text-red-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-red-700">
+                      {MISTAKE_LABELS[mistake.type] ?? mistake.type}
+                    </p>
+                    <div className="flex items-center gap-1 mt-1">
+                      <span className="text-xs text-red-400">Gravedad:</span>
+                      <div className="flex gap-0.5">
+                        {[1, 2, 3].map((dot) => (
+                          <div
+                            key={dot}
+                            className={cn(
+                              "w-1.5 h-1.5 rounded-full",
+                              dot <= Math.round(mistake.severity * 3)
+                                ? "bg-red-400"
+                                : "bg-red-200"
+                            )}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Next action */}
+        {result.nextAction && (
+          <div className="px-6 sm:px-8 py-4 border-b border-slate-100">
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-50 border border-blue-100">
+              <div className="w-8 h-8 rounded-full bg-[#1f4fa3]/10 flex items-center justify-center flex-shrink-0">
+                <Sparkles className="w-4 h-4 text-[#1f4fa3]" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-[#1f4fa3]">
+                  {result.nextAction.action === "ADVANCE" && "Siguiente tema: listo para avanzar"}
+                  {result.nextAction.action === "REINFORCE" && "Sigue practicando para reforzar"}
+                  {result.nextAction.action === "REMEDIATE" && "Repasemos lo básico primero"}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="p-6 sm:p-8 space-y-3">
+          <Button
+            onClick={() => navigate("/lessons")}
+            className={cn(
+              "w-full h-12 sm:h-14 text-base sm:text-lg font-bold shadow-sm transition-all duration-200",
+              isFailed
+                ? "bg-[#f4701f] hover:bg-[#ea601b] hover:shadow-md"
+                : "bg-[#1f4fa3] hover:bg-[#17306d] hover:shadow-md"
+            )}
+          >
+            {isFailed ? (
+              <>
+                <RefreshCw className="mr-2 h-5 w-5" />
+                Intentar de nuevo
+              </>
+            ) : (
+              <>
+                Siguiente
+                <ChevronRight className="ml-1 h-5 w-5" />
+              </>
+            )}
+          </Button>
+
+          <Button
+            onClick={() => navigate("/dashboard/student")}
+            variant="outline"
+            className="w-full h-12 border-2 border-slate-200 text-slate-600 hover:bg-slate-50 text-base font-medium"
+          >
+            <Home className="mr-2 h-4 w-4" />
+            Volver al inicio
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}

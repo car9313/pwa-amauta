@@ -141,3 +141,10 @@ export async function getPendingCount(): Promise<number> {
 }
 
 export const getPendingMutationsCount = getPendingCount;
+
+export async function getFailedCount(): Promise<number> {
+  return db.mutations
+    .where("status")
+    .equals("failed")
+    .count();
+}

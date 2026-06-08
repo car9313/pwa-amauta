@@ -6,7 +6,7 @@ import { ErrorBoundary } from "@/components/error"
 import { useAuthStore } from "@/features/auth/presentation/store/auth-store"
 import { ConnectionStatus } from "@/components/pwa/ConnectionStatus"
 
-const LAYOUT_ROUTES = ["/dashboard", "/lessons", "/progress"]
+const LAYOUT_ROUTES = ["/dashboard", "/lessons", "/progress", "/practice", "/games"]
 
 function PageFallback() {
   return (

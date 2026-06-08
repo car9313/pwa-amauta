@@ -1,0 +1,301 @@
+import { useEffect, useState, useCallback } from "react"
+import { useNavigate } from "react-router-dom"
+import { BarChart3, Sparkles, AlertTriangle, Star, ChevronRight, RefreshCw } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+import { useNextExercise, useSubmitAnswer } from "@/features/exercises/hooks/useExercise"
+import { exerciseKeys } from "@/lib/query/keys"
+import { useAuthStore } from "@/features/auth/presentation/store/auth-store"
+import { getNextExercise } from "@/services/exercise.service"
+import { useQueryClient } from "@tanstack/react-query"
+import { QUEUED_OFFLINE } from "@/lib/sync/useSafeMutation"
+import { difficultyToStars } from "@/features/exercises/domain/exercise.types"
+import type { Exercise } from "@/features/exercises/domain/exercise.types"
+
+type PracticeTopic = "all" | "sumas" | "restas" | "multiplicacion" | "division"
+
+const TOPICS: { key: PracticeTopic; label: string; emoji: string }[] = [
+  { key: "all", label: "Todo", emoji: "mixed" },
+  { key: "sumas", label: "Sumas", emoji: "sumas" },
+  { key: "restas", label: "Restas", emoji: "restas" },
+  { key: "multiplicacion", label: "Multiplicación", emoji: "multiplicacion" },
+  { key: "division", label: "División", emoji: "division" },
+]
+
+const STRENGTHS = ["LOW", "MEDIUM", "HIGH"] as const
+
+const DEFAULT_STUDENT_ID = "stu_445"
+
+export function PracticePage() {
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const studentId = useAuthStore((state) => state.selectedStudentId) ?? DEFAULT_STUDENT_ID
+  const tenantId = useAuthStore((state) => state.user?.tenantId ?? null)
+  const [isVisible, setIsVisible] = useState(false)
+  const [topic, setTopic] = useState<PracticeTopic>("all")
+  const [difficulty, setDifficulty] = useState<number>(0)
+  const [answer, setAnswer] = useState("")
+  const [submitted, setSubmitted] = useState(false)
+  const [score, setScore] = useState(0)
+  const [streak, setStreak] = useState(0)
+  const [totalAttempts, setTotalAttempts] = useState(0)
+  const [showSelector, setShowSelector] = useState(true)
+
+  const { data: exercise, isLoading, isError, error, refetch } = useNextExercise(studentId)
+  const { mutate: submitAnswer, isPending } = useSubmitAnswer(studentId)
+
+  useEffect(() => { setIsVisible(true) }, [])
+
+  const prefetchNext = useCallback(() => {
+    queryClient.prefetchQuery({
+      queryKey: exerciseKeys.next(studentId, tenantId),
+      queryFn: () => getNextExercise(studentId),
+      staleTime: Number(import.meta.env.VITE_QUERY_STALE_TIME ?? 60) * 1000,
+    })
+  }, [queryClient, studentId, tenantId])
+
+  const handleStart = () => {
+    setShowSelector(false)
+    setScore(0)
+    setStreak(0)
+    setTotalAttempts(0)
+    setAnswer("")
+    setSubmitted(false)
+  }
+
+  const handleSubmit = () => {
+    if (!answer.trim() || submitted || !exercise) return
+    setSubmitted(true)
+    submitAnswer(
+      { exerciseId: exercise.exerciseId, answer },
+      {
+        onSuccess: (data) => {
+          if (data === QUEUED_OFFLINE) {
+            navigate("/lessons/feedback", { state: { queued: true }, replace: true })
+            return
+          }
+          setTotalAttempts((p) => p + 1)
+          if (data.passed) {
+            setStreak((p) => p + 1)
+            setScore((p) => p + Math.round(data.score / 10))
+          } else {
+            setStreak(0)
+          }
+          prefetchNext()
+          navigate("/lessons/feedback", { state: { result: data }, replace: true })
+        },
+      },
+    )
+  }
+
+  const isLoadingState = isLoading && !exercise
+
+  return (
+    <div className="space-y-4 sm:space-y-6 pb-6">
+      <div
+        className={cn(
+          "transition-all duration-700",
+          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
+        )}
+      >
+        {showSelector ? (
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center">
+                <BarChart3 className="h-5 w-5 text-[#f4701f]" />
+              </div>
+              <div>
+                <h1 className="text-xl sm:text-2xl font-bold text-slate-800">Práctica Libre</h1>
+                <p className="text-sm text-slate-500">Elige qué practicar</p>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 sm:p-6 space-y-6">
+              <div>
+                <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">
+                  Tema
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                  {TOPICS.map((t) => (
+                    <button
+                      key={t.key}
+                      onClick={() => setTopic(t.key)}
+                      className={cn(
+                        "h-12 rounded-xl text-sm font-semibold border-2 transition-all duration-200",
+                        topic === t.key
+                          ? "border-[#1f4fa3] bg-[#e7eefb] text-[#1f4fa3]"
+                          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300",
+                      )}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">
+                  Dificultad
+                </h2>
+                <div className="flex gap-2">
+                  {STRENGTHS.map((s, i) => (
+                    <button
+                      key={s}
+                      onClick={() => setDifficulty(i)}
+                      className={cn(
+                        "flex-1 h-12 rounded-xl text-sm font-semibold border-2 transition-all duration-200",
+                        difficulty === i
+                          ? "border-[#f4701f] bg-orange-50 text-[#f4701f]"
+                          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300",
+                      )}
+                    >
+                      <div className="flex items-center justify-center gap-0.5">
+                        {[0, 1, 2].map((star) => (
+                          <Star
+                            key={star}
+                            className={cn(
+                              "h-3.5 w-3.5",
+                              star <= i ? "fill-[#f4701f] text-[#f4701f]" : "fill-slate-200 text-slate-200",
+                            )}
+                          />
+                        ))}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <Button
+                onClick={handleStart}
+                className="w-full h-12 sm:h-14 bg-[#1f4fa3] hover:bg-[#17306d] text-base sm:text-lg font-bold shadow-sm"
+              >
+                Comenzar a practicar
+                <ChevronRight className="ml-1 h-5 w-5" />
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <button
+                onClick={() => setShowSelector(true)}
+                className="flex items-center gap-1 text-sm text-slate-500 hover:text-[#1f4fa3] transition-colors"
+              >
+                <ChevronRight className="h-4 w-4 rotate-180" />
+                Cambiar tema
+              </button>
+              <div className="flex items-center gap-4 text-sm">
+                <span className="text-slate-500">
+                  Aciertos: <span className="font-bold text-emerald-600">{score}</span>
+                </span>
+                <span className="text-slate-500">
+                  Racha:{" "}
+                  <span className={cn("font-bold", streak >= 3 ? "text-[#f4701f]" : "text-slate-600")}>
+                    {streak}
+                    {streak >= 3 && " 🔥"}
+                  </span>
+                </span>
+                <span className="text-slate-500">
+                  Intentos: <span className="font-bold text-slate-700">{totalAttempts}</span>
+                </span>
+              </div>
+            </div>
+
+            {isLoadingState ? (
+              <div className="flex items-center justify-center min-h-[40vh]">
+                <div className="relative">
+                  <div className="absolute inset-0 rounded-full bg-[#f4701f]/20 animate-ping" />
+                  <div className="relative w-16 h-16 rounded-full bg-[#f4701f]/30 flex items-center justify-center">
+                    <Sparkles className="w-8 h-8 text-[#f4701f] animate-spin" />
+                  </div>
+                </div>
+              </div>
+            ) : isError ? (
+              <div className="flex flex-col items-center justify-center min-h-[40vh] space-y-4 text-center px-4">
+                <div className="w-24 h-24 rounded-full bg-red-50 flex items-center justify-center">
+                  <AlertTriangle className="h-10 w-10 text-red-500" />
+                </div>
+                <h2 className="text-xl font-bold text-slate-700">No pudimos cargar el ejercicio</h2>
+                <p className="text-slate-500 max-w-xs">{(error as any)?.message ?? "Intenta de nuevo."}</p>
+                <Button onClick={() => refetch()} className="bg-[#1f4fa3]">
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  Reintentar
+                </Button>
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 sm:p-6 space-y-5">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Ejercicio</h2>
+                  <div className="flex gap-0.5">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        className={cn(
+                          "h-3.5 w-3.5",
+                          star <= difficultyToStars(exercise?.difficulty ?? "MEDIUM")
+                            ? "text-[#f4701f] fill-[#f4701f]"
+                            : "text-slate-200 fill-slate-200",
+                        )}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {exercise?.prompt && (
+                  <p className="text-lg sm:text-2xl font-bold text-slate-800">
+                    {exercise.prompt}
+                  </p>
+                )}
+
+                {exercise?.hints?.[0] && (
+                  <p className="text-sm text-slate-500 bg-slate-50 rounded-xl p-3">
+                    {exercise.hints[0]}
+                  </p>
+                )}
+
+                <input
+                  type={exercise?.answerType === "NUMERIC" ? "number" : "text"}
+                  value={answer}
+                  onChange={(e) => setAnswer(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+                  placeholder="Escribe tu respuesta"
+                  disabled={submitted}
+                  className={cn(
+                    "w-full h-12 sm:h-14 px-4 text-lg sm:text-xl font-bold text-slate-800",
+                    "bg-white border-2 border-slate-200 rounded-xl",
+                    "focus:border-[#f4701f] focus:ring-4 focus:ring-[#f4701f]/20 focus:outline-none",
+                    "transition-all duration-300 placeholder:text-slate-300",
+                    "disabled:bg-slate-100 disabled:text-slate-400",
+                  )}
+                />
+
+                <Button
+                  onClick={handleSubmit}
+                  disabled={!answer.trim() || isPending || submitted}
+                  className={cn(
+                    "w-full h-12 sm:h-14 text-base sm:text-lg font-bold",
+                    "bg-[#1f4fa3] hover:bg-[#17306d]",
+                    "shadow-sm transition-all duration-200",
+                    "disabled:opacity-60 disabled:cursor-not-allowed",
+                  )}
+                >
+                  {isPending ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      Verificando...
+                    </span>
+                  ) : (
+                    "Contestar"
+                  )}
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}

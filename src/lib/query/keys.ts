@@ -10,6 +10,9 @@ export const authKeys = {
 
   studentProgress: (studentId: string, tenantId: string | null) =>
     [...authKeys.all, "progress", studentId, tenantId] as const,
+
+  teacherDashboard: (teacherId: string, tenantId: string | null) =>
+    [...authKeys.all, "teacher", teacherId, tenantId] as const,
 };
 
 export const exerciseKeys = {

@@ -58,7 +58,7 @@ const { user } = useAuthStore((state) => state);
 
 ## Service Worker (PWA)
 
-⚠️ **ANTES de hacer cambios en el Service Worker, leer**: `docs/SERVICE_WORKER.md`
+⚠️ **ANTES de hacer cambios en el Service Worker, leer**: `src/docs/offline/SERVICE_WORKER.md`
 
 ### Arquitectura de Caching
 
@@ -67,7 +67,7 @@ const { user } = useAuthStore((state) => state);
 │ Cache Storage                                                     │
 ├──────────────────┬───────────────────┬──────────────────────────┤
 │ precache-v2      │ navigation-cache  │ runtime caches            │
-│ (12 entries)     │ -v1               │ - images-cache-v1         │
+│ (37+ entries)    │ -v1               │ - images-cache-v1         │
 │                  │                   │ - api-get-cache-v1         │
 │ - index.html     │ NavigationRoute   │ - static-resources-v1     │
 │ - app JS/CSS     │ (StaleWhileReval)  │                           │
@@ -119,18 +119,39 @@ if ('serviceWorker' in navigator) {
 
 ⚠️ **ANTES de hacer cambios en autenticación o persistencia, leer:**
 
-1. `docs/README.md` — **Índice general con orden de lectura recomendado**
-2. `docs/ARCHITECTURE_LAYERS.md` — Flujo completo de capas de la aplicación
-3. `docs/DEXIE_INDEXEDDB_GUIDE.md` — Guía completa de Dexie/IndexedDB
-4. `docs/OFFLINE_QUEUE_SYSTEM.md` — **(Nuevo)** Sistema de cola offline actual
-5. `docs/OUTBOX_PATTERN.md` — Patrón outbox (actualizado)
-6. `docs/PERSISTENCE_DEXIE.md` — Persistencia general (complementario)
-7. `docs/API_CONTRACT.md` — Contrato de API con el backend
-8. `docs/ERROR_HANDLING.md` — Manejo de errores y edge cases
+1. `src/docs/README.md` — **Índice general con orden de lectura recomendado**
+2. `src/docs/fundamentos/ARCHITECTURE_LAYERS.md` — Flujo completo de capas de la aplicación
+3. `src/docs/fundamentos/DEXIE_INDEXEDDB_GUIDE.md` — Guía completa de Dexie/IndexedDB
+4. `src/docs/offline/OFFLINE_QUEUE_SYSTEM.md` — Sistema de cola offline actual
+5. `src/docs/offline/OUTBOX_PATTERN.md` — Patrón outbox (actualizado)
+6. `src/docs/fundamentos/PERSISTENCE_DEXIE.md` — Persistencia general (complementario)
+7. `src/docs/core/API_CONTRACT.md` — Contrato de API con el backend
+8. `src/docs/errores/ERROR_HANDLING.md` — Manejo de errores y edge cases
 
 ⚠️ **IMPORTANTE**: Si necesitas información sobre:
-- **Persistencia de datos** → Leer `docs/DEXIE_INDEXEDDB_GUIDE.md`
-- **Sistema de cola offline actual** → Leer `docs/OFFLINE_QUEUE_SYSTEM.md`
+- **Persistencia de datos** → Leer `src/docs/fundamentos/DEXIE_INDEXEDDB_GUIDE.md`
+- **Sistema de cola offline actual** → Leer `src/docs/offline/OFFLINE_QUEUE_SYSTEM.md`
+
+---
+
+## Referencias Rápidas
+
+| Tema | Documento |
+|------|-----------|
+| **Índice general** | `src/docs/README.md` |
+| **Arquitectura de capas** | `src/docs/fundamentos/ARCHITECTURE_LAYERS.md` |
+| **Autenticación** | `src/docs/core/AUTH_FLOW.md` |
+| **API endpoints** | `src/docs/core/API_CONTRACT.md` |
+| **Conflict resolution (backend)** | `src/docs/core/BACKEND_CONFLICT_RESOLUTION.md` |
+| **Cola offline** | `src/docs/offline/OFFLINE_QUEUE_SYSTEM.md` |
+| **Service Worker** | `src/docs/offline/SERVICE_WORKER.md` |
+| **Manifest PWA** | `src/docs/offline/MANIFEST.md` |
+| **Caches explicados** | `src/docs/offline/CACHES_EXPLAINED.md` |
+| **Errores** | `src/docs/errores/ERROR_HANDLING.md` |
+| **Dexie/IndexedDB** | `src/docs/fundamentos/DEXIE_INDEXEDDB_GUIDE.md` |
+| **Roadmap** | `src/docs/planificacion/ROADMAP.md` |
+| **Pruebas de persistencia** | `src/docs/testing/PERSISTENCE_TEST_GUIDE.md` |
+| **Estrategia de testing** | `src/docs/testing/TESTING_STRATEGY_GUIDE.md` |
 
 ---
 
@@ -171,9 +192,9 @@ if ('serviceWorker' in navigator) {
 
 ⚠️ **ANTES de hacer cambios en autenticación, leer estos documentos:**
 
-1. `docs/AUTH_FLOW.md` - Flujos de autenticación (login, logout, refresh, offline)
-2. `docs/AUTH_CHANGES.md` - Historial de cambios y decisiones técnicas
-3. `docs/PERSISTENCE_TEST_GUIDE.md` - Guía de pruebas y debugging
+1. `src/docs/core/AUTH_FLOW.md` - Flujos de autenticación (login, logout, refresh, offline)
+2. `src/docs/core/AUTH_CHANGES.md` - Historial de cambios y decisiones técnicas
+3. `src/docs/testing/PERSISTENCE_TEST_GUIDE.md` - Guía de pruebas y debugging
 
 ### Arquitectura de Auth Actual
 
@@ -223,9 +244,9 @@ if ('serviceWorker' in navigator) {
 
 ## Sistema de Cola Offline (Actual)
 
-⚠️ **ANTES de implementar mutations offline, leer**: `docs/OFFLINE_QUEUE_SYSTEM.md`
+⚠️ **ANTES de implementar mutations offline, leer**: `src/docs/offline/OFFLINE_QUEUE_SYSTEM.md`
 
-⚠️ **PARA PROBAR**, leer: `docs/OFFLINE_MUTATIONS_TEST_GUIDE.md`
+⚠️ **PARA PROBAR**, leer: `src/docs/historial/OFFLINE_MUTATIONS_TEST_GUIDE.md`
 
 ### Integración Actual
 
@@ -305,7 +326,7 @@ src/lib/
 
 ### Documentación
 
-⚠️ **ANTES de hacer cambios en manejo de errores, leer**: `docs/ERROR_HANDLING.md`
+⚠️ **ANTES de hacer cambios en manejo de errores, leer**: `src/docs/errores/ERROR_HANDLING.md`
 
 ### Códigos de Error
 
@@ -414,11 +435,13 @@ const mutation = useMutation({
 
 | Tema | Documento |
 |------|---------|
-| **Índice general** | `docs/README.md` |
-| **Sistema de cola offline** | `docs/OFFLINE_QUEUE_SYSTEM.md` |
-| Service Worker PWA | `docs/SERVICE_WORKER.md` |
-| Errores y Edge Cases | `docs/ERROR_HANDLING.md` |
-| Auth Flow | `docs/AUTH_FLOW.md` |
-| Outbox Pattern | `docs/OUTBOX_PATTERN.md` |
-| Dexie Guide | `docs/DEXIE_INDEXEDDB_GUIDE.md` |
-| Arquitectura de capas | `docs/ARCHITECTURE_LAYERS.md` |
+| **Índice general** | `src/docs/README.md` |
+| **Sistema de cola offline** | `src/docs/offline/OFFLINE_QUEUE_SYSTEM.md` |
+| Service Worker PWA | `src/docs/offline/SERVICE_WORKER.md` |
+| Manifest PWA | `src/docs/offline/MANIFEST.md` |
+| Caches del SW | `src/docs/offline/CACHES_EXPLAINED.md` |
+| Errores y Edge Cases | `src/docs/errores/ERROR_HANDLING.md` |
+| Auth Flow | `src/docs/core/AUTH_FLOW.md` |
+| Outbox Pattern | `src/docs/offline/OUTBOX_PATTERN.md` |
+| Dexie Guide | `src/docs/fundamentos/DEXIE_INDEXEDDB_GUIDE.md` |
+| Arquitectura de capas | `src/docs/fundamentos/ARCHITECTURE_LAYERS.md` |

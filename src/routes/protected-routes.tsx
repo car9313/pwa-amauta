@@ -20,6 +20,21 @@ const LessonPage = lazy(() =>
     default: m.LessonPage,
   }))
 );
+const FeedbackPage = lazy(() =>
+  import("@/features/lessons/pages/feedback-page").then((m) => ({
+    default: m.FeedbackPage,
+  }))
+);
+const PracticePage = lazy(() =>
+  import("@/features/practice/pages/practice-page").then((m) => ({
+    default: m.PracticePage,
+  }))
+);
+const GamesPage = lazy(() =>
+  import("@/features/games/pages/games-page").then((m) => ({
+    default: m.GamesPage,
+  }))
+);
 const ParentDashboardPage = lazy(() =>
   import("@/features/dashboard/pages/parent-dashboard-page").then((m) => ({
     default: m.ParentDashboardPage,
@@ -28,6 +43,11 @@ const ParentDashboardPage = lazy(() =>
 const StudentDashboardPage = lazy(() =>
   import("@/features/dashboard/pages/student-dashboard-page").then((m) => ({
     default: m.StudentDashboardPage,
+  }))
+);
+const TeacherDashboardPage = lazy(() =>
+  import("@/features/dashboard/pages/teacher-dashboard-page").then((m) => ({
+    default: m.TeacherDashboardPage,
   }))
 );
 
@@ -61,12 +81,32 @@ export const protectedRoutes: RouteObject = {
       ),
     },
     {
+      path: "/dashboard/teacher",
+      element: (
+        <RequireRole allowedRole="teacher">
+          <TeacherDashboardPage />
+        </RequireRole>
+      ),
+    },
+    {
       path: "/lessons",
       element: <LessonPage />,
     },
     {
+      path: "/lessons/feedback",
+      element: <FeedbackPage />,
+    },
+    {
       path: "/progress",
       element: <LevelScreen />,
-    }
+    },
+    {
+      path: "/practice",
+      element: <PracticePage />,
+    },
+    {
+      path: "/games",
+      element: <GamesPage />,
+    },
   ],
 };

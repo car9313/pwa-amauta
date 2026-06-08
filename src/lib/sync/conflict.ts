@@ -1,4 +1,8 @@
-export type ConflictStrategy = "last-write-wins" | "server-wins" | "client-wins" | "merge";
+export type ConflictStrategy =
+  | "last-write-wins"
+  | "server-wins"
+  | "client-wins"
+  | "merge";
 
 export interface ConflictData<T> {
   local: T;
@@ -17,7 +21,7 @@ export function lastWriteWins<T>(
   local: T,
   server: T,
   localTimestamp: number,
-  serverTimestamp: number
+  serverTimestamp: number,
 ): ConflictResult<T> {
   if (localTimestamp >= serverTimestamp) {
     return {
@@ -43,6 +47,7 @@ export function serverWins<T>(_local: T, server: T): ConflictResult<T> {
 }
 
 export function clientWins<T>(local: T, _server: T): ConflictResult<T> {
+  void _server;
   return {
     data: local,
     source: "local",
@@ -57,7 +62,7 @@ export function mergeNumbers(local: number, server: number): number {
 export function mergeObjects<T extends Record<string, unknown>>(
   local: T,
   server: T,
-  key: string
+  key: string,
 ): unknown {
   const localValue = local[key];
   const serverValue = server[key];
@@ -75,7 +80,7 @@ export function mergeObjects<T extends Record<string, unknown>>(
 
 export function resolveConflict<T>(
   strategy: ConflictStrategy,
-  data: ConflictData<T>
+  data: ConflictData<T>,
 ): ConflictResult<T> {
   switch (strategy) {
     case "last-write-wins":
@@ -83,7 +88,7 @@ export function resolveConflict<T>(
         data.local,
         data.server,
         data.localTimestamp,
-        data.serverTimestamp
+        data.serverTimestamp,
       );
 
     case "server-wins":
@@ -104,7 +109,7 @@ export function resolveConflict<T>(
         data.local,
         data.server,
         data.localTimestamp,
-        data.serverTimestamp
+        data.serverTimestamp,
       );
   }
 }
@@ -122,11 +127,60 @@ export interface TimestampMetadata {
 
 export function withTimestamps<T extends object>(
   data: T,
-  timestamp: number
+  timestamp: number,
 ): T & TimestampMetadata {
   return { ...data, __localTimestamp: timestamp };
 }
 
 export function getTimestamp<T extends TimestampMetadata>(data: T): number {
   return data.__localTimestamp ?? Date.now();
+}
+
+export const MUTATION_STRATEGY: Record<string, ConflictStrategy> = {
+  login: "server-wins",
+  register: "server-wins",
+  logout: "server-wins",
+  addChild: "server-wins",
+  submitAnswer: "server-wins",
+  updateProgress: "merge",
+  updateProfile: "last-write-wins",
+  updatePreferences: "last-write-wins",
+};
+
+export interface MutationConflictResult {
+  resolved: unknown;
+  source: "local" | "server" | "merged" | "no-conflict";
+}
+
+function extractServerTimestamp(data: unknown): number | undefined {
+  if (data && typeof data === "object" && "__serverTimestamp" in data) {
+    return (data as Record<string, unknown>).__serverTimestamp as number;
+  }
+  return undefined;
+}
+
+export function resolveMutationConflict(
+  type: string,
+  payload: unknown,
+  serverResponse: unknown,
+  localTimestamp: number,
+): MutationConflictResult {
+  const strategy = MUTATION_STRATEGY[type] ?? DEFAULT_STRATEGY;
+  const conflict = hasConflict(payload, serverResponse);
+
+  if (!conflict) {
+    return { resolved: serverResponse, source: "no-conflict" };
+  }
+
+  const serverTimestamp =
+    extractServerTimestamp(serverResponse) ?? Date.now();
+
+  const result = resolveConflict(strategy, {
+    local: payload,
+    server: serverResponse,
+    localTimestamp,
+    serverTimestamp,
+  });
+
+  return { resolved: result.data, source: result.source };
 }
