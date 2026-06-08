@@ -100,8 +100,8 @@ export function RegisterPage() {
     <section className="relative flex min-h-[calc(100vh-4rem)] w-full items-center justify-center px-4 py-6">
       <div className="gradient-mesh absolute inset-0 -z-10" />
 
-      <div className="absolute right-1/4 top-1/4 h-64 w-64 rounded-full bg-[#1f4fa3]/10 blur-3xl animate-float-gentle hidden sm:block" />
-      <div className="absolute left-1/4 bottom-1/4 h-48 w-48 rounded-full bg-[#f4701f]/10 blur-3xl animate-float-gentle-reverse hidden sm:block" style={{ animationDelay: '2s' }} />
+      <div className="absolute right-1/4 top-1/4 h-64 w-64 rounded-full bg-primary/10 blur-3xl animate-float-gentle hidden sm:block" />
+      <div className="absolute left-1/4 bottom-1/4 h-48 w-48 rounded-full bg-accent/10 blur-3xl animate-float-gentle-reverse animation-delay-2000 hidden sm:block" />
       <Card className={cn(
         "w-full max-w-md border-0 shadow-2xl transition-all duration-700 ease-out",
         isVisible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-8 scale-95"
@@ -114,11 +114,11 @@ export function RegisterPage() {
             <img
               src="/img/amauta-mascot.jpg"
               alt="Amauta"
-              className="w-full h-full object-cover rounded-2xl shadow-lg shadow-[#1f4fa3]/30"
+              className="w-full h-full object-cover rounded-2xl shadow-lg shadow-primary/30"
             />
           </div>
 
-          <CardTitle className="text-2xl sm:text-3xl font-bold tracking-tight text-[#1f4fa3]">
+          <CardTitle className="text-2xl sm:text-3xl font-bold tracking-tight text-primary">
             ¡Únete a Amauta!
           </CardTitle>
 
@@ -133,7 +133,7 @@ export function RegisterPage() {
               <div
                 role="status"
                 aria-live="polite"
-                className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800"
+                className="flex items-start gap-2 rounded-lg border border-accent/30 bg-accent/10 px-3 py-2 text-sm text-accent-foreground"
               >
                 <WifiOff className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
                 <p className="leading-snug">{offlineMessage}</p>
@@ -148,21 +148,21 @@ export function RegisterPage() {
               "space-y-2 transition-all duration-500 delay-200",
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             )}>
-              <Label htmlFor="name" className="text-slate-700 font-semibold text-sm">
+              <Label htmlFor="name" className="text-foreground font-semibold text-sm">
                 Nombre completo
               </Label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="name"
                   placeholder="Mario García"
-                  className="pl-10 h-10 sm:h-11 border-slate-200 bg-slate-50/50 focus:bg-white transition-all duration-200 focus:ring-2 focus:ring-[#1f4fa3]/20"
+                  className="pl-10 border-input bg-background/50 focus:bg-background transition-all duration-200 focus:ring-2 focus:ring-primary/20"
                   aria-invalid={!!errors.name}
                   {...register("name")}
                 />
               </div>
               {errors.name && (
-                <p className="text-sm text-red-500 font-medium">{errors.name.message}</p>
+                <p className="text-sm text-destructive font-medium">{errors.name.message}</p>
               )}
             </div>
 
@@ -170,22 +170,22 @@ export function RegisterPage() {
               "space-y-2 transition-all duration-500 delay-300",
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             )}>
-              <Label htmlFor="email" className="text-slate-700 font-semibold text-sm">
+              <Label htmlFor="email" className="text-foreground font-semibold text-sm">
                 Correo electrónico
               </Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="email"
                   type="email"
                   placeholder="correo@ejemplo.com"
-                  className="pl-10 h-10 sm:h-11 border-slate-200 bg-slate-50/50 focus:bg-white transition-all duration-200 focus:ring-2 focus:ring-[#1f4fa3]/20"
+                  className="pl-10 border-input bg-background/50 focus:bg-background transition-all duration-200 focus:ring-2 focus:ring-primary/20"
                   aria-invalid={!!errors.email}
                   {...register("email")}
                 />
               </div>
               {errors.email && (
-                <p className="text-sm text-red-500 font-medium">{errors.email.message}</p>
+                <p className="text-sm text-destructive font-medium">{errors.email.message}</p>
               )}
             </div>
 
@@ -193,22 +193,22 @@ export function RegisterPage() {
               "space-y-2 transition-all duration-500 delay-400",
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             )}>
-              <Label htmlFor="password" className="text-slate-700 font-semibold text-sm">
+              <Label htmlFor="password" className="text-foreground font-semibold text-sm">
                 Contraseña
               </Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="password"
                   type="password"
                   placeholder="••••••••"
-                  className="pl-10 h-10 sm:h-11 border-slate-200 bg-slate-50/50 focus:bg-white transition-all duration-200 focus:ring-2 focus:ring-[#1f4fa3]/20"
+                  className="pl-10 border-input bg-background/50 focus:bg-background transition-all duration-200 focus:ring-2 focus:ring-primary/20"
                   aria-invalid={!!errors.password}
                   {...register("password")}
                 />
               </div>
               {errors.password && (
-                <p className="text-sm text-red-500 font-medium">{errors.password.message}</p>
+                <p className="text-sm text-destructive font-medium">{errors.password.message}</p>
               )}
             </div>
 
@@ -216,35 +216,36 @@ export function RegisterPage() {
               "space-y-2 transition-all duration-500 delay-500",
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             )}>
-              <Label htmlFor="confirmPassword" className="text-slate-700 font-semibold text-sm">
+              <Label htmlFor="confirmPassword" className="text-foreground font-semibold text-sm">
                 Confirmar contraseña
               </Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="confirmPassword"
                   type="password"
                   placeholder="••••••••"
-                  className="pl-10 h-10 sm:h-11 border-slate-200 bg-slate-50/50 focus:bg-white transition-all duration-200 focus:ring-2 focus:ring-[#1f4fa3]/20"
+                  className="pl-10 border-input bg-background/50 focus:bg-background transition-all duration-200 focus:ring-2 focus:ring-primary/20"
                   aria-invalid={!!errors.confirmPassword}
                   {...register("confirmPassword")}
                 />
               </div>
               {errors.confirmPassword && (
-                <p className="text-sm text-red-500 font-medium">{errors.confirmPassword.message}</p>
+                <p className="text-sm text-destructive font-medium">{errors.confirmPassword.message}</p>
               )}
             </div>
 
             <Button
               type="submit"
+              size="child-lg"
               disabled={submitDisabled}
               aria-disabled={submitDisabled}
               title={!isOnline ? "Necesitas internet para crear una cuenta" : undefined}
               className={cn(
-                "w-full h-11 sm:h-12 text-base font-bold mt-2",
-                "bg-linear-to-r from-[#f4701f] to-[#ea601b]",
-                "hover:from-[#ea601b] hover:to-[#d45518]",
-                "shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/30",
+                "w-full mt-2",
+                "bg-linear-to-r from-accent to-amauta-orange-dark",
+                "hover:from-amauta-orange-dark hover:to-[#d45518]",
+                "shadow-lg shadow-accent/25 hover:shadow-xl hover:shadow-accent/30",
                 "hover:scale-[1.02] transition-all duration-300",
                 "disabled:opacity-70 disabled:hover:scale-100",
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
@@ -269,11 +270,11 @@ export function RegisterPage() {
             </Button>
 
             <p className={cn(
-              "text-center text-sm font-medium text-slate-500 transition-all duration-500 delay-600",
+              "text-center text-sm font-medium text-muted-foreground transition-all duration-500 delay-600",
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             )}>
               ¿Ya tienes cuenta?{' '}
-              <Link to="/login" className="text-[#1f4fa3] hover:underline font-semibold">
+              <Link to="/login" className="text-primary hover:underline font-semibold">
                 Inicia sesión
               </Link>
             </p>

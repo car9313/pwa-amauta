@@ -56,6 +56,40 @@ const { user } = useAuthStore((state) => state);
 
 ---
 
+## Migración UI/UX Infantil
+
+⚠️ **LEER antes de empezar**: `src/docs/planificacion/UX_CHILD_MIGRATION.md`
+
+Plan incremental por fases para actualizar el diseño con animaciones, responsive y UX para niños.
+
+### Handoff obligatorio
+Al terminar CADA fase, DEBES:
+1. Mostrar resumen detallado (archivos modificados, líneas cambiadas, checklist)
+2. Preguntar explícitamente: "¿Revisas los resultados y confirmas para continuar a la Fase N+1?"
+3. Esperar confirmación del usuario antes de continuar
+
+### Fases
+| Fase | Duración | Descripción |
+|------|----------|-------------|
+| 0 | 1 día | Preparación (carpetas, optimizaciones táctiles) |
+| 1 | 2 días | Layout y estructura global (Container, Shell) |
+| 2 | 3 días | Componentes base (Button, Input, ProgressBar, FeedbackOverlay) |
+| 3 | 2 días | Dashboard / Home (migrar colores, inline styles) |
+| 4 | 2 días | Feature Juegos (quiz, memory, timed-challenge) |
+| 5 | 2 días | Lecciones / Práctica |
+| 6 | 1 día | Perfil / Progreso del niño |
+| 7 | 1 día | Auth (login, register) |
+| 8 | 2 días | PWA offline + limpieza final |
+
+### Comandos de verificación por fase
+```bash
+pnpm build        # siempre al terminar una fase
+pnpm lint         # siempre al terminar una fase
+# + comandos específicos listados en cada fase del documento
+```
+
+---
+
 ## Service Worker (PWA)
 
 ⚠️ **ANTES de hacer cambios en el Service Worker, leer**: `src/docs/offline/SERVICE_WORKER.md`
@@ -150,6 +184,7 @@ if ('serviceWorker' in navigator) {
 | **Errores** | `src/docs/errores/ERROR_HANDLING.md` |
 | **Dexie/IndexedDB** | `src/docs/fundamentos/DEXIE_INDEXEDDB_GUIDE.md` |
 | **Roadmap** | `src/docs/planificacion/ROADMAP.md` |
+| **UX Child Migration** | `src/docs/planificacion/UX_CHILD_MIGRATION.md` |
 | **Pruebas de persistencia** | `src/docs/testing/PERSISTENCE_TEST_GUIDE.md` |
 | **Estrategia de testing** | `src/docs/testing/TESTING_STRATEGY_GUIDE.md` |
 

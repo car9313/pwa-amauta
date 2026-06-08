@@ -21,20 +21,20 @@ export function GameCard({ config, onClick }: GameCardProps) {
       onClick={() => onClick(config.id)}
       className={cn(
         "relative overflow-hidden rounded-2xl border-2 border-transparent p-5 sm:p-6 text-left",
-        "bg-white shadow-sm hover:shadow-md transition-all duration-200",
-        "hover:scale-[1.02] group cursor-pointer",
+        "bg-card shadow-sm hover:shadow-md transition-all duration-200",
+        "hover:scale-[1.02] group cursor-pointer min-h-[44px]",
       )}
     >
       <div className="flex items-start gap-4">
         <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0", config.bgClass)}>
-          <Icon className="h-6 w-6" style={{ color: config.color }} />
+          <Icon className="h-6 w-6" />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="text-lg font-bold text-slate-800 group-hover:text-[#1f4fa3] transition-colors">
+          <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">
             {config.title}
           </h3>
-          <p className="text-sm text-slate-500 mt-1">{config.description}</p>
-          <span className="inline-block mt-2 text-xs font-medium text-slate-400">
+          <p className="text-sm text-muted-foreground mt-1">{config.description}</p>
+          <span className="inline-block mt-2 text-xs font-medium text-muted-foreground">
             ~{config.estimatedMinutes} min
           </span>
         </div>

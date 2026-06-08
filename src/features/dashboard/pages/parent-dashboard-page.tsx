@@ -18,9 +18,9 @@ export function ParentDashboardPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="relative">
-          <div className="absolute inset-0 rounded-full bg-[#f4701f]/20 animate-ping" />
-          <div className="relative w-16 h-16 rounded-full bg-[#f4701f]/30 flex items-center justify-center">
-            <Sparkles className="w-8 h-8 text-[#f4701f] animate-spin" />
+          <div className="absolute inset-0 rounded-full bg-accent/20 animate-ping" />
+          <div className="relative w-16 h-16 rounded-full bg-accent/30 flex items-center justify-center">
+            <Sparkles className="w-8 h-8 text-accent animate-spin" />
           </div>
         </div>
       </div>
@@ -30,12 +30,12 @@ export function ParentDashboardPage() {
   if (isError) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4 text-center px-4">
-        <div className="relative w-24 h-24 rounded-full bg-red-50 flex items-center justify-center">
-          <HelpCircle className="w-12 h-12 text-red-500" />
+        <div className="relative w-24 h-24 rounded-full bg-destructive/10 flex items-center justify-center">
+          <HelpCircle className="w-12 h-12 text-destructive" />
         </div>
-        <h2 className="text-xl font-bold text-slate-700">¡Ups! Algo salió mal</h2>
-        <p className="text-slate-500 max-w-xs">{error?.message}</p>
-        <Button onClick={() => refetch()} className="bg-[#1f4fa3]">
+        <h2 className="text-xl font-bold text-foreground">¡Ups! Algo salió mal</h2>
+        <p className="text-muted-foreground max-w-xs">{error?.message}</p>
+        <Button onClick={() => refetch()} className="bg-primary">
           Intentar de nuevo
         </Button>
       </div>
@@ -50,13 +50,13 @@ export function ParentDashboardPage() {
     <div className="space-y-4 sm:space-y-6 pb-6">
       {/* Welcome Header */}
       <div className={cn(
-        "relative overflow-hidden rounded-2xl bg-linear-to-br from-[#1f4fa3] via-[#3d5a80] to-[#f4701f] p-4 sm:p-6 text-white transition-all duration-700",
+        "relative overflow-hidden rounded-2xl bg-linear-to-br from-primary via-primary/70 to-accent p-4 sm:p-6 text-white transition-all duration-700",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       )}>
         <div className="noise-overlay pointer-events-none absolute inset-0 z-0" />
         <div className="relative z-10">
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight">
-            ¡Hola, <span className="text-[#fccca1]">{parent?.name ?? ' Padres'}</span>!
+            ¡Hola, <span className="text-amauta-orange-light">{parent?.name ?? ' Padres'}</span>!
           </h1>
           <p className="mt-1 text-xs sm:text-sm text-white/80">
             {new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}
@@ -87,7 +87,7 @@ export function ParentDashboardPage() {
                 <p className="text-xs text-slate-500">Nivel {child.level}</p>
               </div>
               <div className="text-right">
-                <p className="text-lg font-bold text-[#f4701f]">{child.points}</p>
+                <p className="text-lg font-bold text-accent">{child.points}</p>
                 <p className="text-xs text-slate-500">puntos</p>
               </div>
             </div>
@@ -98,7 +98,7 @@ export function ParentDashboardPage() {
                 <span>{child.precision}% precisión</span>
               </div>
               <div className="flex items-center gap-1">
-                <Trophy className="h-3 w-3 text-[#f4701f]" />
+                <Trophy className="h-3 w-3 text-accent" />
                 <span>{child.streakDays} días racha</span>
               </div>
             </div>
@@ -145,7 +145,7 @@ export function ParentDashboardPage() {
 
       {/* Quick Actions */}
       <div className={cn(
-        "relative overflow-hidden rounded-2xl bg-linear-to-br from-[#1f4fa3] to-[#3d5a80] p-4 sm:p-5 transition-all duration-700 delay-400",
+        "relative overflow-hidden rounded-2xl bg-linear-to-br from-primary to-primary/70 p-4 sm:p-5 transition-all duration-700 delay-400",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       )}>
         <h2 className="text-lg font-bold text-white">Resumen de Hijos</h2>

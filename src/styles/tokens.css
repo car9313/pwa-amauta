@@ -1,0 +1,119 @@
+/*
+ * tokens.css — Fuente única de verdad para tokens de diseño en CSS.
+ *
+ * PROPÓSITO:
+ *   Define las CSS custom properties (:root) y el bloque @theme inline que
+ *   Tailwind v4 necesita para generar las clases utilitarias (bg-primary,
+ *   text-foreground, etc.).
+ *
+ * USO:
+ *   - Se importa ÚNICAMENTE desde src/index.css (no se importa en componentes).
+ *   - Los componentes usan estos tokens a través de clases Tailwind:
+ *       ✅ <div className="bg-primary text-foreground">
+ *       ❌ <div style={{ color: "var(--primary)" }}>
+ *
+ * NOTA:
+ *   Si necesitas estos valores en TypeScript (ej: Chart.js, animaciones
+ *   dinámicas), importa desde @/lib/design-system/tokens.ts en lugar de
+ *   duplicarlos.
+ */
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: #F2F7FF;
+  --foreground: #1f3c78;
+  --card: #ffffff;
+  --card-foreground: #1f3c78;
+  --popover: #ffffff;
+  --popover-foreground: #1f3c78;
+  --primary: #1f4fa3;
+  --primary-foreground: #ffffff;
+  --secondary: #e7eefb;
+  --secondary-foreground: #1f3c78;
+  --muted: #f0ece6;
+  --muted-foreground: #6b7280;
+  --accent: #f2994a;
+  --accent-foreground: #1f3c78;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #d9e1ef;
+  --input: #d9e1ef;
+  --ring: #1f4fa3;
+  --chart-1: #1f4fa3;
+  --chart-2: #f2994a;
+  --chart-3: #5b7dbd;
+  --chart-4: #f6b26b;
+  --chart-5: #2f5d9a;
+  --radius: 0.9rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1f3c78;
+  --sidebar-primary: #1f4fa3;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e7eefb;
+  --sidebar-accent-foreground: #1f3c78;
+  --sidebar-border: #d9e1ef;
+  --sidebar-ring: #1f4fa3;
+  --amauta-blue: #1f4fa3;
+  --amauta-blue-light: #e7eefb;
+  --amauta-blue-dark: #17306d;
+  --amauta-orange: #f4701f;
+  --amauta-orange-light: #fccca1;
+  --amauta-orange-dark: #ea601b;
+  --amauta-warm-white: #f6f3ee;
+  --amauta-surface: #ffffff;
+  --amauta-surface-alt: #f8f9fc;
+}
+
+@theme inline {
+  --spacing-page-x: 1rem;
+  --spacing-section: 1.5rem;
+
+  --font-sans: "Nunito", "Nunito Fallback", sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-amauta-blue: var(--amauta-blue);
+  --color-amauta-blue-light: var(--amauta-blue-light);
+  --color-amauta-blue-dark: var(--amauta-blue-dark);
+  --color-amauta-orange: var(--amauta-orange);
+  --color-amauta-orange-light: var(--amauta-orange-light);
+  --color-amauta-orange-dark: var(--amauta-orange-dark);
+  --color-amauta-warm-white: var(--amauta-warm-white);
+  --color-amauta-surface: var(--amauta-surface);
+  --color-amauta-surface-alt: var(--amauta-surface-alt);
+}

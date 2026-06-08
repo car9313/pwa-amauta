@@ -20,8 +20,8 @@ const RETRYABLE_CODES: ReadonlySet<AuthErrorCode> = new Set([
 ]);
 
 const VARIANT_STYLES = {
-  error: "border-red-200 bg-red-50 text-red-800",
-  warning: "border-amber-200 bg-amber-50 text-amber-800",
+  error: "border-destructive/30 bg-destructive/10 text-destructive-foreground",
+  warning: "border-accent/30 bg-accent/10 text-accent-foreground",
 };
 
 export interface FormErrorBannerProps {

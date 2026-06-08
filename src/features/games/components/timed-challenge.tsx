@@ -1,5 +1,7 @@
 import { useState } from "react"
 import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { ProgressBar } from "@/components/ui/progress-bar"
 import { GameHeader } from "./game-header"
 import { GameResultScreen } from "./game-result"
 import type { GameResult } from "../domain/game.types"
@@ -54,6 +56,8 @@ export function TimedChallengeView({
     )
   }
 
+  const timerPercent = (remainingSeconds / 60) * 100
+
   return (
     <div className="space-y-4">
       <GameHeader
@@ -64,38 +68,38 @@ export function TimedChallengeView({
         streak={streak}
       />
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 sm:p-6 space-y-5">
+      <div className="bg-card rounded-2xl shadow-sm border border-border p-5 sm:p-6 space-y-5">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-slate-500">
+          <span className="text-muted-foreground">
             Correctas: <span className="font-bold text-emerald-600">{correctCount}</span>
           </span>
-          <span className="text-slate-500">
-            Total: <span className="font-bold text-slate-700">{totalAnswered}</span>
+          <span className="text-muted-foreground">
+            Total: <span className="font-bold text-foreground">{totalAnswered}</span>
           </span>
-          <span className="text-slate-500">
-            Rachas: <span className={cn("font-bold", streak >= 3 ? "text-[#f4701f]" : "text-slate-600")}>
+          <span className="text-muted-foreground">
+            Rachas: <span className={cn("font-bold", streak >= 3 ? "text-accent" : "text-foreground")}>
               {streak}
             </span>
           </span>
         </div>
 
-        <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-          <div
-            className={cn(
-              "h-full rounded-full transition-all duration-1000",
-              remainingSeconds > 30 ? "bg-emerald-500" : remainingSeconds > 10 ? "bg-[#f4701f]" : "bg-red-500",
-            )}
-            style={{ width: `${(remainingSeconds / 60) * 100}%` }}
-          />
-        </div>
+        <ProgressBar
+          value={timerPercent}
+          size="md"
+          color={remainingSeconds > 30 ? "success" : remainingSeconds > 10 ? "accent" : "primary"}
+        />
+
+        <p className="sr-only" aria-live="polite">
+          {remainingSeconds} segundos restantes
+        </p>
 
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="w-8 h-8 border-4 border-[#f4701f]/30 border-t-[#f4701f] rounded-full animate-spin" />
+            <div className="w-8 h-8 border-4 border-accent/30 border-t-accent rounded-full animate-spin" />
           </div>
         ) : prompt ? (
           <>
-            <p className="text-xl sm:text-2xl font-bold text-slate-800 text-center py-4">
+            <p className="text-xl sm:text-2xl font-bold text-foreground text-center py-4">
               {prompt}
             </p>
             <div className="flex gap-2">
@@ -107,27 +111,23 @@ export function TimedChallengeView({
                 placeholder="?"
                 disabled={submitted}
                 className={cn(
-                  "flex-1 h-12 px-4 text-lg font-bold text-slate-800",
-                  "bg-white border-2 border-slate-200 rounded-xl",
-                  "focus:border-[#f4701f] focus:ring-4 focus:ring-[#f4701f]/20 focus:outline-none",
+                  "flex-1 h-12 px-4 text-lg font-bold text-foreground",
+                  "bg-card border-2 border-border rounded-xl",
+                  "focus:border-accent focus:ring-4 focus:ring-accent/20 focus:outline-none",
                   "transition-all duration-300",
                 )}
               />
-              <button
+              <Button
                 onClick={handleSubmit}
                 disabled={!answer.trim() || submitted}
-                className={cn(
-                  "h-12 px-6 rounded-xl font-bold text-white text-base",
-                  "bg-[#1f4fa3] hover:bg-[#17306d] transition-colors",
-                  "disabled:opacity-60 disabled:cursor-not-allowed",
-                )}
+                size="child-md"
               >
                 OK
-              </button>
+              </Button>
             </div>
           </>
         ) : (
-          <p className="text-center text-slate-500 py-8">Esperando ejercicio...</p>
+          <p className="text-center text-muted-foreground py-8">Esperando ejercicio...</p>
         )}
       </div>
     </div>

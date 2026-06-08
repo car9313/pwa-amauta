@@ -21,14 +21,16 @@ export function MemoryBoard({ cards, onFlip, difficulty }: MemoryBoardProps) {
           key={card.id}
           onClick={() => onFlip(index)}
           disabled={card.isMatched}
+          aria-label={card.isFlipped ? card.content : "Carta oculta"}
           className={cn(
             "aspect-square rounded-xl text-base sm:text-lg font-bold transition-all duration-300",
-            "border-2 focus:outline-none focus:ring-4 focus:ring-[#1f4fa3]/30",
+            "border-2 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/30",
+            "min-h-[44px]",
             card.isMatched
               ? "opacity-0 pointer-events-none scale-90"
               : card.isFlipped
-                ? "bg-white border-[#1f4fa3] text-[#1f4fa3] shadow-sm scale-100"
-                : "bg-[#1f4fa3] border-[#1f4fa3] text-white hover:bg-[#17306d] hover:scale-105 active:scale-95",
+                ? "bg-card border-primary text-primary shadow-sm scale-100"
+                : "bg-primary border-primary text-white hover:bg-primary/80 hover:scale-105 active:scale-95",
           )}
         >
           {card.isFlipped ? card.content : "?"}
@@ -52,18 +54,18 @@ export function MemoryStats({
   return (
     <div className="flex items-center justify-center gap-6 text-sm">
       <div className="text-center">
-        <p className="text-xs text-slate-500">Pares</p>
-        <p className="font-bold text-slate-700">
+        <p className="text-xs text-muted-foreground">Pares</p>
+        <p className="font-bold text-foreground">
           {matchedPairs}/{totalPairs}
         </p>
       </div>
       <div className="text-center">
-        <p className="text-xs text-slate-500">Intentos</p>
-        <p className="font-bold text-slate-700">{attempts}</p>
+        <p className="text-xs text-muted-foreground">Intentos</p>
+        <p className="font-bold text-foreground">{attempts}</p>
       </div>
       <div className="text-center">
-        <p className="text-xs text-slate-500">Tiempo</p>
-        <p className="font-mono font-bold text-slate-700">{elapsedSeconds}s</p>
+        <p className="text-xs text-muted-foreground">Tiempo</p>
+        <p className="font-mono font-bold text-foreground">{elapsedSeconds}s</p>
       </div>
     </div>
   )

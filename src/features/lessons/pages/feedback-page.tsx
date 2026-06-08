@@ -6,9 +6,27 @@ import { cn } from "@/lib/utils"
 import type { ExerciseResult, Mistake } from "@/features/exercises/domain/exercise.types"
 
 const SCORE_COLORS = {
-  excellent: { text: "text-emerald-600", stroke: "stroke-emerald-500", bg: "bg-emerald-50", border: "border-emerald-200", ring: "ring-emerald-200" },
-  good: { text: "text-[#f4701f]", stroke: "stroke-[#f4701f]", bg: "bg-orange-50", border: "border-orange-200", ring: "ring-orange-200" },
-  failed: { text: "text-red-500", stroke: "stroke-red-400", bg: "bg-red-50", border: "border-red-200", ring: "ring-red-200" },
+  excellent: {
+    text: "text-emerald-600",
+    stroke: "stroke-emerald-500",
+    bg: "bg-emerald-50",
+    border: "border-emerald-200",
+    ring: "ring-emerald-200",
+  },
+  good: {
+    text: "text-accent",
+    stroke: "stroke-accent",
+    bg: "bg-accent/10",
+    border: "border-accent/20",
+    ring: "ring-accent/20",
+  },
+  failed: {
+    text: "text-red-500",
+    stroke: "stroke-red-400",
+    bg: "bg-red-50",
+    border: "border-red-200",
+    ring: "ring-red-200",
+  },
 }
 
 const MISTAKE_LABELS: Record<Mistake["type"], string> = {
@@ -33,7 +51,7 @@ function ScoreCircle({ score, size = 120 }: { score: number; size?: number }) {
           r={radius}
           fill="none"
           strokeWidth="8"
-          className="stroke-slate-100"
+          className="stroke-muted"
         />
         <circle
           cx={size / 2}
@@ -77,23 +95,24 @@ export function FeedbackPage() {
           isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
         )}
       >
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 max-w-md w-full text-center space-y-6">
+        <div className="bg-card rounded-2xl shadow-sm border border-border p-8 max-w-md w-full text-center space-y-6">
           <div className="flex justify-center">
             <div className="w-20 h-20 rounded-full bg-amber-50 flex items-center justify-center">
               <CheckCircle className="h-10 w-10 text-amber-500" />
             </div>
           </div>
           <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-slate-800">
+            <h1 className="text-2xl font-bold text-foreground">
               ¡Respuesta guardada!
             </h1>
-            <p className="text-slate-500">
+            <p className="text-muted-foreground">
               Se enviará automáticamente cuando tengas conexión a internet.
             </p>
           </div>
           <Button
             onClick={() => navigate("/lessons")}
-            className="w-full h-12 bg-[#1f4fa3] hover:bg-[#17306d] text-base font-bold"
+            size="child-lg"
+            className="w-full"
           >
             Continuar
           </Button>
@@ -116,15 +135,14 @@ export function FeedbackPage() {
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       )}
     >
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-        {/* Header with score */}
+      <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
         <div className={cn("p-6 sm:p-8 text-center space-y-4", colors.bg)}>
           {isExcellent && (
             <div className="flex justify-center gap-1 animate-bounce">
               {[1, 2, 3].map((i) => (
                 <Star
                   key={i}
-                  className="h-8 w-8 text-amber-400 fill-amber-400"
+                  className="h-8 w-8 text-amber-400 fill-amber-400 animation-delay-500"
                   style={{ animationDelay: `${i * 150}ms` }}
                 />
               ))}
@@ -144,10 +162,10 @@ export function FeedbackPage() {
             )}
             {isGood && (
               <>
-                <h1 className="text-2xl sm:text-3xl font-bold text-[#f4701f]">
+                <h1 className="text-2xl sm:text-3xl font-bold text-accent">
                   ¡Buen trabajo!
                 </h1>
-                <p className="text-orange-600">{result.feedbackSummary}</p>
+                <p className="text-accent">{result.feedbackSummary}</p>
               </>
             )}
             {isFailed && (
@@ -161,10 +179,9 @@ export function FeedbackPage() {
           </div>
         </div>
 
-        {/* Mistakes breakdown */}
         {result.mistakes.length > 0 && (
-          <div className="px-6 sm:px-8 py-4 border-b border-slate-100">
-            <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">
+          <div className="px-6 sm:px-8 py-4 border-b border-border">
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
               Revisa tus errores
             </h2>
             <div className="space-y-2">
@@ -203,15 +220,14 @@ export function FeedbackPage() {
           </div>
         )}
 
-        {/* Next action */}
         {result.nextAction && (
-          <div className="px-6 sm:px-8 py-4 border-b border-slate-100">
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-50 border border-blue-100">
-              <div className="w-8 h-8 rounded-full bg-[#1f4fa3]/10 flex items-center justify-center flex-shrink-0">
-                <Sparkles className="w-4 h-4 text-[#1f4fa3]" />
+          <div className="px-6 sm:px-8 py-4 border-b border-border">
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/10 border border-primary/20">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <Sparkles className="w-4 h-4 text-primary" />
               </div>
               <div>
-                <p className="text-sm font-medium text-[#1f4fa3]">
+                <p className="text-sm font-medium text-primary">
                   {result.nextAction.action === "ADVANCE" && "Siguiente tema: listo para avanzar"}
                   {result.nextAction.action === "REINFORCE" && "Sigue practicando para reforzar"}
                   {result.nextAction.action === "REMEDIATE" && "Repasemos lo básico primero"}
@@ -221,15 +237,15 @@ export function FeedbackPage() {
           </div>
         )}
 
-        {/* Actions */}
         <div className="p-6 sm:p-8 space-y-3">
           <Button
             onClick={() => navigate("/lessons")}
+            size="child-lg"
             className={cn(
-              "w-full h-12 sm:h-14 text-base sm:text-lg font-bold shadow-sm transition-all duration-200",
+              "w-full shadow-sm transition-all duration-200",
               isFailed
-                ? "bg-[#f4701f] hover:bg-[#ea601b] hover:shadow-md"
-                : "bg-[#1f4fa3] hover:bg-[#17306d] hover:shadow-md"
+                ? "bg-accent hover:bg-accent/80 hover:shadow-md"
+                : "bg-primary hover:bg-primary/80 hover:shadow-md"
             )}
           >
             {isFailed ? (
@@ -248,7 +264,8 @@ export function FeedbackPage() {
           <Button
             onClick={() => navigate("/dashboard/student")}
             variant="outline"
-            className="w-full h-12 border-2 border-slate-200 text-slate-600 hover:bg-slate-50 text-base font-medium"
+            size="child-lg"
+            className="w-full"
           >
             <Home className="mr-2 h-4 w-4" />
             Volver al inicio

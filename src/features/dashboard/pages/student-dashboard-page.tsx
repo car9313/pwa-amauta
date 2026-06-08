@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { Plus, TrendingUp, BookOpen, ChevronRight, Flame, Sparkles, HelpCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import { StatCard } from "../components/stat-card"
 import { AgendaItem } from "../components/agenda-item"
 import { ProgressCard } from "../components/progress-card"
@@ -28,9 +29,9 @@ export function StudentDashboardPage({
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="relative">
-          <div className="absolute inset-0 rounded-full bg-[#f4701f]/20 animate-ping" />
-          <div className="relative w-16 h-16 rounded-full bg-[#f4701f]/30 flex items-center justify-center">
-            <Sparkles className="w-8 h-8 text-[#f4701f] animate-spin" />
+          <div className="absolute inset-0 rounded-full bg-accent/20 animate-ping" />
+          <div className="relative w-16 h-16 rounded-full bg-accent/30 flex items-center justify-center">
+            <Sparkles className="w-8 h-8 text-accent animate-spin" />
           </div>
         </div>
       </div>
@@ -43,9 +44,9 @@ export function StudentDashboardPage({
         <div className="relative w-24 h-24 rounded-full bg-red-50 flex items-center justify-center">
           <HelpCircle className="w-12 h-12 text-red-500" />
         </div>
-        <h2 className="text-xl font-bold text-slate-700">¡Ups! Algo salió mal</h2>
-        <p className="text-slate-500 max-w-xs">{error?.message}</p>
-        <Button onClick={() => refetch()} className="bg-[#1f4fa3]">
+        <h2 className="text-xl font-bold text-foreground">¡Ups! Algo salió mal</h2>
+        <p className="text-muted-foreground max-w-xs">{error?.message}</p>
+        <Button onClick={() => refetch()} className="bg-primary">
           Intentar de nuevo
         </Button>
       </div>
@@ -64,13 +65,11 @@ export function StudentDashboardPage({
   return (
     <div className="space-y-4 sm:space-y-6 pb-6">
       {/* Welcome Hero Card - Fully responsive */}
-      <div className="relative overflow-hidden rounded-2xl sm:rounded-4xl bg-linear-to-br from-[#1f4fa3] via-[#3d5a80] to-[#f4701f] p-4 sm:p-6 text-white">
-        {/* Noise texture overlay */}
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-4xl bg-linear-to-br from-primary via-primary/80 to-accent p-4 sm:p-6 text-white">
         <div className="noise-overlay pointer-events-none absolute inset-0 z-0" />
         
-        {/* Decorative floating orbs - responsive */}
         <div className="absolute -right-4 sm:-right-8 -top-4 sm:-top-8 h-16 sm:h-32 w-16 sm:w-32 rounded-full bg-white/10 blur-xl animate-pulse-ring hidden sm:block" />
-        <div className="absolute -bottom-2 sm:-bottom-4 -left-2 sm:-left-4 h-12 sm:h-24 w-12 sm:w-24 rounded-full bg-[#f4701f]/20 blur-xl animate-float-gentle" style={{ animationDelay: '1s' }} />
+        <div className="absolute -bottom-2 sm:-bottom-4 -left-2 sm:-left-4 h-12 sm:h-24 w-12 sm:w-24 rounded-full bg-accent/20 blur-xl animate-float-gentle animation-delay-1000" />
 
         <div className="relative z-10">
           <div className="flex items-start justify-between gap-3">
@@ -79,19 +78,18 @@ export function StudentDashboardPage({
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             )}>
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight">
-                ¡Hola, <span className="text-[#fccca1]">{student?.name ?? 'Estudiante'}</span>!
+                ¡Hola, <span className="text-amauta-orange-light">{student?.name ?? 'Estudiante'}</span>!
               </h1>
               <p className="mt-1 text-xs sm:text-sm text-white/80 font-medium">
                 {new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}
               </p>
             </div>
             
-            {/* Avatar con ring animado */}
             <div className={cn(
               "relative transition-all duration-700 delay-200 ease-out",
               isVisible ? "opacity-100 scale-100" : "opacity-0 scale-75"
             )}>
-              <div className="absolute inset-0 rounded-full bg-[#f4701f]/30 animate-ping" style={{ animationDuration: '2s' }} />
+              <div className="absolute inset-0 rounded-full bg-accent/30 animate-ping" />
               <div className="relative h-12 w-12 sm:h-16 sm:w-16 rounded-full border-2 sm:border-4 border-white/40 overflow-hidden bg-white shadow-xl">
                 <img
                   src={student?.avatar ?? "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=200&h=200&fit=crop"}
@@ -102,16 +100,15 @@ export function StudentDashboardPage({
             </div>
           </div>
 
-          {/* Streak Section */}
           <div className={cn(
             "mt-4 sm:mt-6 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 rounded-xl sm:rounded-2xl bg-white/15 p-3 sm:p-4 backdrop-blur-sm transition-all duration-700 delay-300 ease-out",
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           )}>
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="relative">
-                <div className="absolute inset-0 rounded-full bg-[#f4701f]/50 animate-pulse" style={{ animationDuration: '1.5s' }} />
+                <div className="absolute inset-0 rounded-full bg-accent/50 animate-pulse" />
                 <div className="relative flex h-10 sm:h-12 w-10 sm:w-12 items-center justify-center rounded-full bg-white/20">
-                  <Flame className="h-5 sm:h-6 w-5 sm:w-6 text-[#f4701f]" />
+                  <Flame className="h-5 sm:h-6 w-5 sm:w-6 text-accent" />
                 </div>
               </div>
               <div>
@@ -128,7 +125,7 @@ export function StudentDashboardPage({
                   className={cn(
                     "flex h-8 sm:h-9 w-8 sm:w-9 items-center justify-center rounded-full text-xs sm:text-sm font-bold transition-all duration-300",
                     day.active
-                      ? "bg-[#f4701f] text-white shadow-lg shadow-[#f4701f]/30"
+                      ? "bg-accent text-white shadow-lg shadow-accent/30"
                       : "bg-white/15 text-white/50"
                   )}
                 >
@@ -155,17 +152,17 @@ export function StudentDashboardPage({
         "scrollbar-hide transition-all duration-700 delay-500 ease-out",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       )}>
-        <div className="glass-card rounded-xl sm:rounded-2xl p-3 sm:p-4">
+        <Card variant="glass" className="p-3 sm:p-4 gap-0">
           <div className="mb-3 sm:mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="flex h-7 sm:h-8 w-7 sm:w-8 items-center justify-center rounded-lg bg-[#e7eefb]">
-                <svg className="h-4 sm:h-5 w-4 sm:w-5 text-[#1f4fa3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex h-7 sm:h-8 w-7 sm:w-8 items-center justify-center rounded-lg bg-secondary">
+                <svg className="h-4 sm:h-5 w-4 sm:w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h2 className="text-base sm:text-lg font-bold text-[#1f3c78]">Agenda de Hoy</h2>
+              <h2 className="text-base sm:text-lg font-bold text-foreground">Agenda de Hoy</h2>
             </div>
-            <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-[#e7eefb] text-[#1f4fa3] hover:bg-[#1f4fa3] hover:text-white">
+            <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-secondary text-primary hover:bg-primary hover:text-white">
               <Plus className="h-4 w-4" />
             </Button>
           </div>
@@ -182,7 +179,7 @@ export function StudentDashboardPage({
               />
             ))}
           </div>
-        </div>
+        </Card>
       </div>
 
       {/* Progress Section */}
@@ -190,15 +187,15 @@ export function StudentDashboardPage({
         "transition-all duration-700 delay-600 ease-out",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       )}>
-        <div className="glass-card rounded-xl sm:rounded-2xl p-3 sm:p-4">
+        <Card variant="glass" className="p-3 sm:p-4 gap-0">
           <div className="mb-3 sm:mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="flex h-7 sm:h-8 w-7 sm:w-8 items-center justify-center rounded-lg bg-red-50">
                 <TrendingUp className="h-4 sm:h-5 w-4 sm:w-5 text-red-500" />
               </div>
-              <h2 className="text-base sm:text-lg font-bold text-[#1f3c78]">Tu Progreso</h2>
+              <h2 className="text-base sm:text-lg font-bold text-foreground">Tu Progreso</h2>
             </div>
-            <button className="text-xs sm:text-sm font-semibold text-[#1f4fa3] hover:underline">Ver todo</button>
+            <button className="text-xs sm:text-sm font-semibold text-primary hover:underline">Ver todo</button>
           </div>
           <div className="space-y-3 sm:space-y-4">
             {progress.map((item) => (
@@ -210,12 +207,12 @@ export function StudentDashboardPage({
               />
             ))}
           </div>
-        </div>
+        </Card>
       </div>
 
       {/* Quick Actions */}
       <div className={cn(
-        "relative overflow-hidden rounded-xl sm:rounded-2xl bg-linear-to-br from-[#f4701f] to-[#f8a76b] p-4 sm:p-5 transition-all duration-700 delay-700 ease-out",
+        "relative overflow-hidden rounded-xl sm:rounded-2xl bg-linear-to-br from-accent to-accent/80 p-4 sm:p-5 transition-all duration-700 delay-700 ease-out",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       )}>
         <div className="absolute -right-2 sm:-right-4 -top-2 sm:-top-4 h-12 sm:h-20 w-12 sm:w-20 rounded-full bg-white/10 blur-xl" />
@@ -247,10 +244,10 @@ export function StudentDashboardPage({
         "transition-all duration-700 delay-800 ease-out",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       )}>
-        <div className="glass-card rounded-xl sm:rounded-2xl p-3 sm:p-4">
+        <Card variant="glass" className="p-3 sm:p-4 gap-0">
           <div className="mb-3 sm:mb-4 flex items-center justify-between">
-            <h2 className="text-base sm:text-lg font-bold text-[#1f3c78]">Últimos Logros</h2>
-            <ChevronRight className="h-4 sm:h-5 w-4 sm:w-5 text-[#6b7280]" />
+            <h2 className="text-base sm:text-lg font-bold text-foreground">Últimos Logros</h2>
+            <ChevronRight className="h-4 sm:h-5 w-4 sm:w-5 text-muted-foreground" />
           </div>
           <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-2">
             {achievements.map((achievement) => (
@@ -262,7 +259,7 @@ export function StudentDashboardPage({
               />
             ))}
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   )
