@@ -2,7 +2,7 @@ import type { AuthUser } from "../domain/types";
 import type { LoginFormValues } from "../domain/login-form.types";
 import type { RegisterFormValues } from "../domain/register-form.types";
 import type { AuthResponse } from "../domain/types";
-import { authAdapter } from "../infraestructure/mappers/adapter";
+import { authAdapter } from "../infrastructure/mappers/adapter";
 import { httpClient } from "@/lib/http/client";
 
 export interface SessionState {

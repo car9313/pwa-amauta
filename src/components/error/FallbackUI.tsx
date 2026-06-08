@@ -5,6 +5,7 @@ import { AlertTriangle, RefreshCw, Home } from "lucide-react";
 export interface FallbackProps {
   error: Error;
   resetError: () => void;
+  isNetworkError?: boolean;
 }
 
 interface GenericFallbackProps extends FallbackProps {
@@ -16,8 +17,11 @@ interface GenericFallbackProps extends FallbackProps {
 export function GenericFallback({
   error,
   resetError,
-  title = "Algo salió mal",
-  message = "Encontramos un problema. Puedes intentar de nuevo.",
+  isNetworkError,
+  title = isNetworkError ? "Error de conexión" : "Algo salió mal",
+  message = isNetworkError
+    ? "No pudimos conectar con el servidor. Verifica tu conexión a internet."
+    : "Encontramos un problema. Puedes intentar de nuevo.",
   showHome = true,
 }: GenericFallbackProps) {
   return (
@@ -43,9 +47,9 @@ export function GenericFallback({
               className="border-red-300 text-red-700 hover:bg-red-100"
             >
               <RefreshCw className="mr-2 h-4 w-4" />
-              Intentar de nuevo
+              {isNetworkError ? "Reintentar conexión" : "Intentar de nuevo"}
             </Button>
-            {showHome && (
+            {showHome && !isNetworkError && (
               <Button
                 onClick={() => window.location.href = "/"}
                 variant="outline"
@@ -62,7 +66,7 @@ export function GenericFallback({
   );
 }
 
-export function StudentFallback({ resetError }: FallbackProps) {
+export function StudentFallback({ resetError, isNetworkError }: FallbackProps) {
   return (
     <div className="flex min-h-[300px] w-full items-center justify-center p-4">
       <Card className="w-full max-w-md border-0 bg-white shadow-xl">
@@ -71,12 +75,14 @@ export function StudentFallback({ resetError }: FallbackProps) {
             <AlertTriangle className="h-10 w-10 text-[#f4701f]" />
           </div>
           <CardTitle className="text-2xl font-bold text-[#1f4fa3]">
-            ¡Ups! Algo se atravesó
+            {isNetworkError ? "¡Ups! No hay internet" : "¡Ups! Algo se atravesó"}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 text-center">
           <p className="text-base text-slate-600">
-            Tuviste un pequeño percance. ¡No te preocupes! Puedes intentarlo de nuevo.
+            {isNetworkError
+              ? "Parece que no hay conexión a internet. Pídele a un adulto que revise."
+              : "Tuviste un pequeño percance. ¡No te preocupes! Puedes intentarlo de nuevo."}
           </p>
           <div className="flex flex-col gap-2">
             <Button
@@ -84,7 +90,7 @@ export function StudentFallback({ resetError }: FallbackProps) {
               className="w-full bg-[#f4701f] hover:bg-[#ea601b]"
             >
               <RefreshCw className="mr-2 h-4 w-4" />
-              ¡Intentar de nuevo!
+              {isNetworkError ? "¡Verificar de nuevo!" : "¡Intentar de nuevo!"}
             </Button>
             <Button
               onClick={() => window.location.href = "/"}
@@ -101,7 +107,7 @@ export function StudentFallback({ resetError }: FallbackProps) {
   );
 }
 
-export function ParentFallback({ error, resetError }: FallbackProps) {
+export function ParentFallback({ error, resetError, isNetworkError }: FallbackProps) {
   return (
     <div className="flex min-h-[250px] w-full items-center justify-center p-4">
       <Card className="w-full max-w-md border-slate-200">
@@ -110,12 +116,14 @@ export function ParentFallback({ error, resetError }: FallbackProps) {
             <AlertTriangle className="h-5 w-5 text-amber-600" />
           </div>
           <CardTitle className="text-lg text-slate-800">
-            Error de conexión
+            {isNetworkError ? "Error de conexión" : "Error inesperado"}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-center">
           <p className="text-sm text-slate-600">
-            Hubo un problema al cargar esta sección. Por favor, intenta de nuevo.
+            {isNetworkError
+              ? "No se pudo conectar con el servidor. Revisa tu conexión a internet."
+              : "Hubo un problema al cargar esta sección. Por favor, intenta de nuevo."}
           </p>
           {import.meta.env.DEV && error.message && (
             <p className="text-xs bg-slate-100 p-2 rounded text-left font-mono">
@@ -125,7 +133,7 @@ export function ParentFallback({ error, resetError }: FallbackProps) {
           <div className="flex gap-2 justify-center pt-2">
             <Button onClick={resetError} variant="outline">
               <RefreshCw className="mr-2 h-4 w-4" />
-              Reintentar
+              {isNetworkError ? "Reintentar conexión" : "Reintentar"}
             </Button>
             <Button
               onClick={() => window.location.href = "/"}

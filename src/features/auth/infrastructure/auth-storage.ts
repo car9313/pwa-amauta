@@ -22,7 +22,9 @@ export interface AuthStorage {
   getUser: () => Promise<AuthUser | null>;
   isValid: () => Promise<boolean>;
   clear: () => Promise<void>;
-  refreshAccess: (refreshToken: string) => Promise<{ access: string; expiresIn: number }>;
+  refreshAccess: (
+    refreshToken: string,
+  ) => Promise<{ access: string; expiresIn: number }>;
   saveSelectedStudentId: (studentId: string | null) => Promise<void>;
   getSelectedStudentId: () => Promise<string | null>;
   clearSelectedStudentId: () => Promise<void>;
@@ -40,6 +42,7 @@ export async function getRefreshToken(): Promise<string | null> {
 
 export async function saveAuthResponse(response: AuthResponse): Promise<void> {
   const { token: access, refresh, expiresIn = 900, user } = response;
+  console.log("Hola Mundo");
   await saveAuthData(access, refresh ?? "mock_refresh", expiresIn, user);
 }
 
@@ -63,12 +66,14 @@ export async function clearAuth(): Promise<void> {
 
 export async function updateAccess(
   access: string,
-  expiresIn: number
+  expiresIn: number,
 ): Promise<void> {
   await updateAccessToken(access, expiresIn);
 }
 
-export async function saveSelectedStudentId(studentId: string | null): Promise<void> {
+export async function saveSelectedStudentId(
+  studentId: string | null,
+): Promise<void> {
   await saveSelectedStudentIdDb(studentId);
 }
 

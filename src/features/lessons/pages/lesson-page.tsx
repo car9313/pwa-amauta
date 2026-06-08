@@ -1,24 +1,25 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Star, ChevronRight, HelpCircle, Sparkles } from "lucide-react"
+import { useNavigate } from "react-router-dom"
+import { useQueryClient } from "@tanstack/react-query"
+import { Star, ChevronRight, HelpCircle, Sparkles, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 import { cn } from "@/lib/utils"
 import { useNextExercise, useSubmitAnswer } from "@/features/exercises/hooks/useExercise"
+import { getNextExercise } from "@/services/exercise.service"
+import { exerciseKeys } from "@/lib/query/keys"
+import { useAuthStore } from "@/features/auth/presentation/store/auth-store"
 import { difficultyToStars } from "@/features/exercises/domain/exercise.types"
+import { QUEUED_OFFLINE } from "@/lib/sync/useSafeMutation"
+import { DownloadLesson } from "@/components/DownloadLesson"
 
-// ------------------------------------------------------------
 // Props
-//
-// lessonTitle   → viene del AgendaItem cuando el estudiante
-//                 hace clic en "Iniciar" en el dashboard
-// topicHint     → viene del AgendaItem, se envía al API
-// sessionId     → TODO: confirmar con backend cómo obtenerlo
-// stepTotal     → TODO: llegará del API cuando esté listo.
-//                 Por ahora se pasa como prop desde el dashboard
-//                 usando el total de steps del Lesson estático.
-// ------------------------------------------------------------
+// lessonTitle → del AgendaItem (click "Iniciar" en dashboard)
+// topicHint   → del AgendaItem, se envía al API
+// sessionId   → TODO: confirmar con backend cómo obtenerlo
+// stepTotal   → TODO: del API cuando esté listo (por ahora prop desde dashboard)
 interface LessonPageProps {
   studentId?:   string
   sessionId?:   string
@@ -41,20 +42,29 @@ export function LessonPage({
   onBack,
   onSkip,
 }: LessonPageProps) {
+  const queryClient = useQueryClient()
+  const navigate = useNavigate()
+  const tenantId = useAuthStore((state) => state.user?.tenantId ?? null)
   const [isVisible, setIsVisible]   = useState(false)
   const [answer, setAnswer]         = useState("")
   const [submitted, setSubmitted]   = useState(false)
-  // stepCurrent viene de los props o del API
-  // TODO: cuando el API devuelva step_current y step_total,
-  // estos valores vendrán de exercise.stepCurrent / exercise.stepTotal
+  // stepCurrent/stepTotal vendrán del API cuando esté disponible
 
   const { data: exercise, isLoading, isError, error } = useNextExercise(
     studentId,
-)
+  )
 
   const { mutate: submitAnswer, isPending } = useSubmitAnswer(studentId)
 
   useEffect(() => { setIsVisible(true) }, [])
+
+  const prefetchNextExercise = () => {
+    queryClient.prefetchQuery({
+      queryKey: exerciseKeys.next(studentId, tenantId),
+      queryFn: () => getNextExercise(studentId),
+      staleTime: Number(import.meta.env.VITE_QUERY_STALE_TIME ?? 60) * 1000,
+    });
+  };
 
   const handleSubmit = () => {
     if (!answer.trim() || submitted || !exercise) return
@@ -62,9 +72,13 @@ export function LessonPage({
     submitAnswer(
       { exerciseId: exercise.exerciseId, answer },
       {
-        onSuccess: () => {
-          // TODO: navegar a FeedbackPage pasando el ExerciseResult
-          // onNext(result)
+        onSuccess: (data) => {
+          if (data === QUEUED_OFFLINE) {
+            navigate("/lessons/feedback", { state: { queued: true }, replace: true });
+            return;
+          }
+          prefetchNextExercise();
+          navigate("/lessons/feedback", { state: { result: data }, replace: true });
         },
       }
     )
@@ -88,8 +102,8 @@ export function LessonPage({
   if (isError) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4 text-center px-4">
-        <div className="w-24 h-24 rounded-full bg-red-50 flex items-center justify-center text-4xl">
-          😢
+        <div className="w-24 h-24 rounded-full bg-red-50 flex items-center justify-center">
+          <AlertTriangle className="h-10 w-10 text-red-500" />
         </div>
         <h2 className="text-xl font-bold text-slate-700">¡Ups! Algo salió mal</h2>
         <p className="text-slate-500 max-w-xs">
@@ -103,13 +117,11 @@ export function LessonPage({
   }
 
   // ─── Datos derivados ───────────────────────────────────────
-  // Mapeamos los campos del API a lo que la UI necesita.
-  // Los campos marcados con TODO esperan confirmación del backend.
 
   const title          = lessonTitle ?? exercise?.topicId ?? "Lección"
   const starsCount     = difficultyToStars(exercise?.difficulty ?? "MEDIUM")
-  const currentStep    = exercise?.stepCurrent   ?? initialStep   // TODO: del API
-  const totalSteps     = exercise?.stepTotal     ?? stepTotal      // TODO: del API
+  const currentStep    = exercise?.stepCurrent   ?? initialStep
+  const totalSteps     = exercise?.stepTotal     ?? stepTotal
 
   // "Resuelve:" — el problema principal
   const mainProblem    = exercise?.prompt ?? ""
@@ -117,15 +129,8 @@ export function LessonPage({
   // Explicación pedagógica — hints[0]
   const explanation    = exercise?.hints?.[0] ?? ""
 
-  // Pizarra oscura — TODO: será exercise.demoContent cuando el API lo incluya
-  // Por ahora: hints[1] como fallback temporal
   const demoContent    = exercise?.demoContent ?? exercise?.hints?.[1] ?? null
-
-  // Pregunta secundaria — TODO: será exercise.secondaryQuestion
-  // Por ahora no se muestra si no hay dato (la sección queda oculta)
   const secondaryQ     = exercise?.secondaryQuestion ?? null
-
-  // Instrucción debajo de la pregunta — TODO: será exercise.subInstruction
   const subInstruction = exercise?.subInstruction ?? "¡Hazlo como en la pizarra!"
 
   // ─── Render ────────────────────────────────────────────────
@@ -209,8 +214,6 @@ export function LessonPage({
                 <p className="text-sm text-slate-600">{explanation}</p>
               )}
 
-              {/* Pizarra oscura de demostración */}
-              {/* TODO: reemplazar por exercise.demoContent cuando el API lo tenga */}
               {demoContent ? (
                 <div className="bg-[#17306d] rounded-xl p-4 sm:p-5 flex items-center justify-between gap-4">
                   <p className="text-white text-lg sm:text-2xl font-bold tracking-wide">
@@ -228,7 +231,6 @@ export function LessonPage({
                 /* Placeholder mientras el API no devuelva demoContent */
                 <div className="bg-[#17306d] rounded-xl p-4 sm:p-5 flex items-center justify-between gap-4">
                   <p className="text-white/50 text-sm italic">
-                    {/* demo_content pendiente del backend */}
                     Demostración visual próximamente
                   </p>
                   <div className="hidden sm:block w-16 h-16 rounded-lg bg-white/10 overflow-hidden flex-shrink-0">
@@ -243,9 +245,6 @@ export function LessonPage({
             </div>
           )}
 
-          {/* ── Sección de pregunta secundaria ── */}
-          {/* TODO: cuando el API devuelva secondary_question, mostrar aquí */}
-          {/* Por ahora se muestra solo si existe en el exercise */}
           {secondaryQ && (
             <div className="rounded-xl bg-orange-50 border border-orange-100 p-4">
               <div className="flex items-start gap-3">
@@ -264,8 +263,6 @@ export function LessonPage({
             </div>
           )}
 
-          {/* ── Si no hay secondary_question del API, mostramos el prompt
-               como pregunta de respuesta (comportamiento provisional) ── */}
           {!secondaryQ && mainProblem && (
             <div className="rounded-xl bg-orange-50 border border-orange-100 p-4">
               <div className="flex items-start gap-3">
@@ -274,7 +271,6 @@ export function LessonPage({
                 </div>
                 <div>
                   <p className="text-sm sm:text-base font-semibold text-slate-700">
-                    {/* TODO: reemplazar por exercise.secondaryQuestion */}
                     {mainProblem}
                   </p>
                   <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -339,6 +335,14 @@ export function LessonPage({
           </div>
         </div>
       </div>
+      <DownloadLesson
+        lessonId={title}
+        getLessonAssets={() => {
+          // TODO: recopilar imageUrl/audioUrl de lesson.steps
+          // cuando el backend sirva assets de lección
+          return [];
+        }}
+      />
     </div>
   )
 }

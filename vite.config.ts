@@ -3,12 +3,21 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
+import { sentryVitePlugin } from "@sentry/vite-plugin"
 
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-   
+    process.env.SENTRY_AUTH_TOKEN
+      ? sentryVitePlugin({
+          org: process.env.SENTRY_ORG ?? "amauta",
+          project: process.env.SENTRY_PROJECT ?? "amauta-web",
+          authToken: process.env.SENTRY_AUTH_TOKEN,
+          telemetry: false,
+        })
+      : undefined,
+    
     /**
      * PWA plugin (injectManifest)
      *
@@ -30,7 +39,7 @@ export default defineConfig({
       filename: 'sw.ts', // Vite buscará src/sw.ts y lo inyectará en la build
 
       // Archivos estáticos en /public que queremos asegurar que estén disponibles
-      includeAssets: ['favicon.ico', 'robots.txt', 'icons/*.png', 'icons/*.webp'],
+      includeAssets: ['robots.txt', 'icons/*.png', 'icons/*.webp', 'icons/maskable-*.png'],
 
       // Manifest: metadatos que el navegador usará para la instalación
       manifest: {
@@ -40,11 +49,12 @@ export default defineConfig({
         lang: 'es-419',
         start_url: '/',
         scope: '/',
+        id: '/',
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#ffffff',
         theme_color: '#0b6bf6',
-       "icons": [
+        "icons": [
   {
     "src": "/icons/manifest-icon-192.maskable.png",
     "sizes": "192x192",
@@ -52,7 +62,7 @@ export default defineConfig({
     "purpose": "any"
   },
   {
-    "src": "/icons/manifest-icon-192.maskable.png",
+    "src": "/icons/maskable-192.png",
     "sizes": "192x192",
     "type": "image/png",
     "purpose": "maskable"
@@ -64,7 +74,7 @@ export default defineConfig({
     "purpose": "any"
   },
   {
-    "src": "/icons/manifest-icon-512.maskable.png",
+    "src": "/icons/maskable-512.png",
     "sizes": "512x512",
     "type": "image/png",
     "purpose": "maskable"

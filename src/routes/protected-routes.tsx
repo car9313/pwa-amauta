@@ -1,13 +1,55 @@
+import { lazy } from "react";
 import type { RouteObject } from "react-router-dom";
 import { RequireRole } from "./guards/require-role";
-import { RoleSelectionPage } from "@/features/role/pages/role-selection-page";
 import { AmautaLayout } from "@/layout/amauta-layout";
-import { LevelScreen } from "@/features/progress/pages/level-screen";
-import { LessonPage } from "@/features/lessons/pages/lesson-page";
 import { RequireAuth } from "./guards/require-auth";
 import { HomeRedirect } from "./home-redirect";
-import { ParentDashboardPage } from "@/features/dashboard/pages/parent-dashboard-page";
-import { StudentDashboardPage } from '@/features/dashboard/pages/student-dashboard-page';
+
+const RoleSelectionPage = lazy(() =>
+  import("@/features/role/pages/role-selection-page").then((m) => ({
+    default: m.RoleSelectionPage,
+  }))
+);
+const LevelScreen = lazy(() =>
+  import("@/features/progress/pages/level-screen").then((m) => ({
+    default: m.LevelScreen,
+  }))
+);
+const LessonPage = lazy(() =>
+  import("@/features/lessons/pages/lesson-page").then((m) => ({
+    default: m.LessonPage,
+  }))
+);
+const FeedbackPage = lazy(() =>
+  import("@/features/lessons/pages/feedback-page").then((m) => ({
+    default: m.FeedbackPage,
+  }))
+);
+const PracticePage = lazy(() =>
+  import("@/features/practice/pages/practice-page").then((m) => ({
+    default: m.PracticePage,
+  }))
+);
+const GamesPage = lazy(() =>
+  import("@/features/games/pages/games-page").then((m) => ({
+    default: m.GamesPage,
+  }))
+);
+const ParentDashboardPage = lazy(() =>
+  import("@/features/dashboard/pages/parent-dashboard-page").then((m) => ({
+    default: m.ParentDashboardPage,
+  }))
+);
+const StudentDashboardPage = lazy(() =>
+  import("@/features/dashboard/pages/student-dashboard-page").then((m) => ({
+    default: m.StudentDashboardPage,
+  }))
+);
+const TeacherDashboardPage = lazy(() =>
+  import("@/features/dashboard/pages/teacher-dashboard-page").then((m) => ({
+    default: m.TeacherDashboardPage,
+  }))
+);
 
 export const protectedRoutes: RouteObject = {
   element: (
@@ -39,12 +81,32 @@ export const protectedRoutes: RouteObject = {
       ),
     },
     {
+      path: "/dashboard/teacher",
+      element: (
+        <RequireRole allowedRole="teacher">
+          <TeacherDashboardPage />
+        </RequireRole>
+      ),
+    },
+    {
       path: "/lessons",
       element: <LessonPage />,
     },
     {
+      path: "/lessons/feedback",
+      element: <FeedbackPage />,
+    },
+    {
       path: "/progress",
       element: <LevelScreen />,
-    }
+    },
+    {
+      path: "/practice",
+      element: <PracticePage />,
+    },
+    {
+      path: "/games",
+      element: <GamesPage />,
+    },
   ],
 };

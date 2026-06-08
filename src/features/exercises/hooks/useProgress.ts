@@ -10,6 +10,8 @@ import {
 } from "@/lib/api/storage/progress-db";
 import { progressKeys } from "@/lib/query/keys";
 import type { StudentProgress } from "@/lib/api/storage/db";
+import { useSafeMutation } from "@/lib/sync/useSafeMutation";
+import { httpClient } from "@/lib/http/client";
 
 export function useProgressByStudent(studentId: string) {
   return useQuery<StudentProgress[], Error>({
@@ -46,16 +48,24 @@ export function useSaveProgress() {
 }
 
 export function useUpdateProgress() {
-  const queryClient = useQueryClient();
-
-  return useMutation<void, Error, { studentId: string; lessonId: string; updates: Partial<StudentProgress> }>({
-    mutationFn: ({ studentId, lessonId, updates }) =>
-      updateProgressDb(studentId, lessonId, updates),
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: progressKeys.student(variables.studentId) });
-      queryClient.invalidateQueries({
-        queryKey: progressKeys.byLesson(variables.studentId, variables.lessonId),
-      });
+  return useSafeMutation<void, { studentId: string; lessonId: string; updates: Partial<StudentProgress> }>({
+    mutationFn: async ({ studentId, lessonId, updates }) => {
+      await updateProgressDb(studentId, lessonId, updates);
+      if (navigator.onLine) {
+        await httpClient.patch(`/students/${studentId}/progress/${lessonId}`, updates);
+      }
+    },
+    queryKey: (payload) => progressKeys.student(payload.studentId),
+    optimisticUpdate: (oldProgress, { lessonId, updates }) => {
+      if (!Array.isArray(oldProgress)) return oldProgress;
+      return oldProgress.map((p: any) =>
+        p.lessonId === lessonId ? { ...p, ...updates } : p
+      );
+    },
+    offline: {
+      type: "updateProgress",
+      endpoint: (payload) => `/students/${payload.studentId}/progress/${payload.lessonId}`,
+      method: "PATCH",
     },
   });
 }

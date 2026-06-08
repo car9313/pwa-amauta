@@ -9,7 +9,7 @@ import {
   clearSelectedStudentId as clearSelectedStudentIdDb
 } from "@/features/auth/infrastructure/auth-storage";
 export type { UserRole } from "@/features/auth/domain/types";
-import type { AuthErrorCode } from "@/features/auth/domain/auth-error";
+import { isOfflineError, type AuthErrorCode } from "@/features/auth/domain/auth-error";
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -29,6 +29,7 @@ interface AuthState {
   hydrateFromStorage: () => Promise<void>;
   setOfflineMode: (value: boolean) => void;
   setAuthError: (error: AuthErrorCode | null) => void;
+  resetAuthError: () => void;
   handleAuthFailure: (error: AuthErrorCode) => Promise<void>;
 }
 
@@ -94,23 +95,38 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   hydrateFromStorage: async () => {
     const isValid = await checkAuthValidity();
-    
+
     if (!isValid) {
-      await clearAuth();
-      await clearSelectedStudentIdDb();
-      set({
-        isAuthenticated: false,
-        user: null,
-        selectedStudentId: null,
-        hasHydrated: true,
-        isVerifying: false,
-      });
+      const stored = await loadAuthFromStorage();
+      const selectedStudentId = await getSelectedStudentIdDb();
+
+      if (stored?.user) {
+        set({
+          isAuthenticated: true,
+          user: stored.user,
+          selectedStudentId,
+          hasHydrated: true,
+          isVerifying: false,
+          isOfflineMode: true,
+          lastAuthError: "TOKEN_EXPIRED",
+        });
+      } else {
+        await clearAuth();
+        await clearSelectedStudentIdDb();
+        set({
+          isAuthenticated: false,
+          user: null,
+          selectedStudentId: null,
+          hasHydrated: true,
+          isVerifying: false,
+        });
+      }
       return;
     }
 
     const stored = await loadAuthFromStorage();
     const selectedStudentId = await getSelectedStudentIdDb();
-    
+
     if (stored && stored.user) {
       set({
         isAuthenticated: true,
@@ -134,6 +150,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   setAuthError: (error) => set({ lastAuthError: error }),
 
+  resetAuthError: () => set({ lastAuthError: null, isOfflineMode: false }),
+
   handleAuthFailure: async (error: AuthErrorCode) => {
     const state = get();
     const hasLocalSession = state.user !== null && state.hasHydrated;
@@ -145,23 +163,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       return;
     }
 
-    if (error === "NETWORK_ERROR" && hasLocalSession) {
-      set({
-        isOfflineMode: true,
-        lastAuthError: error,
-      });
-      return;
-    }
-
-    if (error === "TOKEN_EXPIRED" && hasLocalSession) {
-      set({
-        isOfflineMode: true,
-        lastAuthError: error,
-      });
-      return;
-    }
-
-    if (error === "REFRESH_FAILED" && hasLocalSession) {
+    if (isOfflineError(error) && hasLocalSession) {
       set({
         isOfflineMode: true,
         lastAuthError: error,
@@ -173,27 +175,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 }));
 
-export const selectUser = (state: AuthState) => state.user;
-export const selectIsAuthenticated = (state: AuthState) => state.isAuthenticated;
-export const selectSelectedStudentId = (state: AuthState) => state.selectedStudentId;
-export const selectIsParent = (state: AuthState) => state.user?.role === "parent";
-export const selectIsStudent = (state: AuthState) => state.user?.role === "student";
-export const selectIsTeacher = (state: AuthState) => state.user?.role === "teacher";
-export const selectUserRole = (state: AuthState) => state.user?.role ?? null;
-export const selectTenantId = (state: AuthState) => state.user?.tenantId ?? null;
-export const selectChildren = (state: AuthState) =>
-  state.user?.role === "parent" ? state.user.children : [];
-export const selectStudentId = (state: AuthState): string | null => {
-  if (state.user?.role === "student") {
-    return "studentId" in state.user ? state.user.studentId : null;
-  }
-  if (state.user?.role === "parent" && state.selectedStudentId) {
-    const childIds = state.user.children.map((c) => c.studentId);
-    if (childIds.includes(state.selectedStudentId)) {
-      return state.selectedStudentId;
-    }
-  }
-  return null;
-};
+// Preferir inline selectors: useAuthStore((s) => s.campo)
+// Crear named selector solo cuando sea compartido por 2+ componentes
 export const selectIsOfflineMode = (state: AuthState) => state.isOfflineMode;
 export const selectLastAuthError = (state: AuthState) => state.lastAuthError;

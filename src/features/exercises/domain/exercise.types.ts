@@ -285,6 +285,44 @@ export const parentDashboardSchema = z.object({
 
 export type ParentDashboard = z.infer<typeof parentDashboardSchema>;
 
+export const teacherStudentSummarySchema = z.object({
+  studentId: z.string(),
+  name: z.string(),
+  avatar: z.string().optional(),
+  level: z.number().int().positive(),
+  points: z.number().int().nonnegative(),
+  precision: z.number().min(0).max(100),
+  streakDays: z.number().int().nonnegative(),
+  mastery: z.number().min(0).max(100),
+  riskFlags: z.array(z.string()),
+  lastActivity: z.string(),
+});
+
+export type TeacherStudentSummary = z.infer<typeof teacherStudentSummarySchema>;
+
+export const teacherClassSchema = z.object({
+  classId: z.string(),
+  className: z.string(),
+  studentCount: z.number().int().positive(),
+  averageMastery: z.number().min(0).max(100),
+  students: z.array(teacherStudentSummarySchema),
+});
+
+export type TeacherClass = z.infer<typeof teacherClassSchema>;
+
+export const teacherDashboardSchema = z.object({
+  teacherId: z.string(),
+  name: z.string(),
+  totalStudents: z.number().int().nonnegative(),
+  totalClasses: z.number().int().nonnegative(),
+  averageMastery: z.number().min(0).max(100),
+  classes: z.array(teacherClassSchema),
+  subjectProgress: z.array(progressItemSchema),
+  recentActivity: z.array(activityItemSchema),
+});
+
+export type TeacherDashboard = z.infer<typeof teacherDashboardSchema>;
+
 export interface ExerciseApiResponse {
   exercise: Exercise;
   sessionId: string;

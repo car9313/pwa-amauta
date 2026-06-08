@@ -1,14 +1,30 @@
-import { useEffect, useState } from "react";
-import { useAuthStore, selectIsOfflineMode, selectLastAuthError } from "@/features/auth/presentation/store/auth-store";
-import { AUTH_ERROR_MESSAGES } from "@/features/auth/domain/auth-error";
+import { useEffect, useState, useCallback } from "react";
+import { useAuthStore, selectIsOfflineMode } from "@/features/auth/presentation/store/auth-store";
+import { refreshAccessToken } from "@/lib/api/refresh";
 
 export function useOfflineMode() {
   const isOfflineMode = useAuthStore(selectIsOfflineMode);
-  const lastAuthError = useAuthStore(selectLastAuthError);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
+  const handleOnline = useCallback(async () => {
+    setIsOnline(true);
+
+    const state = useAuthStore.getState();
+    if (state.isOfflineMode && state.lastAuthError === "TOKEN_EXPIRED") {
+      try {
+        await refreshAccessToken();
+        state.setOfflineMode(false);
+        state.setAuthError(null);
+      } catch {
+        await state.clearSession();
+      }
+    } else {
+      state.setOfflineMode(false);
+      state.setAuthError(null);
+    }
+  }, []);
+
   useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 
     window.addEventListener("online", handleOnline);
@@ -18,14 +34,11 @@ export function useOfflineMode() {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
     };
-  }, []);
-
-  const errorMessage = lastAuthError ? AUTH_ERROR_MESSAGES[lastAuthError] : null;
+  }, [handleOnline]);
 
   return {
     isOnline,
     isOfflineMode,
-    errorMessage,
     canRetry: !isOnline || isOfflineMode,
   };
 }

@@ -1,3 +1,5 @@
+import { captureSentryError } from "@/lib/sentry";
+
 export interface ErrorLogEntry {
   id: string;
   message: string;
@@ -61,6 +63,12 @@ export function logError(
   saveErrorLogs(logs);
 
   console.error(`[ErrorLogger] ${id}:`, error);
+
+  captureSentryError(error, {
+    componentStack: context?.componentStack,
+    userId: context?.userId,
+    role: context?.role,
+  })
 
   return id;
 }

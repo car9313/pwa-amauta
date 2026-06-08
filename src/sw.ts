@@ -27,7 +27,6 @@ import {
 } from 'workbox-strategies'
 import { ExpirationPlugin } from 'workbox-expiration'
 import { CacheableResponsePlugin } from 'workbox-cacheable-response'
-import { BackgroundSyncPlugin } from 'workbox-background-sync'
 
 
 /* -------------------------
@@ -45,18 +44,10 @@ async function notifyClients(message: Record<string, any>) {
     for (const client of clients) {
       client.postMessage(message)
     }
-  } catch (err) {
+  } catch {
     // no bloquear en caso de fallo
-    console.warn('notifyClients error', err)
   }
 }
-
-/* -------------------------
-   Background Sync plugin
-   ------------------------- */
-const bgSyncPlugin = new BackgroundSyncPlugin('amauta-outbox-queue', {
-  maxRetentionTime: 24 * 60 // minutos (24h)
-})
 
 /* -------------------------
    Runtime caching routes
@@ -75,8 +66,13 @@ registerRoute(
 )
 
 // 2) API GET -> NetworkFirst con timeout y fallback a cache
+//    Match: URLs relativas /api/* (Vite proxy) o absolutas a *.amauta.axentra.io
 registerRoute(
-  ({ url, request }) => request.method === 'GET' && url.pathname.startsWith('/api/'),
+  ({ url, request }) => request.method === 'GET' && (
+    url.pathname.startsWith('/api/') ||
+    url.pathname.startsWith('/v1/') ||
+    url.hostname.endsWith('.amauta.axentra.io')
+  ),
   new NetworkFirst({
     cacheName: 'api-get-cache-v1',
     networkTimeoutSeconds: 5,
@@ -96,12 +92,10 @@ registerRoute(
   })
 )
 
-// 4) POSTs a /api/ -> NetworkOnly + BackgroundSync (se encolan si offline)
+// 4) POSTs a /api/ -> NetworkOnly (el app-level outbox maneja retries)
 registerRoute(
   ({ url, request }) => request.method === 'POST' && url.pathname.startsWith('/api/'),
-  new NetworkOnly({
-    plugins: [bgSyncPlugin]
-  }),
+  new NetworkOnly(),
   'POST'
 )
 
@@ -183,20 +177,10 @@ self.addEventListener('install', () => {
 
 self.addEventListener('activate', (event: ExtendableEvent) => {
   event.waitUntil((async () => {
+    await caches.delete('navigation-cache-v1')
     await self.clients.claim()
     await notifyClients({ type: 'SW_ACTIVATED' })
   })())
 })
 
-/* -------------------------
-   Sync event (optional fallback)
-   ------------------------- */
-self.addEventListener('sync', (event: any) => {
-  // Event tags provienen de Background Sync (workbox) o de registration.sync.register(tag)
-  // Se utiliza como fallback para ejecutar tareas cuando el navegador lo permita.
-  // Podrías procesar una cola propia aquí si la mantienes en IndexedDB.
-  // Por ahora notificamos al cliente para que active su reconciliador (fallback).
-  event.waitUntil((async () => {
-    await notifyClients({ type: 'SYNC_EVENT', tag: event.tag })
-  })())
-})
+
