@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { retryFailedMutations } from "@/lib/sync/queue-manager";
-import { getFailedCount } from "@/lib/api/storage/offline-queue";
+import { getFailedCount, clearAllMutations } from "@/lib/api/storage/offline-queue";
 import { onSyncEvent } from "@/lib/sync/background-sync";
 
 export function useFailedMutationCount() {
@@ -28,7 +28,6 @@ export function useFailedMutationCount() {
   };
 
   const dismiss = async () => {
-    const { clearAllMutations } = await import("@/lib/api/storage/offline-queue");
     await clearAllMutations();
     setCount(0);
   };

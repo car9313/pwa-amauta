@@ -133,8 +133,8 @@ export function LoginPage() {
     <section className="relative flex min-h-[calc(100vh-4rem)] w-full items-center justify-center px-4 py-6">
       <div className="gradient-mesh absolute inset-0 -z-10" />
 
-      <div className="absolute right-1/4 top-1/4 h-64 w-64 rounded-full bg-[#1f4fa3]/10 blur-3xl animate-float-gentle hidden sm:block" />
-      <div className="absolute left-1/4 bottom-1/4 h-48 w-48 rounded-full bg-[#f4701f]/10 blur-3xl animate-float-gentle-reverse hidden sm:block" style={{ animationDelay: '2s' }} />
+      <div className="absolute right-1/4 top-1/4 h-64 w-64 rounded-full bg-primary/10 blur-3xl animate-float-gentle hidden sm:block" />
+      <div className="absolute left-1/4 bottom-1/4 h-48 w-48 rounded-full bg-accent/10 blur-3xl animate-float-gentle-reverse animation-delay-2000 hidden sm:block" />
 
       <Card className={cn(
         "w-full max-w-md border-0 shadow-2xl",
@@ -150,12 +150,12 @@ export function LoginPage() {
             <img
               src="/img/amauta-mascot.jpg"
               alt="Amauta"
-              className="w-full h-full object-cover rounded-2xl shadow-lg shadow-[#1f4fa3]/30"
+              className="w-full h-full object-cover rounded-2xl shadow-lg shadow-primary/30"
             />
           </div>
 
           <CardTitle className={cn(
-            "text-2xl sm:text-3xl font-bold tracking-tight text-[#1f4fa3]",
+            "text-2xl sm:text-3xl font-bold tracking-tight text-primary",
             "transition-all duration-500 delay-200",
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
           )}>
@@ -176,7 +176,7 @@ export function LoginPage() {
               <div
                 role="status"
                 aria-live="polite"
-                className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800"
+                className="flex items-start gap-2 rounded-lg border border-accent/30 bg-accent/10 px-3 py-2 text-sm text-accent-foreground"
               >
                 <WifiOff className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
                 <p className="leading-snug">{offlineWelcome}</p>
@@ -191,19 +191,19 @@ export function LoginPage() {
               "space-y-2 transition-all duration-500 delay-400",
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             )}>
-              <Label htmlFor="email" className="text-slate-700 font-semibold text-sm sm:text-base">
+              <Label htmlFor="email" className="text-foreground font-semibold text-sm sm:text-base">
                 Correo electrónico
               </Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="correo@ejemplo.com"
-                className="h-10 sm:h-11 border-slate-200 bg-slate-50/50 focus:bg-white transition-all duration-200 focus:ring-2 focus:ring-[#1f4fa3]/20 focus:border-[#1f4fa3] text-sm sm:text-base"
+                className="border-input bg-background/50 focus:bg-background transition-all duration-200 focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 aria-invalid={!!errors.email}
                 {...register("email")}
               />
               {errors.email && (
-                <p className="text-sm text-red-500 font-medium">{errors.email.message}</p>
+                <p className="text-sm text-destructive font-medium">{errors.email.message}</p>
               )}
             </div>
 
@@ -211,30 +211,30 @@ export function LoginPage() {
               "space-y-2 transition-all duration-500 delay-500",
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             )}>
-              <Label htmlFor="password" className="text-slate-700 font-semibold text-sm sm:text-base">
+              <Label htmlFor="password" className="text-foreground font-semibold text-sm sm:text-base">
                 Contraseña
               </Label>
               <Input
                 id="password"
                 type="password"
                 placeholder="••••••••"
-                className="h-10 sm:h-11 border-slate-200 bg-slate-50/50 focus:bg-white transition-all duration-200 focus:ring-2 focus:ring-[#1f4fa3]/20 focus:border-[#1f4fa3] text-sm sm:text-base"
+                className="border-input bg-background/50 focus:bg-background transition-all duration-200 focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 aria-invalid={!!errors.password}
                 {...register("password")}
               />
               {errors.password && (
-                <p className="text-sm text-red-500 font-medium">{errors.password.message}</p>
+                <p className="text-sm text-destructive font-medium">{errors.password.message}</p>
               )}
             </div>
 
             <Button
               type="submit"
+              size="child-lg"
               className={cn(
-                "w-full h-11 sm:h-12 text-sm sm:text-base font-bold",
-                "bg-linear-to-r from-[#f4701f] to-[#ea601b]",
-                "hover:from-[#ea601b] hover:to-[#d45518]",
-                "shadow-lg shadow-orange-500/25",
-                "transition-all duration-300 hover:shadow-xl hover:shadow-orange-500/30 hover:scale-[1.02]",
+                "w-full bg-linear-to-r from-accent to-amauta-orange-dark",
+                "hover:from-amauta-orange-dark hover:to-[#d45518]",
+                "shadow-lg shadow-accent/25",
+                "transition-all duration-300 hover:shadow-xl hover:shadow-accent/30 hover:scale-[1.02]",
                 "disabled:opacity-70 disabled:hover:scale-100",
                 isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               )}
@@ -264,9 +264,9 @@ export function LoginPage() {
               type="button"
               onClick={() => navigate("/register", { replace: true })}
               className={cn(
-                "w-full text-center text-sm font-medium text-slate-500",
+                "w-full text-center text-sm font-medium text-muted-foreground",
                 "transition-all duration-500 delay-600",
-                "hover:text-[#1f4fa3] hover:underline decoration-2 underline-offset-2",
+                "hover:text-primary hover:underline decoration-2 underline-offset-2",
                 isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               )}
             >

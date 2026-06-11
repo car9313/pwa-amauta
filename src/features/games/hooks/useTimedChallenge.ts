@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react"
+import { useState, useCallback, useEffect } from "react"
 import { getNextExercise } from "@/services/exercise.service"
 import type { Exercise } from "@/features/exercises/domain/exercise.types"
 
@@ -27,7 +27,7 @@ export function useTimedChallenge(studentId: string): UseTimedChallengeReturn {
   const [streak, setStreak] = useState(0)
   const [remainingSeconds, setRemainingSeconds] = useState(TOTAL_TIME)
   const [isFinished, setIsFinished] = useState(false)
-  const resultRef = useRef({ score: 0, correctCount: 0, totalCount: 0, earnedPoints: 0 })
+  const [result, setResult] = useState({ score: 0, correctCount: 0, totalCount: 0, earnedPoints: 0 })
 
   const loadExercise = useCallback(async () => {
     setIsLoading(true)
@@ -41,6 +41,7 @@ export function useTimedChallenge(studentId: string): UseTimedChallengeReturn {
   }, [studentId])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadExercise()
   }, [loadExercise])
 
@@ -53,12 +54,12 @@ export function useTimedChallenge(studentId: string): UseTimedChallengeReturn {
           setIsFinished(true)
           const total = totalAnswered
           const correct = correctCount
-          resultRef.current = {
+          setResult({
             score: total > 0 ? Math.round((correct / total) * 100) : 0,
             correctCount: correct,
             totalCount: total,
             earnedPoints: correct * 10 + Math.max(0, Math.floor(correct / 3)) * 5,
-          }
+          })
           return 0
         }
         return prev - 1
@@ -95,7 +96,7 @@ export function useTimedChallenge(studentId: string): UseTimedChallengeReturn {
     setStreak(0)
     setRemainingSeconds(TOTAL_TIME)
     setIsFinished(false)
-    resultRef.current = { score: 0, correctCount: 0, totalCount: 0, earnedPoints: 0 }
+    setResult({ score: 0, correctCount: 0, totalCount: 0, earnedPoints: 0 })
     loadExercise()
   }, [loadExercise])
 
@@ -108,7 +109,7 @@ export function useTimedChallenge(studentId: string): UseTimedChallengeReturn {
     streak,
     remainingSeconds,
     isFinished,
-    result: resultRef.current,
+    result,
     submitAnswer,
     resetChallenge,
   }

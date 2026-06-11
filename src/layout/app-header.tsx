@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Container } from "@/components/ui/container";
 import { AppMenuSheet } from "@/features/navigation/components/app-menu-sheet";
 import { Menu } from "lucide-react";
 
@@ -6,7 +7,7 @@ export function AppHeader() {
   
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur">
-      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <Container className="flex h-16 items-center justify-between">
         <img
           src="/icons/favicon-96x96.png"
           alt="Amauta"
@@ -30,7 +31,7 @@ export function AppHeader() {
             }
           />
         </div>
-      </div>
+      </Container>
     </header>
   );
 }

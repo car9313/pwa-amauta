@@ -41,7 +41,7 @@ describe("registerFormSchema", () => {
   });
 
   it("rejects missing confirmPassword", () => {
-    const { confirmPassword: _, ...rest } = valid;
+    const { confirmPassword: _confirm, ...rest } = valid;
     expect(() => registerFormSchema.parse(rest)).toThrow();
   });
 

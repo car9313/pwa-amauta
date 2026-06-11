@@ -14,7 +14,7 @@
  */
 
 declare const self: ServiceWorkerGlobalScope & {
-  __WB_MANIFEST?: Array<any>
+  __WB_MANIFEST?: Array<{ revision: string | null; url: string }>
 }
 
 import { precacheAndRoute, cleanupOutdatedCaches, PrecacheFallbackPlugin } from 'workbox-precaching'
@@ -38,7 +38,7 @@ cleanupOutdatedCaches()
 /* -------------------------
    Util: notificar a todos los clientes
    ------------------------- */
-async function notifyClients(message: Record<string, any>) {
+async function notifyClients(message: Record<string, unknown>) {
   try {
     const clients = await self.clients.matchAll({ includeUncontrolled: true })
     for (const client of clients) {
@@ -149,7 +149,7 @@ self.addEventListener('message', (event: ExtendableMessageEvent) => {
             // (no hacemos aún cache.add sin-cors automáticamente)
             results.push({ url, ok: false, reason: `fetch-not-ok status=${resp?.status}` })
           }
-        } catch (fetchErr) {
+        } catch {
           // Fetch falló (offline o CORS). Intentamos fallback con request no-cors.
           try {
             await cache.add(new Request(url, { mode: 'no-cors' }))

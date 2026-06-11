@@ -1,10 +1,10 @@
 import { Suspense } from "react"
 import { Outlet, useLocation } from "react-router-dom"
-import { AppHeader } from "./app-header"
 import { Breadcrumbs } from "@/components/ui/breadcrumb"
+import { Container } from "@/components/ui/container"
+import { Shell } from "@/components/ui/shell"
 import { ErrorBoundary } from "@/components/error"
 import { useAuthStore } from "@/features/auth/presentation/store/auth-store"
-import { ConnectionStatus } from "@/components/pwa/ConnectionStatus"
 
 const LAYOUT_ROUTES = ["/dashboard", "/lessons", "/progress", "/practice", "/games"]
 
@@ -25,10 +25,8 @@ export function AmautaLayout() {
 
   return (
     <ErrorBoundary fallbackType={layoutFallbackType}>
-      <div className="min-h-screen bg-background text-foreground">
-        <ConnectionStatus />
-        <AppHeader /> 
-        <main className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+      <Shell>
+        <Container as="main" className="py-4">
           {showBreadcrumb && (
             <div className="mb-4 sm:mb-6">
               <Breadcrumbs />
@@ -37,8 +35,8 @@ export function AmautaLayout() {
           <Suspense fallback={<PageFallback />}>
             <Outlet />
           </Suspense>
-        </main>
-      </div>
+        </Container>
+      </Shell>
     </ErrorBoundary>
   )
 }

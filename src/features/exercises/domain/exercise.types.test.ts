@@ -166,7 +166,7 @@ describe("nextExerciseRequestSchema", () => {
   });
 
   it("rejects missing locale", () => {
-    const { locale: _, ...rest } = valid;
+    const { locale: _loc, ...rest } = valid;
     expect(() => nextExerciseRequestSchema.parse(rest)).toThrow();
   });
 });
@@ -193,7 +193,7 @@ describe("exerciseSchema", () => {
   });
 
   it("rejects missing prompt", () => {
-    const { prompt: _, ...rest } = valid;
+    const { prompt: _prompt, ...rest } = valid;
     expect(() => exerciseSchema.parse(rest)).toThrow();
   });
 

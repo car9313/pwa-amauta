@@ -1,6 +1,5 @@
-import { useEffect, useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import { Sparkles } from "lucide-react"
-import { cn } from "@/lib/utils"
 import { GAME_CONFIGS } from "../domain/game-config"
 import { useMemoryGame } from "../hooks/useMemoryGame"
 import { GameCard } from "../components/game-card"
@@ -20,12 +19,11 @@ function TimedChallengeWrapper({ onBack }: { onBack: () => void }) {
   const [streak, setStreak] = useState(0)
   const [remainingSeconds, setRemainingSeconds] = useState(60)
   const [isFinished, setIsFinished] = useState(false)
-  const [prompt, setPrompt] = useState("8 + 5 = ?")
-  const [isLoading, setIsLoading] = useState(false)
+  const isLoading = false
   const [result, setResult] = useState<GameResult | null>(null)
 
-  const ops = ["+", "-", "x"]
   const generatePrompt = useCallback(() => {
+    const ops = ["+", "-", "x"]
     const op = ops[Math.floor(Math.random() * 3)]
     let a: number
     let b: number
@@ -44,7 +42,7 @@ function TimedChallengeWrapper({ onBack }: { onBack: () => void }) {
     else if (op === "-") expected = a - b
     else expected = a * b
     return { text: `${a} ${op} ${b} = ?`, answer: String(expected) }
-  }, [ops])
+  }, [])
 
   const currentRef = useState(generatePrompt)[0]
   const [current, setCurrent] = useState(currentRef)
@@ -89,7 +87,7 @@ function TimedChallengeWrapper({ onBack }: { onBack: () => void }) {
       const next = generatePrompt()
       setCurrent(next)
     },
-    [isFinished, current, streak, generatePrompt],
+    [isFinished, current, streak, generatePrompt]
   )
 
   const resetChallenge = useCallback(() => {
@@ -122,14 +120,11 @@ function TimedChallengeWrapper({ onBack }: { onBack: () => void }) {
 }
 
 export function GamesPage() {
-  const [isVisible, setIsVisible] = useState(false)
   const [currentView, setCurrentView] = useState<GameView>("portal")
   const [memoryDifficulty] = useState<"easy" | "medium" | "hard">("easy")
 
   const memory = useMemoryGame(memoryDifficulty)
   const quiz = useQuizGame(10)
-
-  useEffect(() => { setIsVisible(true) }, [])
 
   const handleSelectGame = (id: GameId) => {
     setCurrentView(id)
@@ -145,10 +140,7 @@ export function GamesPage() {
   return (
     <div className="space-y-4 sm:space-y-6 pb-6">
       <div
-        className={cn(
-          "transition-all duration-700",
-          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
-        )}
+        className="animate-fade-in-up"
       >
         {currentView === "portal" && (
           <div className="space-y-4">
@@ -175,7 +167,7 @@ export function GamesPage() {
             <div className="flex items-center justify-between">
               <button
                 onClick={handleBackToPortal}
-                className="flex items-center gap-1 text-sm text-slate-500 hover:text-[#1f4fa3] transition-colors"
+                className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors"
               >
                 Volver
               </button>

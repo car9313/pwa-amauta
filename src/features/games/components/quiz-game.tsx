@@ -1,4 +1,6 @@
 import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { ProgressBar } from "@/components/ui/progress-bar"
 import { GameHeader } from "./game-header"
 import { GameResultScreen } from "./game-result"
 import type { QuizQuestion, GameResult } from "../domain/game.types"
@@ -58,16 +60,11 @@ export function QuizGameView({
         score={score}
       />
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-        <div className="w-full bg-slate-100 h-1.5">
-          <div
-            className="h-full bg-[#1f4fa3] transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
+      <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
+        <ProgressBar value={progress} size="sm" color="primary" />
 
         <div className="p-5 sm:p-6 space-y-6">
-          <div className="flex items-center justify-between text-sm text-slate-500">
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span>
               Pregunta {currentIndex + 1} de {totalCount}
             </span>
@@ -76,23 +73,23 @@ export function QuizGameView({
             </span>
           </div>
 
-          <p className="text-lg sm:text-xl font-bold text-slate-800 text-center py-2">
+          <p className="text-lg sm:text-xl font-bold text-foreground text-center py-2">
             {currentQuestion.prompt}
           </p>
 
-          <div className="space-y-2">
+          <div className="space-y-2" role="radiogroup" aria-label="Opciones de respuesta">
             {currentQuestion.options.map((option, i) => {
-              let optionStyle = "border-slate-200 bg-white hover:border-slate-300"
+              let optionStyle = "border-border bg-card hover:border-border/80"
               if (showFeedback) {
                 if (i === currentQuestion.correctIndex) {
                   optionStyle = "border-emerald-500 bg-emerald-50"
                 } else if (i === selectedOption) {
                   optionStyle = "border-red-400 bg-red-50"
                 } else {
-                  optionStyle = "border-slate-100 bg-slate-50 text-slate-400"
+                  optionStyle = "border-border/50 bg-muted/50 text-muted-foreground"
                 }
               } else if (i === selectedOption) {
-                optionStyle = "border-[#1f4fa3] bg-[#e7eefb]"
+                optionStyle = "border-primary bg-secondary"
               }
 
               return (
@@ -100,9 +97,11 @@ export function QuizGameView({
                   key={i}
                   onClick={() => onSelectOption(i)}
                   disabled={showFeedback}
+                  role="radio"
+                  aria-checked={i === selectedOption}
                   className={cn(
-                    "w-full h-12 rounded-xl text-base font-semibold border-2 transition-all duration-200",
-                    "flex items-center justify-center",
+                    "w-full min-h-[44px] rounded-xl text-base font-semibold border-2 transition-all duration-200",
+                    "flex items-center justify-center px-4",
                     optionStyle,
                   )}
                 >
@@ -116,20 +115,22 @@ export function QuizGameView({
             <div
               className={cn(
                 "text-center p-3 rounded-xl font-semibold text-sm",
-                isCorrect ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-600",
+                isCorrect ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-destructive",
               )}
+              aria-live="polite"
             >
               {isCorrect ? "¡Correcto!" : `Respuesta: ${currentQuestion.options[currentQuestion.correctIndex]}`}
             </div>
           )}
 
           {showFeedback && (
-            <button
+            <Button
               onClick={onNext}
-              className="w-full h-12 rounded-xl font-bold text-white bg-[#1f4fa3] hover:bg-[#17306d] transition-colors"
+              size="child-lg"
+              className="w-full"
             >
               {currentIndex + 1 >= totalCount ? "Ver resultado" : "Siguiente"}
-            </button>
+            </Button>
           )}
         </div>
       </div>

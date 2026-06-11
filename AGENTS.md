@@ -54,8 +54,6 @@ const { user } = useAuthStore((state) => state);
 - Styles: `src/index.css` (Tailwind + global)
 - PWA Service Worker: `src/sw.ts`
 
----
-
 ## Service Worker (PWA)
 
 ⚠️ **ANTES de hacer cambios en el Service Worker, leer**: `src/docs/offline/SERVICE_WORKER.md`
@@ -150,6 +148,7 @@ if ('serviceWorker' in navigator) {
 | **Errores** | `src/docs/errores/ERROR_HANDLING.md` |
 | **Dexie/IndexedDB** | `src/docs/fundamentos/DEXIE_INDEXEDDB_GUIDE.md` |
 | **Roadmap** | `src/docs/planificacion/ROADMAP.md` |
+| **UX Child Migration** | `src/docs/planificacion/UX_CHILD_MIGRATION.md` |
 | **Pruebas de persistencia** | `src/docs/testing/PERSISTENCE_TEST_GUIDE.md` |
 | **Estrategia de testing** | `src/docs/testing/TESTING_STRATEGY_GUIDE.md` |
 

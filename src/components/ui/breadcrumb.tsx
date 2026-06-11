@@ -65,7 +65,7 @@ export function Breadcrumbs() {
           return (
             <span
               key={item.path ?? index}
-              className="font-semibold text-[#1f4fa3]"
+              className="font-semibold text-primary"
             >
               {item.label}
             </span>
@@ -76,7 +76,7 @@ export function Breadcrumbs() {
           <div key={item.path ?? index} className="flex items-center gap-1.5 sm:gap-2">
             <Link
               to={item.path ?? "/"}
-              className="flex items-center gap-1 text-slate-500 hover:text-[#1f4fa3] transition-colors group"
+              className="flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors group"
             >
               {index === 0 ? (
                 <Home className="h-3.5 w-3.5 sm:h-4 sm:w-4 group-hover:scale-110 transition-transform" />

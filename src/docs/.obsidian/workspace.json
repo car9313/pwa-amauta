@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "OUTBOX_PATTERN.md",
+                "file": "planificacion/REWARD_ANIMATIONS.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "OUTBOX_PATTERN"
+              "title": "REWARD_ANIMATIONS"
             }
           }
         ]
@@ -78,8 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "ff89178a156f21db",
@@ -186,6 +185,12 @@
   },
   "active": "b58dcd5101bd4191",
   "lastOpenFiles": [
+    "planificacion/UX_CHILD_MIGRATION.md",
+    "planificacion/SOUND_SYSTEM.md",
+    "planificacion/REWARD_ANIMATIONS.md",
+    "planificacion/MASCOT_IMPLEMENTATION.md",
+    "planificacion/PLAN.md",
+    "planificacion/ROADMAP.md",
     "DEXIE_INDEXEDDB_GUIDE.md",
     "testing/FASE4-TESTS-AUTH-ERROR.md",
     "testing/FASE3C-TESTS-CLIENT.md",

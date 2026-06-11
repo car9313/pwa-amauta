@@ -48,7 +48,7 @@ describe("studentUserSchema", () => {
   });
 
   it("rejects missing studentId", () => {
-    const { studentId: _, ...rest } = valid;
+    const { studentId: _sid, ...rest } = valid;
     expect(() => studentUserSchema.parse(rest)).toThrow();
   });
 
@@ -77,7 +77,7 @@ describe("parentUserSchema", () => {
   });
 
   it("rejects missing parentId", () => {
-    const { parentId: _, ...rest } = valid;
+    const { parentId: _pid, ...rest } = valid;
     expect(() => parentUserSchema.parse(rest)).toThrow();
   });
 
@@ -115,7 +115,7 @@ describe("teacherUserSchema", () => {
   });
 
   it("rejects missing teacherId", () => {
-    const { teacherId: _, ...rest } = valid;
+    const { teacherId: _tid, ...rest } = valid;
     expect(() => teacherUserSchema.parse(rest)).toThrow();
   });
 });
@@ -157,7 +157,7 @@ describe("authResponseSchema", () => {
   });
 
   it("rejects missing token", () => {
-    const { token: _, ...rest } = valid;
+    const { token: _tok, ...rest } = valid;
     expect(() => authResponseSchema.parse(rest)).toThrow();
   });
 });

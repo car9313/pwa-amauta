@@ -8,8 +8,8 @@ export function useStudentDashboard(studentId: string) {
     queryKey: studentKeys.dashboard(studentId),
     queryFn: () => getStudentDashboard(studentId),
     staleTime: Number(import.meta.env.VITE_QUERY_STALE_TIME ?? 60) * 1000,
-    retry: (failureCount, error: any) => {
-      if (error?.statusCode === 404) return false
+    retry: (failureCount, error) => {
+      if (error && "statusCode" in error && (error as { statusCode: number }).statusCode === 404) return false
       return failureCount < 2
     },
   })

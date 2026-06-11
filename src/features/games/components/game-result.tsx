@@ -16,17 +16,17 @@ export function GameResultScreen({ result, onPlayAgain, onHome }: GameResultProp
 
   return (
     <div className="flex items-center justify-center min-h-[50vh]">
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 sm:p-8 max-w-sm w-full text-center space-y-6">
+      <div className="bg-card rounded-2xl shadow-sm border border-border p-6 sm:p-8 max-w-sm w-full text-center space-y-6">
         <div
           className={cn(
             "w-20 h-20 rounded-full mx-auto flex items-center justify-center",
-            isExcellent ? "bg-emerald-50" : isGood ? "bg-orange-50" : "bg-red-50",
+            isExcellent ? "bg-emerald-50" : isGood ? "bg-accent/10" : "bg-destructive/10",
           )}
         >
           <Trophy
             className={cn(
               "h-10 w-10",
-              isExcellent ? "text-emerald-500" : isGood ? "text-[#f4701f]" : "text-slate-400",
+              isExcellent ? "text-emerald-500" : isGood ? "text-accent" : "text-muted-foreground",
             )}
           />
         </div>
@@ -35,12 +35,12 @@ export function GameResultScreen({ result, onPlayAgain, onHome }: GameResultProp
           <h2
             className={cn(
               "text-2xl font-bold",
-              isExcellent ? "text-emerald-600" : isGood ? "text-[#f4701f]" : "text-slate-600",
+              isExcellent ? "text-emerald-600" : isGood ? "text-accent" : "text-muted-foreground",
             )}
           >
             {isExcellent ? "¡Excelente!" : isGood ? "¡Buen trabajo!" : "¡Sigue intentando!"}
           </h2>
-          <p className="text-slate-500 text-sm">
+          <p className="text-muted-foreground text-sm">
             {result.correctCount} de {result.totalCount} correctas
           </p>
         </div>
@@ -58,20 +58,21 @@ export function GameResultScreen({ result, onPlayAgain, onHome }: GameResultProp
         </div>
 
         <div className="grid grid-cols-2 gap-3 text-center">
-          <div className="bg-slate-50 rounded-xl p-3">
-            <p className="text-2xl font-bold text-[#1f4fa3]">{result.score}</p>
-            <p className="text-xs text-slate-500">Puntaje</p>
+          <div className="bg-secondary rounded-xl p-3">
+            <p className="text-2xl font-bold text-primary">{result.score}</p>
+            <p className="text-xs text-muted-foreground">Puntaje</p>
           </div>
-          <div className="bg-slate-50 rounded-xl p-3">
-            <p className="text-2xl font-bold text-[#f4701f]">+{result.earnedPoints}</p>
-            <p className="text-xs text-slate-500">Puntos</p>
+          <div className="bg-secondary rounded-xl p-3">
+            <p className="text-2xl font-bold text-accent">+{result.earnedPoints}</p>
+            <p className="text-xs text-muted-foreground">Puntos</p>
           </div>
         </div>
 
         <div className="space-y-3">
           <Button
             onClick={onPlayAgain}
-            className="w-full h-12 bg-[#1f4fa3] hover:bg-[#17306d] text-base font-bold"
+            size="child-lg"
+            className="w-full"
           >
             <RefreshCw className="mr-2 h-4 w-4" />
             Jugar de nuevo
@@ -79,7 +80,8 @@ export function GameResultScreen({ result, onPlayAgain, onHome }: GameResultProp
           <Button
             onClick={onHome}
             variant="outline"
-            className="w-full h-12 border-2 border-slate-200 text-slate-600 hover:bg-slate-50 text-base font-medium"
+            size="child-lg"
+            className="w-full"
           >
             <Home className="mr-2 h-4 w-4" />
             Volver al inicio

@@ -71,10 +71,10 @@ export function StudentFallback({ resetError, isNetworkError }: FallbackProps) {
     <div className="flex min-h-[300px] w-full items-center justify-center p-4">
       <Card className="w-full max-w-md border-0 bg-white shadow-xl">
         <CardHeader className="text-center pb-2">
-          <div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-[#f4701f]/10">
-            <AlertTriangle className="h-10 w-10 text-[#f4701f]" />
+          <div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-accent/10">
+            <AlertTriangle className="h-10 w-10 text-accent" />
           </div>
-          <CardTitle className="text-2xl font-bold text-[#1f4fa3]">
+          <CardTitle className="text-2xl font-bold text-primary">
             {isNetworkError ? "¡Ups! No hay internet" : "¡Ups! Algo se atravesó"}
           </CardTitle>
         </CardHeader>
@@ -87,7 +87,7 @@ export function StudentFallback({ resetError, isNetworkError }: FallbackProps) {
           <div className="flex flex-col gap-2">
             <Button
               onClick={resetError}
-              className="w-full bg-[#f4701f] hover:bg-[#ea601b]"
+              className="w-full bg-accent hover:bg-accent/90"
             >
               <RefreshCw className="mr-2 h-4 w-4" />
               {isNetworkError ? "¡Verificar de nuevo!" : "¡Intentar de nuevo!"}

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react"
+import { useState, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import { BarChart3, Sparkles, AlertTriangle, Star, ChevronRight, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -10,7 +10,6 @@ import { getNextExercise } from "@/services/exercise.service"
 import { useQueryClient } from "@tanstack/react-query"
 import { QUEUED_OFFLINE } from "@/lib/sync/useSafeMutation"
 import { difficultyToStars } from "@/features/exercises/domain/exercise.types"
-import type { Exercise } from "@/features/exercises/domain/exercise.types"
 
 type PracticeTopic = "all" | "sumas" | "restas" | "multiplicacion" | "division"
 
@@ -31,7 +30,6 @@ export function PracticePage() {
   const queryClient = useQueryClient()
   const studentId = useAuthStore((state) => state.selectedStudentId) ?? DEFAULT_STUDENT_ID
   const tenantId = useAuthStore((state) => state.user?.tenantId ?? null)
-  const [isVisible, setIsVisible] = useState(false)
   const [topic, setTopic] = useState<PracticeTopic>("all")
   const [difficulty, setDifficulty] = useState<number>(0)
   const [answer, setAnswer] = useState("")
@@ -43,8 +41,6 @@ export function PracticePage() {
 
   const { data: exercise, isLoading, isError, error, refetch } = useNextExercise(studentId)
   const { mutate: submitAnswer, isPending } = useSubmitAnswer(studentId)
-
-  useEffect(() => { setIsVisible(true) }, [])
 
   const prefetchNext = useCallback(() => {
     queryClient.prefetchQuery({
@@ -93,26 +89,23 @@ export function PracticePage() {
   return (
     <div className="space-y-4 sm:space-y-6 pb-6">
       <div
-        className={cn(
-          "transition-all duration-700",
-          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
-        )}
+        className="animate-fade-in-up"
       >
         {showSelector ? (
           <div className="space-y-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center">
-                <BarChart3 className="h-5 w-5 text-[#f4701f]" />
+              <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
+                <BarChart3 className="h-5 w-5 text-accent" />
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-slate-800">Práctica Libre</h1>
-                <p className="text-sm text-slate-500">Elige qué practicar</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-foreground">Práctica Libre</h1>
+                <p className="text-sm text-muted-foreground">Elige qué practicar</p>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 sm:p-6 space-y-6">
+            <div className="bg-card rounded-2xl shadow-sm border border-border p-5 sm:p-6 space-y-6">
               <div>
-                <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">
+                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
                   Tema
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
@@ -121,10 +114,10 @@ export function PracticePage() {
                       key={t.key}
                       onClick={() => setTopic(t.key)}
                       className={cn(
-                        "h-12 rounded-xl text-sm font-semibold border-2 transition-all duration-200",
+                        "min-h-[44px] rounded-xl text-sm font-semibold border-2 transition-all duration-200",
                         topic === t.key
-                          ? "border-[#1f4fa3] bg-[#e7eefb] text-[#1f4fa3]"
-                          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300",
+                          ? "border-primary bg-secondary text-primary"
+                          : "border-border bg-card text-muted-foreground hover:border-border/80",
                       )}
                     >
                       {t.label}
@@ -134,7 +127,7 @@ export function PracticePage() {
               </div>
 
               <div>
-                <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">
+                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
                   Dificultad
                 </h2>
                 <div className="flex gap-2">
@@ -143,10 +136,10 @@ export function PracticePage() {
                       key={s}
                       onClick={() => setDifficulty(i)}
                       className={cn(
-                        "flex-1 h-12 rounded-xl text-sm font-semibold border-2 transition-all duration-200",
+                        "flex-1 min-h-[44px] rounded-xl text-sm font-semibold border-2 transition-all duration-200",
                         difficulty === i
-                          ? "border-[#f4701f] bg-orange-50 text-[#f4701f]"
-                          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300",
+                          ? "border-accent bg-accent/10 text-accent"
+                          : "border-border bg-card text-muted-foreground hover:border-border/80",
                       )}
                     >
                       <div className="flex items-center justify-center gap-0.5">
@@ -155,7 +148,7 @@ export function PracticePage() {
                             key={star}
                             className={cn(
                               "h-3.5 w-3.5",
-                              star <= i ? "fill-[#f4701f] text-[#f4701f]" : "fill-slate-200 text-slate-200",
+                              star <= i ? "fill-accent text-accent" : "fill-slate-200 text-slate-200",
                             )}
                           />
                         ))}
@@ -167,7 +160,8 @@ export function PracticePage() {
 
               <Button
                 onClick={handleStart}
-                className="w-full h-12 sm:h-14 bg-[#1f4fa3] hover:bg-[#17306d] text-base sm:text-lg font-bold shadow-sm"
+                size="child-lg"
+                className="w-full shadow-sm"
               >
                 Comenzar a practicar
                 <ChevronRight className="ml-1 h-5 w-5" />
@@ -179,24 +173,24 @@ export function PracticePage() {
             <div className="flex items-center justify-between">
               <button
                 onClick={() => setShowSelector(true)}
-                className="flex items-center gap-1 text-sm text-slate-500 hover:text-[#1f4fa3] transition-colors"
+                className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors"
               >
                 <ChevronRight className="h-4 w-4 rotate-180" />
                 Cambiar tema
               </button>
               <div className="flex items-center gap-4 text-sm">
-                <span className="text-slate-500">
+                <span className="text-muted-foreground">
                   Aciertos: <span className="font-bold text-emerald-600">{score}</span>
                 </span>
-                <span className="text-slate-500">
+                <span className="text-muted-foreground">
                   Racha:{" "}
-                  <span className={cn("font-bold", streak >= 3 ? "text-[#f4701f]" : "text-slate-600")}>
+                  <span className={cn("font-bold", streak >= 3 ? "text-accent" : "text-foreground")}>
                     {streak}
                     {streak >= 3 && " 🔥"}
                   </span>
                 </span>
-                <span className="text-slate-500">
-                  Intentos: <span className="font-bold text-slate-700">{totalAttempts}</span>
+                <span className="text-muted-foreground">
+                  Intentos: <span className="font-bold text-foreground">{totalAttempts}</span>
                 </span>
               </div>
             </div>
@@ -204,9 +198,9 @@ export function PracticePage() {
             {isLoadingState ? (
               <div className="flex items-center justify-center min-h-[40vh]">
                 <div className="relative">
-                  <div className="absolute inset-0 rounded-full bg-[#f4701f]/20 animate-ping" />
-                  <div className="relative w-16 h-16 rounded-full bg-[#f4701f]/30 flex items-center justify-center">
-                    <Sparkles className="w-8 h-8 text-[#f4701f] animate-spin" />
+                  <div className="absolute inset-0 rounded-full bg-accent/20 animate-ping" />
+                  <div className="relative w-16 h-16 rounded-full bg-accent/30 flex items-center justify-center">
+                    <Sparkles className="w-8 h-8 text-accent animate-spin" />
                   </div>
                 </div>
               </div>
@@ -215,17 +209,17 @@ export function PracticePage() {
                 <div className="w-24 h-24 rounded-full bg-red-50 flex items-center justify-center">
                   <AlertTriangle className="h-10 w-10 text-red-500" />
                 </div>
-                <h2 className="text-xl font-bold text-slate-700">No pudimos cargar el ejercicio</h2>
-                <p className="text-slate-500 max-w-xs">{(error as any)?.message ?? "Intenta de nuevo."}</p>
-                <Button onClick={() => refetch()} className="bg-[#1f4fa3]">
+                <h2 className="text-xl font-bold text-foreground">No pudimos cargar el ejercicio</h2>
+                <p className="text-muted-foreground max-w-xs">{(error instanceof Error ? error.message : null) ?? "Intenta de nuevo."}</p>
+                <Button onClick={() => refetch()} className="bg-primary">
                   <RefreshCw className="mr-2 h-4 w-4" />
                   Reintentar
                 </Button>
               </div>
             ) : (
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 sm:p-6 space-y-5">
+              <div className="bg-card rounded-2xl shadow-sm border border-border p-5 sm:p-6 space-y-5">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Ejercicio</h2>
+                  <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Ejercicio</h2>
                   <div className="flex gap-0.5">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Star
@@ -233,7 +227,7 @@ export function PracticePage() {
                         className={cn(
                           "h-3.5 w-3.5",
                           star <= difficultyToStars(exercise?.difficulty ?? "MEDIUM")
-                            ? "text-[#f4701f] fill-[#f4701f]"
+                            ? "text-accent fill-accent"
                             : "text-slate-200 fill-slate-200",
                         )}
                       />
@@ -242,13 +236,13 @@ export function PracticePage() {
                 </div>
 
                 {exercise?.prompt && (
-                  <p className="text-lg sm:text-2xl font-bold text-slate-800">
+                  <p className="text-lg sm:text-2xl font-bold text-foreground">
                     {exercise.prompt}
                   </p>
                 )}
 
                 {exercise?.hints?.[0] && (
-                  <p className="text-sm text-slate-500 bg-slate-50 rounded-xl p-3">
+                  <p className="text-sm text-muted-foreground bg-secondary rounded-xl p-3">
                     {exercise.hints[0]}
                   </p>
                 )}
@@ -261,23 +255,19 @@ export function PracticePage() {
                   placeholder="Escribe tu respuesta"
                   disabled={submitted}
                   className={cn(
-                    "w-full h-12 sm:h-14 px-4 text-lg sm:text-xl font-bold text-slate-800",
-                    "bg-white border-2 border-slate-200 rounded-xl",
-                    "focus:border-[#f4701f] focus:ring-4 focus:ring-[#f4701f]/20 focus:outline-none",
-                    "transition-all duration-300 placeholder:text-slate-300",
-                    "disabled:bg-slate-100 disabled:text-slate-400",
+                    "w-full h-12 px-4 text-lg sm:text-xl font-bold text-foreground",
+                    "bg-card border-2 border-border rounded-xl",
+                    "focus:border-accent focus:ring-4 focus:ring-accent/20 focus:outline-none",
+                    "transition-all duration-300 placeholder:text-muted-foreground",
+                    "disabled:bg-muted disabled:text-muted-foreground",
                   )}
                 />
 
                 <Button
                   onClick={handleSubmit}
                   disabled={!answer.trim() || isPending || submitted}
-                  className={cn(
-                    "w-full h-12 sm:h-14 text-base sm:text-lg font-bold",
-                    "bg-[#1f4fa3] hover:bg-[#17306d]",
-                    "shadow-sm transition-all duration-200",
-                    "disabled:opacity-60 disabled:cursor-not-allowed",
-                  )}
+                  size="child-lg"
+                  className="w-full shadow-sm transition-all duration-200"
                 >
                   {isPending ? (
                     <span className="flex items-center gap-2">

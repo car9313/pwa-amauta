@@ -7,10 +7,13 @@ import type { QueuedMutation } from "@/lib/api/storage/db";
 import {
   enqueueMutation,
   getQueuedMutationsByPriority,
+  getQueuedMutations,
+  getMutationById,
   updateMutationStatus,
   incrementRetryCount,
   removeMutation,
   getPendingCount,
+  clearAllMutations,
 } from "@/lib/api/storage/offline-queue";
 
 let isSyncing = false;
@@ -128,9 +131,7 @@ export async function processQueue(
       } else {
         await incrementRetryCount(mutation.id);
 
-        const updated = await (
-          await import("@/lib/api/storage/offline-queue")
-        ).getMutationById(mutation.id);
+        const updated = await getMutationById(mutation.id);
 
         if (updated && shouldRetry(updated.retryCount)) {
           await updateMutationStatus(mutation.id, "pending", result.error ?? null);
@@ -217,17 +218,13 @@ export function isQueueSyncing(): boolean {
 }
 
 export async function retryFailedMutations(): Promise<void> {
-  const mutations = await (
-    await import("@/lib/api/storage/offline-queue")
-  ).getQueuedMutations();
+  const mutations = await getQueuedMutations();
 
   const failed = mutations.filter((m) => m.status === "failed");
 
   for (const mutation of failed) {
     await updateMutationStatus(mutation.id, "pending");
-    await (
-      await import("@/lib/api/storage/offline-queue")
-    ).incrementRetryCount(mutation.id);
+    await incrementRetryCount(mutation.id);
   }
 
   const pendingCount = await getPendingCount();
@@ -235,7 +232,6 @@ export async function retryFailedMutations(): Promise<void> {
 }
 
 export async function clearQueue(): Promise<void> {
-  const { clearAllMutations } = await import("@/lib/api/storage/offline-queue");
   await clearAllMutations();
   notifySyncListeners(0);
 }

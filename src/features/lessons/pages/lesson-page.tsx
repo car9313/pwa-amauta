@@ -1,10 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useQueryClient } from "@tanstack/react-query"
 import { Star, ChevronRight, HelpCircle, Sparkles, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Container } from "@/components/ui/container"
+import { ProgressBar } from "@/components/ui/progress-bar"
 
 import { cn } from "@/lib/utils"
 import { useNextExercise, useSubmitAnswer } from "@/features/exercises/hooks/useExercise"
@@ -15,18 +17,13 @@ import { difficultyToStars } from "@/features/exercises/domain/exercise.types"
 import { QUEUED_OFFLINE } from "@/lib/sync/useSafeMutation"
 import { DownloadLesson } from "@/components/DownloadLesson"
 
-// Props
-// lessonTitle → del AgendaItem (click "Iniciar" en dashboard)
-// topicHint   → del AgendaItem, se envía al API
-// sessionId   → TODO: confirmar con backend cómo obtenerlo
-// stepTotal   → TODO: del API cuando esté listo (por ahora prop desde dashboard)
 interface LessonPageProps {
   studentId?:   string
   sessionId?:   string
   lessonTitle?: string
   topicHint?:   string
   stepTotal?:   number
-  initialStep?: number  // paso actual (opcional, para lecciones en progreso)
+  initialStep?: number
   onBack?:      () => void
   onSkip?:      () => void
 }
@@ -45,18 +42,11 @@ export function LessonPage({
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const tenantId = useAuthStore((state) => state.user?.tenantId ?? null)
-  const [isVisible, setIsVisible]   = useState(false)
   const [answer, setAnswer]         = useState("")
   const [submitted, setSubmitted]   = useState(false)
-  // stepCurrent/stepTotal vendrán del API cuando esté disponible
 
-  const { data: exercise, isLoading, isError, error } = useNextExercise(
-    studentId,
-  )
-
+  const { data: exercise, isLoading, isError, error } = useNextExercise(studentId)
   const { mutate: submitAnswer, isPending } = useSubmitAnswer(studentId)
-
-  useEffect(() => { setIsVisible(true) }, [])
 
   const prefetchNextExercise = () => {
     queryClient.prefetchQuery({
@@ -84,92 +74,73 @@ export function LessonPage({
     )
   }
 
-  // ─── Loading ───────────────────────────────────────────────
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="relative">
-          <div className="absolute inset-0 rounded-full bg-[#f4701f]/20 animate-ping" />
-          <div className="relative w-16 h-16 rounded-full bg-[#f4701f]/30 flex items-center justify-center">
-            <Sparkles className="w-8 h-8 text-[#f4701f] animate-spin" />
+          <div className="absolute inset-0 rounded-full bg-accent/20 animate-ping" />
+          <div className="relative w-16 h-16 rounded-full bg-accent/30 flex items-center justify-center">
+            <Sparkles className="w-8 h-8 text-accent animate-spin" />
           </div>
         </div>
       </div>
     )
   }
 
-  // ─── Error ─────────────────────────────────────────────────
   if (isError) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4 text-center px-4">
         <div className="w-24 h-24 rounded-full bg-red-50 flex items-center justify-center">
           <AlertTriangle className="h-10 w-10 text-red-500" />
         </div>
-        <h2 className="text-xl font-bold text-slate-700">¡Ups! Algo salió mal</h2>
-        <p className="text-slate-500 max-w-xs">
-          {(error as any)?.message ?? "No pudimos cargar el ejercicio. Intenta de nuevo."}
+        <h2 className="text-xl font-bold text-foreground">¡Ups! Algo salió mal</h2>
+        <p className="text-muted-foreground max-w-xs">
+          {(error instanceof Error ? error.message : null) ?? "No pudimos cargar el ejercicio. Intenta de nuevo."}
         </p>
-        <Button onClick={onBack} className="bg-[#1f4fa3]">
+        <Button onClick={onBack} className="bg-primary">
           Volver al inicio
         </Button>
       </div>
     )
   }
 
-  // ─── Datos derivados ───────────────────────────────────────
-
   const title          = lessonTitle ?? exercise?.topicId ?? "Lección"
   const starsCount     = difficultyToStars(exercise?.difficulty ?? "MEDIUM")
   const currentStep    = exercise?.stepCurrent   ?? initialStep
   const totalSteps     = exercise?.stepTotal     ?? stepTotal
-
-  // "Resuelve:" — el problema principal
   const mainProblem    = exercise?.prompt ?? ""
-
-  // Explicación pedagógica — hints[0]
   const explanation    = exercise?.hints?.[0] ?? ""
-
   const demoContent    = exercise?.demoContent ?? exercise?.hints?.[1] ?? null
   const secondaryQ     = exercise?.secondaryQuestion ?? null
   const subInstruction = exercise?.subInstruction ?? "¡Hazlo como en la pizarra!"
+  const stepProgress   = totalSteps > 0 ? (currentStep / totalSteps) * 100 : 0
 
-  // ─── Render ────────────────────────────────────────────────
   return (
-    <div className="space-y-4 sm:space-y-6 pb-6">
-
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-slate-500">
+    <Container as="div" className="space-y-4 sm:space-y-6 pb-6">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <button
           onClick={onBack}
-          className="flex items-center gap-1 hover:text-[#1f4fa3] transition-colors"
+          className="flex items-center gap-1 hover:text-primary transition-colors"
         >
           <ChevronRight className="h-4 w-4 rotate-180" />
           Inicio
         </button>
         <span>/</span>
-        <span className="text-slate-700 font-medium">Lección</span>
+        <span className="text-foreground font-medium">Lección</span>
       </div>
 
-      {/* Card principal */}
       <div
-        className={cn(
-          "relative overflow-hidden rounded-2xl bg-white shadow-sm border border-slate-100",
-          "transition-all duration-700",
-          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-        )}
+        className="relative overflow-hidden rounded-2xl bg-card shadow-sm border border-border animate-fade-in-up"
       >
         <div className="p-5 sm:p-6 space-y-5">
-
-          {/* ── Header: título + dificultad + paso ── */}
           <div className="space-y-3">
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-800 leading-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight">
               {title}
             </h1>
 
             <div className="flex flex-wrap items-center gap-3">
-              {/* Estrellas de dificultad */}
               <div className="flex items-center gap-1.5">
-                <span className="text-xs text-slate-500">Dificultad:</span>
+                <span className="text-xs text-muted-foreground">Dificultad:</span>
                 <div className="flex gap-0.5">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star
@@ -177,7 +148,7 @@ export function LessonPage({
                       className={cn(
                         "h-4 w-4 sm:h-5 sm:w-5 transition-colors",
                         star <= starsCount
-                          ? "text-[#f4701f] fill-[#f4701f]"
+                          ? "text-accent fill-accent"
                           : "text-slate-200 fill-slate-200"
                       )}
                     />
@@ -185,37 +156,34 @@ export function LessonPage({
                 </div>
               </div>
 
-              <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+              <div className="h-4 w-px bg-border hidden sm:block" />
 
-              {/* Paso X de Y */}
-              <span className="text-xs sm:text-sm text-slate-500 font-medium">
+              <span className="text-xs sm:text-sm text-muted-foreground font-medium">
                 Paso{" "}
-                <span className="text-[#1f4fa3] font-bold">{currentStep}</span>
+                <span className="text-primary font-bold">{currentStep}</span>
                 {" "}de{" "}
-                <span className="text-[#1f4fa3] font-bold">{totalSteps}</span>
+                <span className="text-primary font-bold">{totalSteps}</span>
               </span>
             </div>
+
+            <ProgressBar value={stepProgress} size="sm" color="primary" animated={false} />
           </div>
 
-          {/* ── Sección "Resuelve:" ── */}
           {mainProblem && (
-            <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-4 space-y-3">
-
-              {/* Problema principal */}
-              <p className="text-sm sm:text-base text-slate-700 font-medium">
+            <div className="rounded-xl border border-border bg-muted/50 p-4 space-y-3">
+              <p className="text-sm sm:text-base text-foreground font-medium">
                 Resuelve:{" "}
-                <span className="text-lg sm:text-2xl font-bold text-slate-800">
+                <span className="text-lg sm:text-2xl font-bold text-foreground">
                   {mainProblem}
                 </span>
               </p>
 
-              {/* Explicación pedagógica (hints[0]) */}
               {explanation && (
-                <p className="text-sm text-slate-600">{explanation}</p>
+                <p className="text-sm text-muted-foreground">{explanation}</p>
               )}
 
               {demoContent ? (
-                <div className="bg-[#17306d] rounded-xl p-4 sm:p-5 flex items-center justify-between gap-4">
+                <div className="bg-amauta-blue-dark rounded-xl p-4 sm:p-5 flex items-center justify-between gap-4">
                   <p className="text-white text-lg sm:text-2xl font-bold tracking-wide">
                     {demoContent}
                   </p>
@@ -228,8 +196,7 @@ export function LessonPage({
                   </div>
                 </div>
               ) : (
-                /* Placeholder mientras el API no devuelva demoContent */
-                <div className="bg-[#17306d] rounded-xl p-4 sm:p-5 flex items-center justify-between gap-4">
+                <div className="bg-amauta-blue-dark rounded-xl p-4 sm:p-5 flex items-center justify-between gap-4">
                   <p className="text-white/50 text-sm italic">
                     Demostración visual próximamente
                   </p>
@@ -246,16 +213,16 @@ export function LessonPage({
           )}
 
           {secondaryQ && (
-            <div className="rounded-xl bg-orange-50 border border-orange-100 p-4">
+            <div className="rounded-xl bg-accent/10 border border-accent/20 p-4">
               <div className="flex items-start gap-3">
-                <div className="w-7 h-7 rounded-full bg-[#f4701f] flex items-center justify-center flex-shrink-0 mt-0.5">
+                <div className="w-7 h-7 rounded-full bg-accent flex items-center justify-center flex-shrink-0 mt-0.5">
                   <HelpCircle className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm sm:text-base font-semibold text-slate-700">
+                  <p className="text-sm sm:text-base font-semibold text-foreground">
                     {secondaryQ}
                   </p>
-                  <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                     {subInstruction}
                   </p>
                 </div>
@@ -264,16 +231,16 @@ export function LessonPage({
           )}
 
           {!secondaryQ && mainProblem && (
-            <div className="rounded-xl bg-orange-50 border border-orange-100 p-4">
+            <div className="rounded-xl bg-accent/10 border border-accent/20 p-4">
               <div className="flex items-start gap-3">
-                <div className="w-7 h-7 rounded-full bg-[#f4701f] flex items-center justify-center flex-shrink-0 mt-0.5">
+                <div className="w-7 h-7 rounded-full bg-accent flex items-center justify-center flex-shrink-0 mt-0.5">
                   <HelpCircle className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm sm:text-base font-semibold text-slate-700">
+                  <p className="text-sm sm:text-base font-semibold text-foreground">
                     {mainProblem}
                   </p>
-                  <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                     {subInstruction}
                   </p>
                 </div>
@@ -281,7 +248,6 @@ export function LessonPage({
             </div>
           )}
 
-          {/* ── Input de respuesta ── */}
           <input
             type={exercise?.answerType === "NUMERIC" ? "number" : "text"}
             value={answer}
@@ -290,25 +256,20 @@ export function LessonPage({
             placeholder="Ej: 15/8"
             disabled={submitted}
             className={cn(
-              "w-full h-12 sm:h-14 px-4 text-lg sm:text-xl font-bold text-slate-800",
-              "bg-white border-2 border-slate-200 rounded-xl",
-              "focus:border-[#f4701f] focus:ring-4 focus:ring-[#f4701f]/20 focus:outline-none",
-              "transition-all duration-300 placeholder:text-slate-300",
-              "disabled:bg-slate-100 disabled:text-slate-400"
+              "w-full h-12 px-4 text-lg sm:text-xl font-bold text-foreground",
+              "bg-card border-2 border-border rounded-xl",
+              "focus:border-accent focus:ring-4 focus:ring-accent/20 focus:outline-none",
+              "transition-all duration-300 placeholder:text-muted-foreground",
+              "disabled:bg-muted disabled:text-muted-foreground"
             )}
           />
 
-          {/* ── Botones ── */}
           <div className="space-y-3 pt-1">
             <Button
               onClick={handleSubmit}
               disabled={!answer.trim() || isPending || submitted}
-              className={cn(
-                "w-full h-12 sm:h-14 text-base sm:text-lg font-bold",
-                "bg-[#1f4fa3] hover:bg-[#17306d]",
-                "shadow-sm hover:shadow-md transition-all duration-200",
-                "disabled:opacity-60 disabled:cursor-not-allowed"
-              )}
+              size="child-lg"
+              className="w-full shadow-sm hover:shadow-md"
             >
               {isPending ? (
                 <span className="flex items-center gap-2">
@@ -327,7 +288,7 @@ export function LessonPage({
 
             <button
               onClick={onSkip ?? onBack}
-              className="w-full text-center text-sm sm:text-base font-medium text-[#1f4fa3] hover:text-[#17306d] transition-colors flex items-center justify-center gap-1 py-2"
+              className="w-full text-center text-sm sm:text-base font-medium text-primary hover:text-primary/80 transition-colors flex items-center justify-center gap-1 py-2"
             >
               Saltar paso
               <ChevronRight className="h-4 w-4" />
@@ -338,11 +299,9 @@ export function LessonPage({
       <DownloadLesson
         lessonId={title}
         getLessonAssets={() => {
-          // TODO: recopilar imageUrl/audioUrl de lesson.steps
-          // cuando el backend sirva assets de lección
           return [];
         }}
       />
-    </div>
+    </Container>
   )
 }

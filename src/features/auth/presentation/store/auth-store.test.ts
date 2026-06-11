@@ -40,15 +40,6 @@ const mockParent: AuthUser = {
   ],
 };
 
-const mockTeacher: AuthUser = {
-  name: "Carlos",
-  email: "carlos@test.com",
-  tenantId: "t1",
-  role: "teacher",
-  teacherId: "tea_001",
-  classIds: ["cls_001"],
-};
-
 beforeEach(() => {
   useAuthStore.setState({
     isAuthenticated: false,
