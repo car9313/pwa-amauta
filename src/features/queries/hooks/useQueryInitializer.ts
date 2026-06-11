@@ -66,7 +66,7 @@ export function useQueryInitializer() {
     }
 
     hydrate();
-  }, []);
+  }, [queryClient]);
 
   return state;
 }

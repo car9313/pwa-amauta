@@ -54,18 +54,19 @@ export function useMemoryGame(difficulty: MemoryDifficulty = "easy"): UseMemoryG
   const [matchedPairs, setMatchedPairs] = useState(0)
   const [attempts, setAttempts] = useState(0)
   const [isFinished, setIsFinished] = useState(false)
-  const [startTime] = useState(Date.now())
+  const startTimeRef = useRef<number>(0)
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
   const [result, setResult] = useState<GameResult | null>(null)
   const lockRef = useRef(false)
 
   useEffect(() => {
+    startTimeRef.current = Date.now()
     if (isFinished) return
     const interval = setInterval(() => {
-      setElapsedSeconds(Math.floor((Date.now() - startTime) / 1000))
+      setElapsedSeconds(Math.floor((Date.now() - startTimeRef.current) / 1000))
     }, 1000)
     return () => clearInterval(interval)
-  }, [startTime, isFinished])
+  }, [isFinished])
 
   const flipCard = useCallback(
     (index: number) => {
@@ -98,7 +99,7 @@ export function useMemoryGame(difficulty: MemoryDifficulty = "easy"): UseMemoryG
             lockRef.current = false
 
             if (newMatched === totalPairs) {
-              const elapsed = Math.floor((Date.now() - startTime) / 1000)
+              const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000)
               setIsFinished(true)
               setElapsedSeconds(elapsed)
               setResult({
@@ -124,7 +125,7 @@ export function useMemoryGame(difficulty: MemoryDifficulty = "easy"): UseMemoryG
         }
       }
     },
-    [cards, flippedIndices, matchedPairs, totalPairs, attempts, startTime],
+    [cards, flippedIndices, matchedPairs, totalPairs, attempts],
   )
 
   const resetGame = useCallback(() => {

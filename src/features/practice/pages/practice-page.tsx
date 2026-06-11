@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react"
+import { useState, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import { BarChart3, Sparkles, AlertTriangle, Star, ChevronRight, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -30,7 +30,6 @@ export function PracticePage() {
   const queryClient = useQueryClient()
   const studentId = useAuthStore((state) => state.selectedStudentId) ?? DEFAULT_STUDENT_ID
   const tenantId = useAuthStore((state) => state.user?.tenantId ?? null)
-  const [isVisible, setIsVisible] = useState(false)
   const [topic, setTopic] = useState<PracticeTopic>("all")
   const [difficulty, setDifficulty] = useState<number>(0)
   const [answer, setAnswer] = useState("")
@@ -42,8 +41,6 @@ export function PracticePage() {
 
   const { data: exercise, isLoading, isError, error, refetch } = useNextExercise(studentId)
   const { mutate: submitAnswer, isPending } = useSubmitAnswer(studentId)
-
-  useEffect(() => { setIsVisible(true) }, [])
 
   const prefetchNext = useCallback(() => {
     queryClient.prefetchQuery({
@@ -92,10 +89,7 @@ export function PracticePage() {
   return (
     <div className="space-y-4 sm:space-y-6 pb-6">
       <div
-        className={cn(
-          "transition-all duration-700",
-          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
-        )}
+        className="animate-fade-in-up"
       >
         {showSelector ? (
           <div className="space-y-6">
@@ -216,7 +210,7 @@ export function PracticePage() {
                   <AlertTriangle className="h-10 w-10 text-red-500" />
                 </div>
                 <h2 className="text-xl font-bold text-foreground">No pudimos cargar el ejercicio</h2>
-                <p className="text-muted-foreground max-w-xs">{(error as any)?.message ?? "Intenta de nuevo."}</p>
+                <p className="text-muted-foreground max-w-xs">{(error instanceof Error ? error.message : null) ?? "Intenta de nuevo."}</p>
                 <Button onClick={() => refetch()} className="bg-primary">
                   <RefreshCw className="mr-2 h-4 w-4" />
                   Reintentar

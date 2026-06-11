@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useQueryClient } from "@tanstack/react-query"
 import { Star, ChevronRight, HelpCircle, Sparkles, AlertTriangle } from "lucide-react"
@@ -42,14 +42,11 @@ export function LessonPage({
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const tenantId = useAuthStore((state) => state.user?.tenantId ?? null)
-  const [isVisible, setIsVisible]   = useState(false)
   const [answer, setAnswer]         = useState("")
   const [submitted, setSubmitted]   = useState(false)
 
   const { data: exercise, isLoading, isError, error } = useNextExercise(studentId)
   const { mutate: submitAnswer, isPending } = useSubmitAnswer(studentId)
-
-  useEffect(() => { setIsVisible(true) }, [])
 
   const prefetchNextExercise = () => {
     queryClient.prefetchQuery({
@@ -98,7 +95,7 @@ export function LessonPage({
         </div>
         <h2 className="text-xl font-bold text-foreground">¡Ups! Algo salió mal</h2>
         <p className="text-muted-foreground max-w-xs">
-          {(error as any)?.message ?? "No pudimos cargar el ejercicio. Intenta de nuevo."}
+          {(error instanceof Error ? error.message : null) ?? "No pudimos cargar el ejercicio. Intenta de nuevo."}
         </p>
         <Button onClick={onBack} className="bg-primary">
           Volver al inicio
@@ -133,11 +130,7 @@ export function LessonPage({
       </div>
 
       <div
-        className={cn(
-          "relative overflow-hidden rounded-2xl bg-card shadow-sm border border-border",
-          "transition-all duration-700",
-          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-        )}
+        className="relative overflow-hidden rounded-2xl bg-card shadow-sm border border-border animate-fade-in-up"
       >
         <div className="p-5 sm:p-6 space-y-5">
           <div className="space-y-3">

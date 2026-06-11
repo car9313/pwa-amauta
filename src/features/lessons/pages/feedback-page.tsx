@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { CheckCircle, Star, RefreshCw, Home, Sparkles, AlertTriangle, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -76,11 +75,6 @@ export function FeedbackPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const state = location.state as { result?: ExerciseResult; queued?: boolean } | null
-  const [isVisible, setIsVisible] = useState(false)
-
-  useEffect(() => {
-    setIsVisible(true)
-  }, [])
 
   if (!state?.result && !state?.queued) {
     navigate("/lessons", { replace: true })
@@ -90,10 +84,7 @@ export function FeedbackPage() {
   if (state?.queued) {
     return (
       <div
-        className={cn(
-          "flex items-center justify-center min-h-[60vh] transition-all duration-700",
-          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-        )}
+        className="flex items-center justify-center min-h-[60vh] animate-fade-in-up"
       >
         <div className="bg-card rounded-2xl shadow-sm border border-border p-8 max-w-md w-full text-center space-y-6">
           <div className="flex justify-center">
@@ -130,10 +121,7 @@ export function FeedbackPage() {
 
   return (
     <div
-      className={cn(
-        "pb-6 transition-all duration-700",
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-      )}
+      className="pb-6 animate-fade-in-up"
     >
       <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
         <div className={cn("p-6 sm:p-8 text-center space-y-4", colors.bg)}>

@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react"
 import { Plus, TrendingUp, BookOpen, ChevronRight, Flame, Sparkles, HelpCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -18,12 +17,7 @@ const DEFAULT_STUDENT_ID = "stu_445"
 export function StudentDashboardPage({
   studentId = DEFAULT_STUDENT_ID,
 }: StudentDashboardProps) {
-  const [isVisible, setIsVisible] = useState(false)
   const { data: dashboard, isLoading, isError, error, refetch } = useStudentDashboard(studentId)
-
-  useEffect(() => {
-    setIsVisible(true)
-  }, [])
 
   if (isLoading) {
     return (
@@ -73,10 +67,7 @@ export function StudentDashboardPage({
 
         <div className="relative z-10">
           <div className="flex items-start justify-between gap-3">
-            <div className={cn(
-              "transition-all duration-700 ease-out",
-              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-            )}>
+            <div className="animate-fade-in-up">
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight">
                 ¡Hola, <span className="text-amauta-orange-light">{student?.name ?? 'Estudiante'}</span>!
               </h1>
@@ -85,10 +76,7 @@ export function StudentDashboardPage({
               </p>
             </div>
             
-            <div className={cn(
-              "relative transition-all duration-700 delay-200 ease-out",
-              isVisible ? "opacity-100 scale-100" : "opacity-0 scale-75"
-            )}>
+            <div className="relative animate-scale-in" style={{ animationDelay: "200ms" }}>
               <div className="absolute inset-0 rounded-full bg-accent/30 animate-ping" />
               <div className="relative h-12 w-12 sm:h-16 sm:w-16 rounded-full border-2 sm:border-4 border-white/40 overflow-hidden bg-white shadow-xl">
                 <img
@@ -100,10 +88,7 @@ export function StudentDashboardPage({
             </div>
           </div>
 
-          <div className={cn(
-            "mt-4 sm:mt-6 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 rounded-xl sm:rounded-2xl bg-white/15 p-3 sm:p-4 backdrop-blur-sm transition-all duration-700 delay-300 ease-out",
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-          )}>
+          <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 rounded-xl sm:rounded-2xl bg-white/15 p-3 sm:p-4 backdrop-blur-sm animate-fade-in-up" style={{ animationDelay: "300ms" }}>
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="relative">
                 <div className="absolute inset-0 rounded-full bg-accent/50 animate-pulse" />
@@ -138,20 +123,14 @@ export function StudentDashboardPage({
       </div>
 
       {/* Stats Grid */}
-      <div className={cn(
-        "grid grid-cols-3 gap-2 sm:gap-3 transition-all duration-700 delay-400 ease-out",
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-      )}>
+      <div className="grid grid-cols-3 gap-2 sm:gap-3 animate-fade-in-up" style={{ animationDelay: "400ms" }}>
         <StatCard type="points" value={student?.points ?? 0} label="Puntos" delay={0} />
         <StatCard type="level" value={`Nivel ${student?.level ?? 1}`} label="Progreso" delay={1} />
         <StatCard type="accuracy" value={`${student?.precision ?? 0}%`} label="Precisión" delay={2} />
       </div>
 
       {/* Today's Agenda */}
-      <div className={cn(
-        "scrollbar-hide transition-all duration-700 delay-500 ease-out",
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-      )}>
+      <div className="scrollbar-hide animate-fade-in-up" style={{ animationDelay: "500ms" }}>
         <Card variant="glass" className="p-3 sm:p-4 gap-0">
           <div className="mb-3 sm:mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -183,10 +162,7 @@ export function StudentDashboardPage({
       </div>
 
       {/* Progress Section */}
-      <div className={cn(
-        "transition-all duration-700 delay-600 ease-out",
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-      )}>
+      <div className="animate-fade-in-up" style={{ animationDelay: "600ms" }}>
         <Card variant="glass" className="p-3 sm:p-4 gap-0">
           <div className="mb-3 sm:mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -211,10 +187,7 @@ export function StudentDashboardPage({
       </div>
 
       {/* Quick Actions */}
-      <div className={cn(
-        "relative overflow-hidden rounded-xl sm:rounded-2xl bg-linear-to-br from-accent to-accent/80 p-4 sm:p-5 transition-all duration-700 delay-700 ease-out",
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-      )}>
+      <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-linear-to-br from-accent to-accent/80 p-4 sm:p-5 animate-fade-in-up" style={{ animationDelay: "700ms" }}>
         <div className="absolute -right-2 sm:-right-4 -top-2 sm:-top-4 h-12 sm:h-20 w-12 sm:w-20 rounded-full bg-white/10 blur-xl" />
         <div className="absolute -bottom-1 sm:-bottom-2 -left-1 sm:-left-2 h-10 sm:h-16 w-10 sm:w-16 rounded-full bg-white/10 blur-lg" />
 
@@ -240,10 +213,7 @@ export function StudentDashboardPage({
       </div>
 
       {/* Recent Achievements */}
-      <div className={cn(
-        "transition-all duration-700 delay-800 ease-out",
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-      )}>
+      <div className="animate-fade-in-up" style={{ animationDelay: "800ms" }}>
         <Card variant="glass" className="p-3 sm:p-4 gap-0">
           <div className="mb-3 sm:mb-4 flex items-center justify-between">
             <h2 className="text-base sm:text-lg font-bold text-foreground">Últimos Logros</h2>

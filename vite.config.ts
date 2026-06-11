@@ -111,6 +111,18 @@ export default defineConfig({
       allow: ['.']
     }
   },
+  build: {
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "vendor-router": ["react-router-dom"],
+          "vendor-query": ["@tanstack/react-query"],
+          "vendor-dexie": ["dexie"],
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

@@ -58,7 +58,7 @@ export function useUpdateProgress() {
     queryKey: (payload) => progressKeys.student(payload.studentId),
     optimisticUpdate: (oldProgress, { lessonId, updates }) => {
       if (!Array.isArray(oldProgress)) return oldProgress;
-      return oldProgress.map((p: any) =>
+      return oldProgress.map((p: StudentProgress) =>
         p.lessonId === lessonId ? { ...p, ...updates } : p
       );
     },

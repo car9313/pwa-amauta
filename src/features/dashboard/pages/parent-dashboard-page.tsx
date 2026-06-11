@@ -1,18 +1,11 @@
-import { useEffect, useState } from "react"
 import { CheckCircle2, ChevronRight, TrendingUp, Sparkles, HelpCircle, Trophy, BarChart3 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useParentDashboard } from "@/features/auth/hooks/useAuth"
-import { cn } from "@/lib/utils"
 
 
 
 export function ParentDashboardPage() {
-  const [isVisible, setIsVisible] = useState(false);
   const { data: dashboard, isLoading, isError, error, refetch } = useParentDashboard();
-
-  useEffect(() => {
-    setIsVisible(true)
-  }, [])
 
   if (isLoading) {
     return (
@@ -49,10 +42,7 @@ export function ParentDashboardPage() {
   return (
     <div className="space-y-4 sm:space-y-6 pb-6">
       {/* Welcome Header */}
-      <div className={cn(
-        "relative overflow-hidden rounded-2xl bg-linear-to-br from-primary via-primary/70 to-accent p-4 sm:p-6 text-white transition-all duration-700",
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-      )}>
+      <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-primary via-primary/70 to-accent p-4 sm:p-6 text-white animate-fade-in-up">
         <div className="noise-overlay pointer-events-none absolute inset-0 z-0" />
         <div className="relative z-10">
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight">
@@ -65,10 +55,7 @@ export function ParentDashboardPage() {
       </div>
 
       {/* Children Overview */}
-      <div className={cn(
-        "grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 transition-all duration-700 delay-200",
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-      )}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 animate-fade-in-up" style={{ animationDelay: "200ms" }}>
         {children.map((child) => (
           <div
             key={child.studentId}
@@ -107,10 +94,7 @@ export function ParentDashboardPage() {
       </div>
 
       {/* Recent Activity */}
-      <div className={cn(
-        "glass-card rounded-2xl p-4 transition-all duration-700 delay-300",
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-      )}>
+      <div className="glass-card rounded-2xl p-4 animate-fade-in-up" style={{ animationDelay: "300ms" }}>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-slate-800">Actividad Reciente</h2>
           <ChevronRight className="h-5 w-5 text-slate-400" />
@@ -144,10 +128,7 @@ export function ParentDashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      <div className={cn(
-        "relative overflow-hidden rounded-2xl bg-linear-to-br from-primary to-primary/70 p-4 sm:p-5 transition-all duration-700 delay-400",
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-      )}>
+      <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-primary to-primary/70 p-4 sm:p-5 animate-fade-in-up" style={{ animationDelay: "400ms" }}>
         <h2 className="text-lg font-bold text-white">Resumen de Hijos</h2>
         <p className="mt-1 text-sm text-white/80">Monitorea el progreso de tu familia</p>
         

@@ -1,11 +1,9 @@
-import { useEffect, useState } from "react"
 import { ChevronRight, Lightbulb, Sparkles, HelpCircle, Trophy, Target, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Container } from "@/components/ui/container"
 import { ProgressBar } from "@/components/ui/progress-bar"
 import { useStudentProgress } from "@/features/auth/hooks/useAuth"
-import { cn } from "@/lib/utils"
 
 const DEFAULT_STUDENT_ID = "stu_001"
 
@@ -14,12 +12,7 @@ interface LevelScreenProps {
 }
 
 export function LevelScreen({ studentId = DEFAULT_STUDENT_ID }: LevelScreenProps) {
-  const [isVisible, setIsVisible] = useState(false)
   const { data: progress, isLoading, isError, error, refetch } = useStudentProgress(studentId)
-
-  useEffect(() => {
-    setIsVisible(true)
-  }, [])
 
   if (isLoading) {
     return (
@@ -56,10 +49,7 @@ export function LevelScreen({ studentId = DEFAULT_STUDENT_ID }: LevelScreenProps
   return (
     <Container className="space-y-4 sm:space-y-6 pb-6">
       <section aria-label="Progreso general">
-        <div className={cn(
-          "relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/70 to-accent p-4 sm:p-6 text-white transition-all duration-700",
-          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-        )}>
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/70 to-accent p-4 sm:p-6 text-white animate-fade-in-up">
           <div className="noise-overlay pointer-events-none absolute inset-0 z-0" />
           <div className="relative z-10">
             <h1 className="text-xl sm:text-2xl font-bold">
@@ -94,10 +84,7 @@ export function LevelScreen({ studentId = DEFAULT_STUDENT_ID }: LevelScreenProps
       </section>
 
       <section aria-label="Progreso por materia">
-        <Card variant="glass" className={cn(
-          "gap-0 rounded-2xl p-4 transition-all duration-700 delay-200",
-          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-        )}>
+        <Card variant="glass" className="gap-0 rounded-2xl p-4 animate-fade-in-up" style={{ animationDelay: "200ms" }}>
           <div className="flex items-center gap-2 mb-4">
             <Target className="h-5 w-5 text-primary" aria-hidden="true" />
             <h2 className="text-lg font-bold text-foreground">Por Materia</h2>
@@ -128,10 +115,7 @@ export function LevelScreen({ studentId = DEFAULT_STUDENT_ID }: LevelScreenProps
       </section>
 
       <section aria-label="Logros">
-        <Card variant="glass" className={cn(
-          "gap-0 rounded-2xl p-4 transition-all duration-700 delay-300",
-          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-        )}>
+        <Card variant="glass" className="gap-0 rounded-2xl p-4 animate-fade-in-up" style={{ animationDelay: "300ms" }}>
           <div className="flex items-center gap-2 mb-4">
             <Trophy className="h-5 w-5 text-accent" aria-hidden="true" />
             <h2 className="text-lg font-bold text-foreground">Logros</h2>
@@ -159,10 +143,7 @@ export function LevelScreen({ studentId = DEFAULT_STUDENT_ID }: LevelScreenProps
 
       {weakAreas.length > 0 && (
         <section aria-label="Áreas a mejorar">
-          <Card variant="glass" className={cn(
-            "gap-0 rounded-2xl p-4 transition-all duration-700 delay-400",
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-          )}>
+          <Card variant="glass" className="gap-0 rounded-2xl p-4 animate-fade-in-up" style={{ animationDelay: "400ms" }}>
             <div className="flex items-center gap-2 mb-4">
               <AlertTriangle className="h-5 w-5 text-accent" aria-hidden="true" />
               <h2 className="text-lg font-bold text-foreground">Áreas a Mejorar</h2>

@@ -14,7 +14,7 @@ export function DownloadLesson({ lessonId, getLessonAssets }: Props) {
     const detail = (evt as CustomEvent).detail
     // detail.results es el array que envía el SW
     setResults(detail)
-    const allOk = Array.isArray(detail) && detail.every((r: any) => r.ok)
+    const allOk = Array.isArray(detail) && detail.every((r: { ok: boolean }) => r.ok)
     setStatus(allOk ? 'done' : 'error')
   }, [])
 

@@ -19,5 +19,5 @@ export function useAuthInitializer() {
         queryClient.setQueryData(authKeys.session(), user);
       }
     });
-  }, [hasHydrated]);
+  }, [hasHydrated, hydrateFromStorage, queryClient]);
 }
