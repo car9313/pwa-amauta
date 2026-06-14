@@ -73,6 +73,6 @@ describe("FormErrorBanner", () => {
       />
     );
     const banner = screen.getByTestId("form-error-banner");
-    expect(banner.className).toMatch(/amber/);
+    expect(banner.className).toMatch(/accent/);
   });
 });
