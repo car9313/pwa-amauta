@@ -21,6 +21,11 @@ import { useLogin } from "@/features/auth/hooks/useAuth";
 import { useOnlineStatus } from "@/features/auth/hooks/useOnlineStatus";
 import { getStoredUser } from "@/lib/api/storage/auth-db";
 import type { AuthError } from "../../domain/auth-error";
+import {
+  AUTH_FAILURE_CODES,
+  NETWORK_ERROR_CODES,
+  SESSION_CLOSED_CODES,
+} from "../../domain/auth-error-constants";
 import { cn } from "@/lib/utils";
 
 function getFriendlyError(error: AuthError | null): {
@@ -29,19 +34,13 @@ function getFriendlyError(error: AuthError | null): {
 } {
   if (!error) return { banner: null, field: null };
 
-  switch (error.code) {
-    case "NETWORK_ERROR":
-    case "TIMEOUT":
-    case "REFRESH_FAILED":
-      return { banner: error, field: null };
-    case "TOKEN_INVALID":
-    case "TOKEN_REVOKED":
-    case "TOKEN_EXPIRED":
-    case "SESSION_NOT_FOUND":
-      return { banner: null, field: "password" };
-    default:
-      return { banner: error, field: null };
+  if (NETWORK_ERROR_CODES.includes(error.code)) {
+    return { banner: error, field: null };
   }
+  if (AUTH_FAILURE_CODES.includes(error.code)) {
+    return { banner: null, field: "password" };
+  }
+  return { banner: error, field: null };
 }
 
 export function LoginPage() {
@@ -94,10 +93,9 @@ export function LoginPage() {
     }
     const { field } = getFriendlyError(error);
     if (field === "password") {
-      const friendly =
-        error.code === "TOKEN_REVOKED" || error.code === "TOKEN_EXPIRED"
-          ? "Tu sesión fue cerrada. Inicia sesión de nuevo."
-          : "No encontramos tu cuenta. ¿Está bien escrito tu correo?";
+      const friendly = SESSION_CLOSED_CODES.includes(error.code)
+        ? "Tu sesión fue cerrada. Inicia sesión de nuevo."
+        : "No encontramos tu cuenta. ¿Está bien escrito tu correo?";
       setError("password", { type: "manual", message: friendly });
     } else {
       setError("password", { type: "manual", message: undefined });
@@ -234,7 +232,7 @@ export function LoginPage() {
                 "w-full bg-linear-to-r from-accent to-amauta-orange-dark",
                 "hover:from-amauta-orange-dark hover:to-[#d45518]",
                 "shadow-lg shadow-accent/25",
-                "transition-all duration-300 hover:shadow-xl hover:shadow-accent/30 hover:scale-[1.02]",
+                "transition-[opacity,transform,box-shadow] duration-300 hover:shadow-xl hover:shadow-accent/30 hover:scale-[1.02] active:scale-[0.97]",
                 "disabled:opacity-70 disabled:hover:scale-100",
                 isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               )}

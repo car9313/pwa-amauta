@@ -5,6 +5,7 @@ import { useAuthStore } from "@/features/auth/presentation/store/auth-store";
 import { AUTH_ERROR_MESSAGES } from "@/features/auth/domain/auth-error";
 import { useFailedMutationCount } from "@/hooks/useFailedMutationCount";
 import { Button } from "@/components/ui/button";
+import { AnimatedPresence } from "@/components/ui/animated-presence";
 import { refreshAccessToken } from "@/lib/api/refresh";
 
 const OFFLINE_STUDENT_MESSAGE = "¡Ups! Algo no funciona. Avísale a un adulto.";
@@ -53,14 +54,14 @@ export function ConnectionStatus() {
 
   return (
     <>
-      {!isOnline && (
+      <AnimatedPresence show={!isOnline}>
         <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-center gap-2 bg-accent px-4 py-2 text-white shadow-md">
           <WifiOff className="h-4 w-4" />
           <span className="text-sm font-medium">{offlineMessage}</span>
         </div>
-      )}
+      </AnimatedPresence>
 
-      {isOnline && lastAuthError && (
+      <AnimatedPresence show={!!(isOnline && lastAuthError)}>
         <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-center gap-2 bg-destructive px-4 py-2 text-white shadow-md">
           <AlertCircle className="h-4 w-4" />
           <span className="text-sm font-medium">{authErrorMessage}</span>
@@ -87,9 +88,9 @@ export function ConnectionStatus() {
             </>
           )}
         </div>
-      )}
+      </AnimatedPresence>
 
-      {isOnline && failedCount > 0 && !isStudent && (
+      <AnimatedPresence show={!!(isOnline && failedCount > 0 && !isStudent)}>
         <div className="fixed top-12 left-0 right-0 z-50 flex items-center justify-center gap-2 bg-destructive px-4 py-2 text-white shadow-md">
           <AlertCircle className="h-4 w-4" />
           <span className="text-sm font-medium">
@@ -114,7 +115,7 @@ export function ConnectionStatus() {
             <X className="h-3 w-3" />
           </Button>
         </div>
-      )}
+      </AnimatedPresence>
     </>
   );
 }

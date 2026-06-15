@@ -1,5 +1,6 @@
-import  { useEffect, useState } from 'react'
-import { triggerUpdate } from '../serviceWorkerRegistration' // asegúrate de exportarla
+import { useEffect, useState } from 'react'
+import { triggerUpdate } from '../serviceWorkerRegistration'
+import { AnimatedPresence } from '@/components/ui/animated-presence'
 
 export function UpdateToast() {
   const [visible, setVisible] = useState(false)
@@ -10,7 +11,6 @@ export function UpdateToast() {
       setVisible(true)
     }
     window.addEventListener('app:show-update-toast', show)
-    // registerSW tambien emite 'sw:need-refresh' que en main.tsx transformamos a app:show-update-toast
     return () => window.removeEventListener('app:show-update-toast', show)
   }, [])
 
@@ -34,38 +34,37 @@ export function UpdateToast() {
     return () => window.removeEventListener('online', goOnline)
   }, [])
 
-  if (!visible) return null
-
   return (
-    <div className="fixed bottom-4 right-4 bg-white border p-3 rounded shadow-lg w-72">
-      <p className="font-semibold mb-2">Nueva versión disponible</p>
-      <p className="text-sm mb-3">Hay una actualización. ¿Quieres actualizar ahora?</p>
-      <div className="flex gap-2">
-        <button
-          className="btn btn-primary flex-1"
-          onClick={async () => {
-            setUpdating(true)
-            try {
-              await triggerUpdate()
-              // triggerUpdate realiza skipWaiting; controllerchange forzará reload
-            } catch (err) {
-              console.error('update failed', err)
-              setUpdating(false)
-            }
-          }}
-          disabled={updating}
-        >
-          {updating ? 'Actualizando…' : 'Actualizar ahora'}
-        </button>
-        <button
-          className="btn btn-ghost"
-          onClick={() => {
-            setVisible(false) // posponer
-          }}
-        >
-          Posponer
-        </button>
+    <AnimatedPresence show={visible}>
+      <div className="fixed bottom-4 right-4 z-50 w-72 rounded-lg border bg-white p-3 shadow-lg">
+        <p className="mb-2 font-semibold">Nueva versión disponible</p>
+        <p className="mb-3 text-sm">Hay una actualización. ¿Quieres actualizar ahora?</p>
+        <div className="flex gap-2">
+          <button
+            className="btn btn-primary flex-1"
+            onClick={async () => {
+              setUpdating(true)
+              try {
+                await triggerUpdate()
+              } catch (err) {
+                console.error('update failed', err)
+                setUpdating(false)
+              }
+            }}
+            disabled={updating}
+          >
+            {updating ? 'Actualizando…' : 'Actualizar ahora'}
+          </button>
+          <button
+            className="btn btn-ghost"
+            onClick={() => {
+              setVisible(false)
+            }}
+          >
+            Posponer
+          </button>
+        </div>
       </div>
-    </div>
+    </AnimatedPresence>
   )
 }

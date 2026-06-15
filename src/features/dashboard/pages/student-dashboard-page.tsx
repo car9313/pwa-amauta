@@ -6,6 +6,7 @@ import { AgendaItem } from "../components/agenda-item"
 import { ProgressCard } from "../components/progress-card"
 import { AchievementCard } from "../components/achievement-card"
 import { useStudentDashboard } from "@/hooks/useStudent"
+import { useStagger } from "@/hooks/useStagger"
 import { cn } from "@/lib/utils"
 
 interface StudentDashboardProps {
@@ -18,6 +19,7 @@ export function StudentDashboardPage({
   studentId = DEFAULT_STUDENT_ID,
 }: StudentDashboardProps) {
   const { data: dashboard, isLoading, isError, error, refetch } = useStudentDashboard(studentId)
+  const stagger = useStagger({ count: 7, baseDelay: 50, totalDuration: 300 })
 
   if (isLoading) {
     return (
@@ -76,7 +78,7 @@ export function StudentDashboardPage({
               </p>
             </div>
             
-            <div className="relative animate-scale-in" style={{ animationDelay: "200ms" }}>
+            <div className="relative animate-scale-in" style={stagger.getStyle(0)}>
               <div className="absolute inset-0 rounded-full bg-accent/30 animate-ping" />
               <div className="relative h-12 w-12 sm:h-16 sm:w-16 rounded-full border-2 sm:border-4 border-white/40 overflow-hidden bg-white shadow-xl">
                 <img
@@ -88,7 +90,7 @@ export function StudentDashboardPage({
             </div>
           </div>
 
-          <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 rounded-xl sm:rounded-2xl bg-white/15 p-3 sm:p-4 backdrop-blur-sm animate-fade-in-up" style={{ animationDelay: "300ms" }}>
+          <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 rounded-xl sm:rounded-2xl bg-white/15 p-3 sm:p-4 backdrop-blur-sm animate-fade-in-up" style={stagger.getStyle(1)}>
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="relative">
                 <div className="absolute inset-0 rounded-full bg-accent/50 animate-pulse" />
@@ -108,7 +110,7 @@ export function StudentDashboardPage({
                 <div
                   key={index}
                   className={cn(
-                    "flex h-8 sm:h-9 w-8 sm:w-9 items-center justify-center rounded-full text-xs sm:text-sm font-bold transition-all duration-300",
+                    "flex h-8 sm:h-9 w-8 sm:w-9 items-center justify-center rounded-full text-xs sm:text-sm font-bold transition-colors duration-300",
                     day.active
                       ? "bg-accent text-white shadow-lg shadow-accent/30"
                       : "bg-white/15 text-white/50"
@@ -123,14 +125,14 @@ export function StudentDashboardPage({
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-3 gap-2 sm:gap-3 animate-fade-in-up" style={{ animationDelay: "400ms" }}>
+      <div className="grid grid-cols-3 gap-2 sm:gap-3 animate-fade-in-up" style={stagger.getStyle(2)}>
         <StatCard type="points" value={student?.points ?? 0} label="Puntos" delay={0} />
         <StatCard type="level" value={`Nivel ${student?.level ?? 1}`} label="Progreso" delay={1} />
         <StatCard type="accuracy" value={`${student?.precision ?? 0}%`} label="Precisión" delay={2} />
       </div>
 
       {/* Today's Agenda */}
-      <div className="scrollbar-hide animate-fade-in-up" style={{ animationDelay: "500ms" }}>
+      <div className="scrollbar-hide animate-fade-in-up" style={stagger.getStyle(3)}>
         <Card variant="glass" className="p-3 sm:p-4 gap-0">
           <div className="mb-3 sm:mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -162,7 +164,7 @@ export function StudentDashboardPage({
       </div>
 
       {/* Progress Section */}
-      <div className="animate-fade-in-up" style={{ animationDelay: "600ms" }}>
+      <div className="animate-fade-in-up" style={stagger.getStyle(4)}>
         <Card variant="glass" className="p-3 sm:p-4 gap-0">
           <div className="mb-3 sm:mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -187,7 +189,7 @@ export function StudentDashboardPage({
       </div>
 
       {/* Quick Actions */}
-      <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-linear-to-br from-accent to-accent/80 p-4 sm:p-5 animate-fade-in-up" style={{ animationDelay: "700ms" }}>
+      <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-linear-to-br from-accent to-accent/80 p-4 sm:p-5 animate-fade-in-up" style={stagger.getStyle(5)}>
         <div className="absolute -right-2 sm:-right-4 -top-2 sm:-top-4 h-12 sm:h-20 w-12 sm:w-20 rounded-full bg-white/10 blur-xl" />
         <div className="absolute -bottom-1 sm:-bottom-2 -left-1 sm:-left-2 h-10 sm:h-16 w-10 sm:w-16 rounded-full bg-white/10 blur-lg" />
 
@@ -213,7 +215,7 @@ export function StudentDashboardPage({
       </div>
 
       {/* Recent Achievements */}
-      <div className="animate-fade-in-up" style={{ animationDelay: "800ms" }}>
+      <div className="animate-fade-in-up" style={stagger.getStyle(6)}>
         <Card variant="glass" className="p-3 sm:p-4 gap-0">
           <div className="mb-3 sm:mb-4 flex items-center justify-between">
             <h2 className="text-base sm:text-lg font-bold text-foreground">Últimos Logros</h2>

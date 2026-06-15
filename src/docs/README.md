@@ -53,7 +53,15 @@ Para entender la aplicación desde la arquitectura general hasta los detalles es
 | # | Documento | Qué explica |
 |---|-----------|-------------|
 | 16 | [`ERROR_HANDLING.md`](./errores/ERROR_HANDLING.md) | Manejo de errores: ErrorBoundary, códigos de error, flujos de fallback. |
+| 16b | [`LOGIN_ERROR_UX.md`](./errores/LOGIN_ERROR_UX.md) | Mapeo de errores de auth en LoginPage: banner vs field-level, mensajes amigables, decisiones UX. |
 | 17 | [`ERROR_HANDLING_TEST_GUIDE.md`](./errores/ERROR_HANDLING_TEST_GUIDE.md) | Testing de manejo de errores. |
+
+### Nivel 5b — Desarrollo y Herramientas Dev
+
+| # | Documento | Qué explica |
+|---|-----------|-------------|
+| 17b | [`DEV_ONLINE_TOGGLE.md`](./dev/DEV_ONLINE_TOGGLE.md) | Componente DevOnlineToggle: forzar online/offline en desarrollo, cómo quitarlo después. |
+| 17c | [`SW_DEV_MODE.md`](./offline/SW_DEV_MODE.md) | Por qué el Service Worker solo funciona en producción, cómo activarlo si es necesario. |
 
 ### Nivel 6 — Planificación y Seguimiento
 
