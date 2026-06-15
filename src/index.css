@@ -98,3 +98,15 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+.dev-toggle-auto {
+  background-color: #6b7280;
+}
+
+.dev-toggle-online {
+  background-color: #22c55e;
+}
+
+.dev-toggle-offline {
+  background-color: #ef4444;
+}

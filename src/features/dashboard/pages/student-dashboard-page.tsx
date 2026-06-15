@@ -1,12 +1,25 @@
-import { Plus, TrendingUp, BookOpen, ChevronRight, Flame, Sparkles, HelpCircle } from "lucide-react"
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { Plus, TrendingUp, BookOpen, ChevronRight, Calendar, Flame, Sparkles, HelpCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { ProgressBar } from "@/components/ui/progress-bar"
 import { Card } from "@/components/ui/card"
 import { StatCard } from "../components/stat-card"
 import { AgendaItem } from "../components/agenda-item"
 import { ProgressCard } from "../components/progress-card"
 import { AchievementCard } from "../components/achievement-card"
 import { useStudentDashboard } from "@/hooks/useStudent"
+import { useStagger } from "@/hooks/useStagger"
 import { cn } from "@/lib/utils"
+
+interface LocalAgendaItem {
+  lessonId: string
+  title: string
+  subject: string
+  scheduledAt: string
+  durationMinutes: number
+  completed: boolean
+}
 
 interface StudentDashboardProps {
   studentId?: string
@@ -18,14 +31,35 @@ export function StudentDashboardPage({
   studentId = DEFAULT_STUDENT_ID,
 }: StudentDashboardProps) {
   const { data: dashboard, isLoading, isError, error, refetch } = useStudentDashboard(studentId)
+  const stagger = useStagger({ count: 7, baseDelay: 50, totalDuration: 300 })
+  const navigate = useNavigate()
+  const [agendaExpanded, setAgendaExpanded] = useState(true)
+  const [isAddingAgenda, setIsAddingAgenda] = useState(false)
+  const [agendaInput, setAgendaInput] = useState("")
+  const [localAgenda, setLocalAgenda] = useState<LocalAgendaItem[]>([])
+
+  const handleAddAgenda = () => {
+    if (!agendaInput.trim()) return
+    const newItem: LocalAgendaItem = {
+      lessonId: `local_${Date.now()}`,
+      title: agendaInput.trim(),
+      subject: "Tarea personalizada",
+      scheduledAt: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+      durationMinutes: 15,
+      completed: false,
+    }
+    setLocalAgenda((prev) => [...prev, newItem])
+    setAgendaInput("")
+    setIsAddingAgenda(false)
+  }
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="relative">
           <div className="absolute inset-0 rounded-full bg-accent/20 animate-ping" />
-          <div className="relative w-16 h-16 rounded-full bg-accent/30 flex items-center justify-center">
-            <Sparkles className="w-8 h-8 text-accent animate-spin" />
+          <div className="relative w-16 h-16 rounded-full bg-accent/30 flex items-center justify-center animate-bounce-gentle">
+            <Sparkles className="w-8 h-8 text-accent animate-sparkle" />
           </div>
         </div>
       </div>
@@ -50,11 +84,16 @@ export function StudentDashboardPage({
   const student = dashboard?.student
   const agenda = dashboard?.agenda ?? []
   const progress = dashboard?.progress ?? []
+  const totalProgress = progress.length > 0
+    ? Math.round(progress.reduce((sum, p) => sum + p.mastery, 0) / progress.length)
+    : 0
   const achievements = dashboard?.recentAchievements ?? []
 
   const weekDays = student?.streakWeek?.map((active) => ({ active })) ?? [
     { active: true }, { active: true }, { active: true }, { active: true }, { active: false }, { active: false }, { active: false }
   ]
+
+  const allAgenda = [...agenda, ...localAgenda]
 
   return (
     <div className="space-y-4 sm:space-y-6 pb-6">
@@ -76,7 +115,7 @@ export function StudentDashboardPage({
               </p>
             </div>
             
-            <div className="relative animate-scale-in" style={{ animationDelay: "200ms" }}>
+            <div className="relative animate-scale-in animate-bounce-gentle" style={stagger.getStyle(0)}>
               <div className="absolute inset-0 rounded-full bg-accent/30 animate-ping" />
               <div className="relative h-12 w-12 sm:h-16 sm:w-16 rounded-full border-2 sm:border-4 border-white/40 overflow-hidden bg-white shadow-xl">
                 <img
@@ -88,12 +127,12 @@ export function StudentDashboardPage({
             </div>
           </div>
 
-          <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 rounded-xl sm:rounded-2xl bg-white/15 p-3 sm:p-4 backdrop-blur-sm animate-fade-in-up" style={{ animationDelay: "300ms" }}>
+          <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 rounded-xl sm:rounded-2xl bg-white/15 p-3 sm:p-4 backdrop-blur-sm animate-fade-in-up" style={stagger.getStyle(1)}>
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="relative">
                 <div className="absolute inset-0 rounded-full bg-accent/50 animate-pulse" />
                 <div className="relative flex h-10 sm:h-12 w-10 sm:w-12 items-center justify-center rounded-full bg-white/20">
-                  <Flame className="h-5 sm:h-6 w-5 sm:w-6 text-accent" />
+                  <Flame className="h-5 sm:h-6 w-5 sm:w-6 text-accent animate-gentle-pulse" />
                 </div>
               </div>
               <div>
@@ -108,7 +147,7 @@ export function StudentDashboardPage({
                 <div
                   key={index}
                   className={cn(
-                    "flex h-8 sm:h-9 w-8 sm:w-9 items-center justify-center rounded-full text-xs sm:text-sm font-bold transition-all duration-300",
+                    "flex h-8 sm:h-9 w-8 sm:w-9 items-center justify-center rounded-full text-xs sm:text-sm font-bold transition-all duration-300 hover:scale-110",
                     day.active
                       ? "bg-accent text-white shadow-lg shadow-accent/30"
                       : "bg-white/15 text-white/50"
@@ -123,46 +162,96 @@ export function StudentDashboardPage({
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-3 gap-2 sm:gap-3 animate-fade-in-up" style={{ animationDelay: "400ms" }}>
+      <div className="grid grid-cols-3 gap-2 sm:gap-3 animate-fade-in-up" style={stagger.getStyle(2)}>
         <StatCard type="points" value={student?.points ?? 0} label="Puntos" delay={0} />
         <StatCard type="level" value={`Nivel ${student?.level ?? 1}`} label="Progreso" delay={1} />
         <StatCard type="accuracy" value={`${student?.precision ?? 0}%`} label="Precisión" delay={2} />
       </div>
 
       {/* Today's Agenda */}
-      <div className="scrollbar-hide animate-fade-in-up" style={{ animationDelay: "500ms" }}>
+      <div className="scrollbar-hide animate-fade-in-up" style={stagger.getStyle(3)}>
         <Card variant="glass" className="p-3 sm:p-4 gap-0">
-          <div className="mb-3 sm:mb-4 flex items-center justify-between">
+          <div
+            onClick={() => setAgendaExpanded(!agendaExpanded)}
+            className="mb-3 sm:mb-4 flex items-center justify-between cursor-pointer"
+          >
             <div className="flex items-center gap-2">
-              <div className="flex h-7 sm:h-8 w-7 sm:w-8 items-center justify-center rounded-lg bg-secondary">
-                <svg className="h-4 sm:h-5 w-4 sm:w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
+              <div className="flex h-7 sm:h-8 w-7 sm:w-8 items-center justify-center rounded-lg bg-secondary animate-bounce-gentle">
+                <Calendar className="h-4 sm:h-5 w-4 sm:w-5 text-primary" />
               </div>
               <h2 className="text-base sm:text-lg font-bold text-foreground">Agenda de Hoy</h2>
             </div>
-            <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-secondary text-primary hover:bg-primary hover:text-white">
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
-          <div className="space-y-2 sm:space-y-3">
-            {agenda.map((item) => (
-              <AgendaItem
-                key={item.lessonId}
-                title={item.title}
-                subject={item.subject}
-                time={item.scheduledAt}
-                duration={`${item.durationMinutes} min`}
-                status={item.completed ? "completed" : "pending"}
-                onStart={() => {}}
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setIsAddingAgenda(!isAddingAgenda)
+                }}
+                className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-secondary text-primary hover:bg-primary hover:text-white hover:scale-110 active:scale-90 transition-all duration-200"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+              <ChevronRight
+                className={`h-4 w-4 text-muted-foreground transition-transform duration-300 ${agendaExpanded ? 'rotate-90' : ''}`}
               />
-            ))}
+            </div>
+          </div>
+
+          <div
+            className={`overflow-hidden transition-all duration-500 ease-out ${
+              agendaExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+            }`}
+          >
+            <div className="space-y-2 sm:space-y-3">
+              {isAddingAgenda && (
+                <div className="flex gap-2 animate-fade-in-up">
+                  <input
+                    type="text"
+                    placeholder="Escribe una tarea..."
+                    value={agendaInput}
+                    onChange={(e) => setAgendaInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        handleAddAgenda()
+                      }
+                    }}
+                    className="flex-1 px-4 py-2 bg-background border-2 border-border rounded-xl text-sm font-semibold focus:outline-none focus:border-accent h-[44px]"
+                  />
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleAddAgenda()
+                    }}
+                    className="bg-accent text-white hover:bg-accent/80 rounded-xl"
+                  >
+                    Añadir
+                  </Button>
+                </div>
+              )}
+              {allAgenda.map((item) => (
+                <AgendaItem
+                  key={item.lessonId}
+                  title={item.title}
+                  subject={item.subject}
+                  time={item.scheduledAt}
+                  duration={`${item.durationMinutes} min`}
+                  status={item.completed ? "completed" : "pending"}
+                  onStart={() => navigate('/lessons')}
+                />
+              ))}
+              {!isAddingAgenda && allAgenda.length === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-4">No hay tareas para hoy</p>
+              )}
+            </div>
           </div>
         </Card>
       </div>
 
       {/* Progress Section */}
-      <div className="animate-fade-in-up" style={{ animationDelay: "600ms" }}>
+      <div className="animate-fade-in-up" style={stagger.getStyle(4)}>
         <Card variant="glass" className="p-3 sm:p-4 gap-0">
           <div className="mb-3 sm:mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -171,8 +260,40 @@ export function StudentDashboardPage({
               </div>
               <h2 className="text-base sm:text-lg font-bold text-foreground">Tu Progreso</h2>
             </div>
-            <button className="text-xs sm:text-sm font-semibold text-primary hover:underline">Ver todo</button>
+            <button onClick={() => navigate('/progress')} className="text-xs sm:text-sm font-semibold text-primary hover:underline hover:scale-105 transition-transform duration-200">Ver todo</button>
           </div>
+
+          {progress.length > 0 && (
+            <div className="relative mb-4 sm:mb-5 p-3 sm:p-4 rounded-xl bg-gradient-to-r from-primary/5 via-primary/10 to-accent/5 border border-primary/10 animate-scale-in">
+              {/* Orbes decorativos de fondo */}
+              <div className="absolute top-1/4 -right-8 h-24 w-24 rounded-full bg-accent/5 blur-md animate-float-gentle pointer-events-none" />
+
+              {/* Sparkles decorativos */}
+              <Sparkles className="absolute top-2 right-2 h-5 w-5 text-accent animate-sparkle" />
+              <Sparkles className="absolute bottom-2 left-2 h-4 w-4 text-primary/60 animate-icon-float" />
+
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-foreground/70 uppercase tracking-wider">Progreso total</span>
+                <span className="text-lg font-black text-primary tabular-nums animate-bounce-gentle">{totalProgress}%</span>
+              </div>
+              <ProgressBar
+                value={totalProgress}
+                size="lg"
+                color="primary"
+                animated={true}
+              />
+              <p className="mt-2 text-xs text-muted-foreground font-medium animate-fade-in-up">
+                {totalProgress >= 80
+                  ? "¡Casi dominas todo! Sigue así 🏆"
+                  : totalProgress >= 50
+                  ? "¡Vas muy bien! Sigue practicando 💪"
+                  : totalProgress >= 20
+                  ? "¡Buen comienzo! Cada día sabrás más 🌟"
+                  : "¡Empieza tu primera lección! 🚀"}
+              </p>
+            </div>
+          )}
+
           <div className="space-y-3 sm:space-y-4">
             {progress.map((item) => (
               <ProgressCard
@@ -187,7 +308,7 @@ export function StudentDashboardPage({
       </div>
 
       {/* Quick Actions */}
-      <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-linear-to-br from-accent to-accent/80 p-4 sm:p-5 animate-fade-in-up" style={{ animationDelay: "700ms" }}>
+      <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-linear-to-br from-accent to-accent/80 p-4 sm:p-5 animate-fade-in-up" style={stagger.getStyle(5)}>
         <div className="absolute -right-2 sm:-right-4 -top-2 sm:-top-4 h-12 sm:h-20 w-12 sm:w-20 rounded-full bg-white/10 blur-xl" />
         <div className="absolute -bottom-1 sm:-bottom-2 -left-1 sm:-left-2 h-10 sm:h-16 w-10 sm:w-16 rounded-full bg-white/10 blur-lg" />
 
@@ -197,15 +318,15 @@ export function StudentDashboardPage({
           
           <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex w-full sm:w-auto gap-2 sm:gap-3">
-              <Button className="hover-lift flex-1 sm:flex-none rounded-xl bg-white/20 text-white hover:bg-white/30 gap-2 text-sm">
+              <Button onClick={() => navigate('/lessons')} className="hover-lift hover:scale-105 active:scale-95 transition-all duration-200 flex-1 sm:flex-none rounded-xl bg-white/20 text-white hover:bg-white/30 gap-2 text-sm">
                 <BookOpen className="h-4 w-4" />
                 <span className="hidden xs:inline">Continuar Lección</span>
                 <span className="xs:hidden">Continuar</span>
               </Button>
-              <Button className="hover-lift flex-1 sm:flex-none rounded-xl bg-white/20 text-white hover:bg-white/30 text-sm">¡Jugar!</Button>
+              <Button onClick={() => navigate('/practice')} className="hover-lift hover:scale-105 active:scale-95 transition-all duration-200 flex-1 sm:flex-none rounded-xl bg-white/20 text-white hover:bg-white/30 text-sm">¡Jugar!</Button>
             </div>
             
-            <div className="hidden sm:flex h-12 sm:h-14 w-12 sm:w-14 items-center justify-center rounded-full bg-white shadow-lg overflow-hidden">
+            <div className="hidden sm:flex h-12 sm:h-14 w-12 sm:w-14 items-center justify-center rounded-full bg-white shadow-lg overflow-hidden animate-bounce-gentle">
               <img src="/img/amauta-mascot.jpg" alt="Amauta" className="w-full h-full object-cover" />
             </div>
           </div>
@@ -213,11 +334,11 @@ export function StudentDashboardPage({
       </div>
 
       {/* Recent Achievements */}
-      <div className="animate-fade-in-up" style={{ animationDelay: "800ms" }}>
+      <div className="animate-fade-in-up" style={stagger.getStyle(6)}>
         <Card variant="glass" className="p-3 sm:p-4 gap-0">
           <div className="mb-3 sm:mb-4 flex items-center justify-between">
             <h2 className="text-base sm:text-lg font-bold text-foreground">Últimos Logros</h2>
-            <ChevronRight className="h-4 sm:h-5 w-4 sm:w-5 text-muted-foreground" />
+            <ChevronRight className="h-4 sm:h-5 w-4 sm:w-5 text-muted-foreground hover:scale-110 transition-transform duration-200" />
           </div>
           <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-2">
             {achievements.map((achievement) => (

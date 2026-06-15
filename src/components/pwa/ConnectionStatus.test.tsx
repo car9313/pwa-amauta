@@ -206,7 +206,7 @@ describe("ConnectionStatus", () => {
       mockUseOfflineMode.mockReturnValue({ isOnline: true, isOfflineMode: true, canRetry: true });
       mockUseFailedMutationCount.mockReturnValue({ count: 1, loading: false, retry: mockRetry, dismiss: mockDismiss });
       render(<ConnectionStatus />);
-      expect(screen.getByText("Tu sesión expiró. Por favor, inicia sesión de nuevo.")).toBeInTheDocument();
+      expect(screen.getByText("Tu sesión expiró. Conéctate a internet para renovarla automáticamente.")).toBeInTheDocument();
       expect(screen.getByText("1 cambio no se pudo guardar")).toBeInTheDocument();
       expect(screen.getAllByRole("button", { name: /reintentar/i })).toHaveLength(2);
     });

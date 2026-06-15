@@ -154,7 +154,12 @@ const mockStudentDashboard: StudentDashboard = {
     streakWeek: [true, true, true, true, false, false, false],
   },
   agenda: [],
-  progress: [],
+  progress: [
+    { topicId: "math_addition", title: "Sumas", mastery: 85 },
+    { topicId: "math_subtraction", title: "Restas", mastery: 62 },
+    { topicId: "math_multiplication", title: "Multiplicación", mastery: 38 },
+    { topicId: "math_division", title: "División", mastery: 15 },
+  ],
   recentAchievements: [],
 };
 

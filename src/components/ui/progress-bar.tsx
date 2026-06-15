@@ -44,12 +44,15 @@ function ProgressBar({
     >
       <div
         className={cn(
-          "h-full rounded-full transition-all duration-500 ease-out",
+          "h-full rounded-full transition-all duration-500 ease-out relative overflow-hidden",
           colorStyles[color],
-          animated && "animate-pulse"
         )}
         style={{ width: `${clampedValue}%` }}
-      />
+      >
+        {animated && (
+          <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer-sweep" />
+        )}
+      </div>
     </div>
   )
 }

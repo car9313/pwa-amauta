@@ -43,7 +43,7 @@ export function AgendaItem({
   return (
     <div
       className={cn(
-        "p-4 bg-card rounded-xl border border-border border-l-4",
+        "p-4 bg-card rounded-xl border border-border border-l-4 hover:scale-[1.01] transition-transform duration-200",
         cfg.border
       )}
     >

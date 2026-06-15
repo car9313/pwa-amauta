@@ -5,6 +5,7 @@ import { useAuthStore } from "@/features/auth/presentation/store/auth-store";
 import { UpdateToast } from "@/components/UpdateToast";
 import { initBackgroundSync } from "@/lib/sync/background-sync";
 import { configureHttpClient } from "@/lib/api";
+import { DevOnlineToggle } from "@/components/dev";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
 const API_VERSION = import.meta.env.VITE_API_VERSION ?? "v1";
@@ -33,6 +34,7 @@ export default function App() {
         <AppRoutes />
       </ErrorBoundary>
       <UpdateToast />
+      {import.meta.env.DEV && <DevOnlineToggle />}
     </>
   );
 }

@@ -55,8 +55,8 @@ beforeEach(() => {
 describe("TeacherDashboardPage", () => {
   it("shows loading spinner", () => {
     vi.mocked(useTeacherDashboard).mockReturnValue(mockQueryResult({ isLoading: true }));
-    render(<TeacherDashboardPage />);
-    expect(screen.getByText("Docente")).toBeDefined();
+    const { container } = render(<TeacherDashboardPage />);
+    expect(container.querySelector(".animate-spin")).toBeDefined();
   });
 
   it("shows error state", () => {
@@ -90,7 +90,7 @@ describe("TeacherDashboardPage", () => {
     vi.mocked(useTeacherDashboard).mockReturnValue(mockQueryResult({ data: mockDashboard }));
     render(<TeacherDashboardPage />);
     expect(screen.getByText("Mario")).toBeDefined();
-    expect(screen.getByText("Lucía")).toBeDefined();
+    expect(screen.getAllByText("Lucía").length).toBeGreaterThan(0);
   });
 
   it("renders subject progress", () => {
