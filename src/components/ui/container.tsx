@@ -1,19 +1,21 @@
-import { cn } from "@/lib/utils"
-import type { ElementType, ReactNode } from "react"
+import { cn } from "@/lib/utils";
+import type { ElementType, ReactNode } from "react";
 
 interface ContainerProps {
-  children: ReactNode
-  className?: string
-  as?: ElementType
+  children: ReactNode;
+  className?: string;
+  as?: ElementType;
 }
 
 function Container({ children, className, as: Tag = "div" }: ContainerProps) {
   return (
-    <Tag className={cn("mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8", className)}>
+    <Tag
+      className={cn("mx-auto w-full max-w-7xl px-4 sm:px-4 lg:px-4", className)}
+    >
       {children}
     </Tag>
-  )
+  );
 }
 
-export { Container }
-export type { ContainerProps }
+export { Container };
+export type { ContainerProps };

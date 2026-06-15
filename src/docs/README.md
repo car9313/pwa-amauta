@@ -61,7 +61,8 @@ Para entender la aplicación desde la arquitectura general hasta los detalles es
 | # | Documento | Qué explica |
 |---|-----------|-------------|
 | 17b | [`DEV_ONLINE_TOGGLE.md`](./dev/DEV_ONLINE_TOGGLE.md) | Componente DevOnlineToggle: forzar online/offline en desarrollo, cómo quitarlo después. |
-| 17c | [`SW_DEV_MODE.md`](./offline/SW_DEV_MODE.md) | Por qué el Service Worker solo funciona en producción, cómo activarlo si es necesario. |
+| 17c | [`MOCK_SYSTEM.md`](./dev/MOCK_SYSTEM.md) | Sistema de mocks y configuración de `.env`: VITE_USE_MOCK, usuarios mock, adaptador mock vs real. |
+| 17d | [`SW_DEV_MODE.md`](./offline/SW_DEV_MODE.md) | Por qué el Service Worker solo funciona en producción, cómo activarlo si es necesario. |
 
 ### Nivel 6 — Planificación y Seguimiento
 

@@ -196,3 +196,12 @@
   background-size: 200% 100%;
   animation: shimmer 2s linear infinite;
 }
+
+@keyframes shimmerSweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-shimmer-sweep {
+  animation: shimmerSweep 2s ease-in-out infinite;
+}
