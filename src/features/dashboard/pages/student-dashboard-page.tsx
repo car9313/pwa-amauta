@@ -264,10 +264,13 @@ export function StudentDashboardPage({
           </div>
 
           {progress.length > 0 && (
-            <div className="relative mb-4 sm:mb-5 p-3 sm:p-4 rounded-xl bg-gradient-to-r from-primary/5 via-primary/10 to-accent/5 border border-primary/10 overflow-hidden animate-scale-in">
+            <div className="relative mb-4 sm:mb-5 p-3 sm:p-4 rounded-xl bg-gradient-to-r from-primary/5 via-primary/10 to-accent/5 border border-primary/10 animate-scale-in">
+              {/* Orbes decorativos de fondo */}
+              <div className="absolute top-1/4 -right-8 h-24 w-24 rounded-full bg-accent/5 blur-md animate-float-gentle pointer-events-none" />
+
               {/* Sparkles decorativos */}
-              <Sparkles className="absolute -top-1 -right-1 h-4 w-4 text-accent animate-sparkle" />
-              <Sparkles className="absolute -bottom-1 -left-1 h-3 w-3 text-primary/40 animate-icon-float" />
+              <Sparkles className="absolute top-2 right-2 h-5 w-5 text-accent animate-sparkle" />
+              <Sparkles className="absolute bottom-2 left-2 h-4 w-4 text-primary/60 animate-icon-float" />
 
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-bold text-foreground/70 uppercase tracking-wider">Progreso total</span>
