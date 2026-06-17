@@ -41,12 +41,20 @@
 
 .gradient-mesh {
   background:
-    radial-gradient(at 40% 20%, hsla(210, 90%, 60%, 0.15) 0px, transparent 50%),
-    radial-gradient(at 80% 0%, hsla(30, 90%, 60%, 0.12) 0px, transparent 50%),
-    radial-gradient(at 0% 50%, hsla(180, 80%, 55%, 0.1) 0px, transparent 50%),
-    radial-gradient(at 80% 50%, hsla(250, 60%, 50%, 0.08) 0px, transparent 50%),
-    radial-gradient(at 0% 100%, hsla(40, 90%, 55%, 0.12) 0px, transparent 50%),
+    radial-gradient(at 40% 20%, color-mix(in srgb, var(--primary) 15%, transparent) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, color-mix(in srgb, var(--accent) 12%, transparent) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, color-mix(in srgb, var(--accent) 10%, transparent) 0px, transparent 50%),
+    radial-gradient(at 80% 50%, color-mix(in srgb, var(--primary) 8%, transparent) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, color-mix(in srgb, var(--accent) 12%, transparent) 0px, transparent 50%),
     var(--background);
+}
+
+.page-loading {
+  @apply flex items-center justify-center min-h-[60vh];
+}
+
+.page-error {
+  @apply flex flex-col items-center justify-center min-h-[60vh] space-y-4 text-center px-4;
 }
 
 .glass-card {
@@ -56,7 +64,7 @@
   border: 1px solid rgba(255, 255, 255, 0.5);
   box-shadow:
     0 1px 2px rgba(255, 255, 255, 0.4),
-    0 8px 32px rgba(31, 79, 163, 0.08);
+    var(--shadow-md);
 }
 
 .hover-lift {
@@ -65,9 +73,7 @@
 
 .hover-lift:hover {
   transform: translateY(-4px);
-  box-shadow:
-    0 12px 40px rgba(31, 79, 163, 0.15),
-    0 4px 12px rgba(31, 79, 163, 0.1);
+  box-shadow: var(--shadow-lg);
 }
 
 .hover-glow {
@@ -75,7 +81,7 @@
 }
 
 .hover-glow:hover {
-  box-shadow: 0 0 24px rgba(244, 112, 31, 0.3);
+  box-shadow: var(--shadow-glow-orange);
 }
 
 .text-gradient {
@@ -99,14 +105,24 @@
   scrollbar-width: none;
 }
 
+.bg-success-50 { background: color-mix(in srgb, var(--success) 10%, transparent); }
+.bg-success-100 { background: color-mix(in srgb, var(--success) 20%, transparent); }
+.bg-warning-50 { background: color-mix(in srgb, var(--warning) 10%, transparent); }
+.bg-warning-100 { background: color-mix(in srgb, var(--warning) 20%, transparent); }
+.text-success { color: var(--success); }
+.text-warning { color: var(--warning); }
+.border-success { border-color: var(--success); }
+.border-warning { border-color: var(--warning); }
+.ring-success-20 { ring-color: color-mix(in srgb, var(--success) 20%, transparent); }
+
 .dev-toggle-auto {
-  background-color: #6b7280;
+  background-color: var(--muted-foreground);
 }
 
 .dev-toggle-online {
-  background-color: #22c55e;
+  background-color: var(--success);
 }
 
 .dev-toggle-offline {
-  background-color: #ef4444;
+  background-color: var(--destructive);
 }

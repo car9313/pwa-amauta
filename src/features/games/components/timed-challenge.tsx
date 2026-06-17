@@ -71,7 +71,7 @@ export function TimedChallengeView({
       <div className="bg-card rounded-2xl shadow-sm border border-border p-5 sm:p-6 space-y-5">
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">
-            Correctas: <span className="font-bold text-emerald-600">{correctCount}</span>
+            Correctas: <span className="font-bold text-success">{correctCount}</span>
           </span>
           <span className="text-muted-foreground">
             Total: <span className="font-bold text-foreground">{totalAnswered}</span>

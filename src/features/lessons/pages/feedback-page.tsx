@@ -6,11 +6,11 @@ import type { ExerciseResult, Mistake } from "@/features/exercises/domain/exerci
 
 const SCORE_COLORS = {
   excellent: {
-    text: "text-emerald-600",
-    stroke: "stroke-emerald-500",
-    bg: "bg-emerald-50",
-    border: "border-emerald-200",
-    ring: "ring-emerald-200",
+    text: "text-success",
+    stroke: "stroke-success",
+    bg: "bg-success/10",
+    border: "border-success/20",
+    ring: "ring-success/20",
   },
   good: {
     text: "text-accent",
@@ -20,11 +20,11 @@ const SCORE_COLORS = {
     ring: "ring-accent/20",
   },
   failed: {
-    text: "text-red-500",
-    stroke: "stroke-red-400",
-    bg: "bg-red-50",
-    border: "border-red-200",
-    ring: "ring-red-200",
+    text: "text-destructive",
+    stroke: "stroke-destructive",
+    bg: "bg-destructive/10",
+    border: "border-destructive/20",
+    ring: "ring-destructive/20",
   },
 }
 
@@ -84,12 +84,12 @@ export function FeedbackPage() {
   if (state?.queued) {
     return (
       <div
-        className="flex items-center justify-center min-h-[60vh] animate-fade-in-up"
+        className="page-loading animate-fade-in-up"
       >
         <div className="bg-card rounded-2xl shadow-sm border border-border p-8 max-w-md w-full text-center space-y-6">
           <div className="flex justify-center">
-            <div className="w-20 h-20 rounded-full bg-amber-50 flex items-center justify-center">
-              <CheckCircle className="h-10 w-10 text-amber-500" />
+            <div className="w-20 h-20 rounded-full bg-warning/10 flex items-center justify-center">
+              <CheckCircle className="h-10 w-10 text-accent" />
             </div>
           </div>
           <div className="space-y-2">
@@ -130,7 +130,7 @@ export function FeedbackPage() {
               {[1, 2, 3].map((i) => (
                 <Star
                   key={i}
-                  className="h-8 w-8 text-amber-400 fill-amber-400 animation-delay-500"
+                  className="h-8 w-8 text-accent fill-accent animation-delay-500"
                   style={{ animationDelay: `${i * 150}ms` }}
                 />
               ))}
@@ -142,10 +142,10 @@ export function FeedbackPage() {
           <div className="space-y-1">
             {isExcellent && (
               <>
-                <h1 className="text-2xl sm:text-3xl font-bold text-emerald-700">
+                <h1 className="text-2xl sm:text-3xl font-bold text-success">
                   ¡Excelente trabajo!
                 </h1>
-                <p className="text-emerald-600">{result.feedbackSummary}</p>
+                <p className="text-success">{result.feedbackSummary}</p>
               </>
             )}
             {isGood && (
@@ -158,10 +158,10 @@ export function FeedbackPage() {
             )}
             {isFailed && (
               <>
-                <h1 className="text-2xl sm:text-3xl font-bold text-red-600">
+                <h1 className="text-2xl sm:text-3xl font-bold text-destructive">
                   ¡Sigue intentando!
                 </h1>
-                <p className="text-red-500">{result.feedbackSummary}</p>
+                <p className="text-destructive">{result.feedbackSummary}</p>
               </>
             )}
           </div>
@@ -176,17 +176,17 @@ export function FeedbackPage() {
               {result.mistakes.map((mistake, i) => (
                 <div
                   key={i}
-                  className="flex items-start gap-3 p-3 rounded-xl bg-red-50 border border-red-100"
+                  className="flex items-start gap-3 p-3 rounded-xl bg-destructive/10 border border-destructive/10"
                 >
-                  <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <AlertTriangle className="w-3.5 h-3.5 text-red-500" />
+                  <div className="w-6 h-6 rounded-full bg-destructive/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <AlertTriangle className="w-3.5 h-3.5 text-destructive" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-red-700">
+                    <p className="text-sm font-medium text-destructive">
                       {MISTAKE_LABELS[mistake.type] ?? mistake.type}
                     </p>
                     <div className="flex items-center gap-1 mt-1">
-                      <span className="text-xs text-red-400">Gravedad:</span>
+                      <span className="text-xs text-destructive/70">Gravedad:</span>
                       <div className="flex gap-0.5">
                         {[1, 2, 3].map((dot) => (
                           <div
@@ -194,8 +194,8 @@ export function FeedbackPage() {
                             className={cn(
                               "w-1.5 h-1.5 rounded-full",
                               dot <= Math.round(mistake.severity * 3)
-                                ? "bg-red-400"
-                                : "bg-red-200"
+                                ? "bg-destructive"
+                                : "bg-destructive/30"
                             )}
                           />
                         ))}

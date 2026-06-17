@@ -69,7 +69,7 @@ export function QuizGameView({
               Pregunta {currentIndex + 1} de {totalCount}
             </span>
             <span>
-              Correctas: <span className="font-bold text-emerald-600">{correctCount}</span>
+              Correctas: <span className="font-bold text-success">{correctCount}</span>
             </span>
           </div>
 
@@ -82,9 +82,9 @@ export function QuizGameView({
               let optionStyle = "border-border bg-card hover:border-border/80"
               if (showFeedback) {
                 if (i === currentQuestion.correctIndex) {
-                  optionStyle = "border-emerald-500 bg-emerald-50"
+                  optionStyle = "border-success bg-success/10"
                 } else if (i === selectedOption) {
-                  optionStyle = "border-red-400 bg-red-50"
+                  optionStyle = "border-destructive bg-destructive/10"
                 } else {
                   optionStyle = "border-border/50 bg-muted/50 text-muted-foreground"
                 }
@@ -115,7 +115,7 @@ export function QuizGameView({
             <div
               className={cn(
                 "text-center p-3 rounded-xl font-semibold text-sm",
-                isCorrect ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-destructive",
+                isCorrect ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive",
               )}
               aria-live="polite"
             >

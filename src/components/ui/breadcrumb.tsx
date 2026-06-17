@@ -81,12 +81,12 @@ export function Breadcrumbs() {
               {index === 0 ? (
                 <Home className="h-3.5 w-3.5 sm:h-4 sm:w-4 group-hover:scale-110 transition-transform" />
               ) : (
-                <ChevronRight className="h-3 w-3 text-slate-300" />
+                <ChevronRight className="h-3 w-3 text-muted-foreground/30" />
               )}
               <span className="hidden sm:inline">{item.label}</span>
             </Link>
             {index < breadcrumbs.length - 2 && (
-              <ChevronRight className="h-3 w-3 text-slate-300" />
+              <ChevronRight className="h-3 w-3 text-muted-foreground/30" />
             )}
           </div>
         )

@@ -15,7 +15,7 @@ const colorMap = {
 
 const textColorMap = {
   blue: "text-primary",
-  green: "text-emerald-600",
+  green: "text-success",
   orange: "text-accent",
 } as const
 
@@ -25,7 +25,7 @@ export function ProgressCard({
   color = "blue",
 }: ProgressCardProps) {
   return (
-    <div className="space-y-2 hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up">
+    <div className="space-y-2 hover:scale-105 transition-transform duration-200 animate-fade-in-up">
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-foreground">{title}</span>
         <span className={cn("text-sm font-bold tabular-nums animate-bounce-gentle", textColorMap[color])}>

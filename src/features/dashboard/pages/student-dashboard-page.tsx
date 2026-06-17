@@ -55,7 +55,7 @@ export function StudentDashboardPage({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="page-loading">
         <div className="relative">
           <div className="absolute inset-0 rounded-full bg-accent/20 animate-ping" />
           <div className="relative w-16 h-16 rounded-full bg-accent/30 flex items-center justify-center animate-bounce-gentle">
@@ -68,9 +68,9 @@ export function StudentDashboardPage({
 
   if (isError) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4 text-center px-4">
-        <div className="relative w-24 h-24 rounded-full bg-red-50 flex items-center justify-center">
-          <HelpCircle className="w-12 h-12 text-red-500" />
+      <div className="page-error">
+        <div className="relative w-24 h-24 rounded-full bg-destructive/10 flex items-center justify-center">
+          <HelpCircle className="w-12 h-12 text-destructive" />
         </div>
         <h2 className="text-xl font-bold text-foreground">¡Ups! Algo salió mal</h2>
         <p className="text-muted-foreground max-w-xs">{error?.message}</p>
@@ -255,8 +255,8 @@ export function StudentDashboardPage({
         <Card variant="glass" className="p-3 sm:p-4 gap-0">
           <div className="mb-3 sm:mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="flex h-7 sm:h-8 w-7 sm:w-8 items-center justify-center rounded-lg bg-red-50">
-                <TrendingUp className="h-4 sm:h-5 w-4 sm:w-5 text-red-500" />
+              <div className="flex h-7 sm:h-8 w-7 sm:w-8 items-center justify-center rounded-lg bg-destructive/10">
+                <TrendingUp className="h-4 sm:h-5 w-4 sm:w-5 text-destructive" />
               </div>
               <h2 className="text-base sm:text-lg font-bold text-foreground">Tu Progreso</h2>
             </div>

@@ -232,7 +232,7 @@ export function LoginPage() {
                 "w-full bg-linear-to-r from-accent to-amauta-orange-dark",
                 "hover:from-amauta-orange-dark hover:to-[#d45518]",
                 "shadow-lg shadow-accent/25",
-                "transition-[opacity,transform,box-shadow] duration-300 hover:shadow-xl hover:shadow-accent/30 hover:scale-[1.02] active:scale-[0.97]",
+                "transition-all duration-300 hover:shadow-xl hover:shadow-accent/30 hover:scale-105 active:scale-95",
                 "disabled:opacity-70 disabled:hover:scale-100",
                 isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               )}

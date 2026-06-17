@@ -16,7 +16,7 @@ function Card({ className, variant = "default", ...props }: CardProps) {
         variant === "default" &&
           "bg-card text-card-foreground border shadow-sm",
         variant === "glass" &&
-          "bg-white/70 text-card-foreground border border-white/50 shadow-[0_1px_2px_rgba(255,255,255,0.4),0_8px_32px_rgba(31,79,163,0.08)] backdrop-blur-[12px]",
+          "glass-card text-card-foreground",
         className
       )}
       {...props}

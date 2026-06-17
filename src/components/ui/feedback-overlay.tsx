@@ -21,7 +21,7 @@ interface FeedbackOverlayProps {
 const feedbackConfig = {
   correct: {
     icon: CheckCircle2,
-    iconClass: "text-emerald-500",
+    iconClass: "text-success",
     title: "¡Correcto!",
     description: "Muy bien, sigue así.",
   },

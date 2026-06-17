@@ -20,13 +20,13 @@ export function GameResultScreen({ result, onPlayAgain, onHome }: GameResultProp
         <div
           className={cn(
             "w-20 h-20 rounded-full mx-auto flex items-center justify-center",
-            isExcellent ? "bg-emerald-50" : isGood ? "bg-accent/10" : "bg-destructive/10",
+            isExcellent ? "bg-success/10" : isGood ? "bg-accent/10" : "bg-destructive/10",
           )}
         >
           <Trophy
             className={cn(
               "h-10 w-10",
-              isExcellent ? "text-emerald-500" : isGood ? "text-accent" : "text-muted-foreground",
+              isExcellent ? "text-success" : isGood ? "text-accent" : "text-muted-foreground",
             )}
           />
         </div>
@@ -35,7 +35,7 @@ export function GameResultScreen({ result, onPlayAgain, onHome }: GameResultProp
           <h2
             className={cn(
               "text-2xl font-bold",
-              isExcellent ? "text-emerald-600" : isGood ? "text-accent" : "text-muted-foreground",
+              isExcellent ? "text-success" : isGood ? "text-accent" : "text-muted-foreground",
             )}
           >
             {isExcellent ? "¡Excelente!" : isGood ? "¡Buen trabajo!" : "¡Sigue intentando!"}
@@ -51,7 +51,7 @@ export function GameResultScreen({ result, onPlayAgain, onHome }: GameResultProp
               key={i}
               className={cn(
                 "h-6 w-6",
-                i <= Math.round(percentage / 20) ? "text-amber-400 fill-amber-400" : "text-slate-200 fill-slate-200",
+                i <= Math.round(percentage / 20) ? "text-accent fill-accent" : "text-muted-foreground/20 fill-muted-foreground/20",
               )}
             />
           ))}

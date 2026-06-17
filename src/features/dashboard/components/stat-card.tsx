@@ -13,7 +13,7 @@ const config = {
     icon: Trophy,
     bg: "bg-accent/10 text-accent",
     text: "text-accent",
-    glow: "group-hover:shadow-[0_0_25px_rgba(242,153,74,0.35)]",
+    glow: "group-hover:shadow-glow-orange",
     hoverBg: "bg-accent/5",
     orbColor: "bg-accent/15",
   },
@@ -21,17 +21,17 @@ const config = {
     icon: Star,
     bg: "bg-primary/10 text-primary",
     text: "text-primary",
-    glow: "group-hover:shadow-[0_0_25px_rgba(31,79,163,0.35)]",
+    glow: "group-hover:shadow-glow-blue",
     hoverBg: "bg-primary/5",
     orbColor: "bg-primary/15",
   },
   accuracy: {
     icon: Target,
-    bg: "bg-emerald-50 text-emerald-600",
-    text: "text-emerald-600",
+    bg: "bg-success/10 text-success",
+    text: "text-success",
     glow: "group-hover:shadow-[0_0_25px_rgba(34,197,94,0.35)]",
-    hoverBg: "bg-emerald-50/50",
-    orbColor: "bg-emerald-500/15",
+    hoverBg: "bg-success/5",
+    orbColor: "bg-success/15",
   },
 } as const
 
@@ -43,7 +43,7 @@ export function StatCard({ type, value, label, delay = 0 }: StatCardProps) {
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-2xl bg-white p-4 shadow-sm border border-slate-100",
+        "group relative overflow-hidden rounded-2xl bg-white p-4 shadow-sm border border-muted",
         "hover-lift hover-glow",
         cfg.glow,
         "animate-scale-in",

@@ -148,7 +148,7 @@ export function PracticePage() {
                             key={star}
                             className={cn(
                               "h-3.5 w-3.5",
-                              star <= i ? "fill-accent text-accent" : "fill-slate-200 text-slate-200",
+                              star <= i ? "fill-accent text-accent" : "fill-muted-foreground/20 text-muted-foreground/20",
                             )}
                           />
                         ))}
@@ -180,7 +180,7 @@ export function PracticePage() {
               </button>
               <div className="flex items-center gap-4 text-sm">
                 <span className="text-muted-foreground">
-                  Aciertos: <span className="font-bold text-emerald-600">{score}</span>
+                  Aciertos: <span className="font-bold text-success">{score}</span>
                 </span>
                 <span className="text-muted-foreground">
                   Racha:{" "}
@@ -206,8 +206,8 @@ export function PracticePage() {
               </div>
             ) : isError ? (
               <div className="flex flex-col items-center justify-center min-h-[40vh] space-y-4 text-center px-4">
-                <div className="w-24 h-24 rounded-full bg-red-50 flex items-center justify-center">
-                  <AlertTriangle className="h-10 w-10 text-red-500" />
+                <div className="w-24 h-24 rounded-full bg-destructive/10 flex items-center justify-center">
+                  <AlertTriangle className="h-10 w-10 text-destructive" />
                 </div>
                 <h2 className="text-xl font-bold text-foreground">No pudimos cargar el ejercicio</h2>
                 <p className="text-muted-foreground max-w-xs">{(error instanceof Error ? error.message : null) ?? "Intenta de nuevo."}</p>
@@ -228,7 +228,7 @@ export function PracticePage() {
                           "h-3.5 w-3.5",
                           star <= difficultyToStars(exercise?.difficulty ?? "MEDIUM")
                             ? "text-accent fill-accent"
-                            : "text-slate-200 fill-slate-200",
+                            : "text-muted-foreground/20 fill-muted-foreground/20",
                         )}
                       />
                     ))}
