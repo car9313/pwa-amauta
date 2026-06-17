@@ -18,9 +18,9 @@ const statusConfig = {
     iconColor: "text-primary",
   },
   completed: {
-    border: "border-l-emerald-500",
+    border: "border-l-success",
     icon: CheckCircle2,
-    iconColor: "text-emerald-500",
+    iconColor: "text-success",
   },
   "in-progress": {
     border: "border-l-accent",
@@ -43,7 +43,7 @@ export function AgendaItem({
   return (
     <div
       className={cn(
-        "p-4 bg-card rounded-xl border border-border border-l-4 hover:scale-[1.01] transition-transform duration-200",
+        "p-4 bg-card rounded-xl border border-border border-l-4 hover:scale-105 transition-transform duration-200",
         cfg.border
       )}
     >

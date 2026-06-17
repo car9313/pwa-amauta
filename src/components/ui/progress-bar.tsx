@@ -17,7 +17,7 @@ const sizeStyles = {
 const colorStyles = {
   primary: "bg-primary",
   accent: "bg-accent",
-  success: "bg-emerald-500",
+  success: "bg-success",
 } as const
 
 function ProgressBar({

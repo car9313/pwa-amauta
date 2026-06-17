@@ -26,17 +26,17 @@ export function GenericFallback({
 }: GenericFallbackProps) {
   return (
     <div className="flex min-h-[200px] w-full items-center justify-center p-4">
-      <Card className="w-full max-w-md border-red-200 bg-red-50">
+      <Card className="w-full max-w-md border-destructive/20 bg-destructive/10">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-            <AlertTriangle className="h-6 w-6 text-red-600" />
+          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/20">
+            <AlertTriangle className="h-6 w-6 text-destructive" />
           </div>
-          <CardTitle className="text-xl text-red-800">{title}</CardTitle>
+          <CardTitle className="text-xl text-destructive">{title}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 text-center">
-          <p className="text-sm text-red-700">{message}</p>
+          <p className="text-sm text-destructive">{message}</p>
           {error.message && (
-            <p className="text-xs text-red-600 bg-red-100 p-2 rounded">
+            <p className="text-xs text-destructive bg-destructive/20 p-2 rounded">
               {error.message}
             </p>
           )}
@@ -44,7 +44,7 @@ export function GenericFallback({
             <Button
               onClick={resetError}
               variant="outline"
-              className="border-red-300 text-red-700 hover:bg-red-100"
+              className="border-destructive/30 text-destructive hover:bg-destructive/20"
             >
               <RefreshCw className="mr-2 h-4 w-4" />
               {isNetworkError ? "Reintentar conexión" : "Intentar de nuevo"}
@@ -53,7 +53,7 @@ export function GenericFallback({
               <Button
                 onClick={() => window.location.href = "/"}
                 variant="outline"
-                className="border-red-300 text-red-700 hover:bg-red-100"
+                className="border-destructive/30 text-destructive hover:bg-destructive/20"
               >
                 <Home className="mr-2 h-4 w-4" />
                 Ir al inicio
@@ -79,7 +79,7 @@ export function StudentFallback({ resetError, isNetworkError }: FallbackProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 text-center">
-          <p className="text-base text-slate-600">
+          <p className="text-base text-muted-foreground">
             {isNetworkError
               ? "Parece que no hay conexión a internet. Pídele a un adulto que revise."
               : "Tuviste un pequeño percance. ¡No te preocupes! Puedes intentarlo de nuevo."}
@@ -95,7 +95,7 @@ export function StudentFallback({ resetError, isNetworkError }: FallbackProps) {
             <Button
               onClick={() => window.location.href = "/"}
               variant="outline"
-              className="w-full border-2 border-slate-200"
+              className="w-full border-2 border-muted"
             >
               <Home className="mr-2 h-4 w-4" />
               Volver al inicio
@@ -110,23 +110,23 @@ export function StudentFallback({ resetError, isNetworkError }: FallbackProps) {
 export function ParentFallback({ error, resetError, isNetworkError }: FallbackProps) {
   return (
     <div className="flex min-h-[250px] w-full items-center justify-center p-4">
-      <Card className="w-full max-w-md border-slate-200">
+      <Card className="w-full max-w-md border-muted">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-amber-100">
-            <AlertTriangle className="h-5 w-5 text-amber-600" />
+          <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-warning/20">
+            <AlertTriangle className="h-5 w-5 text-warning" />
           </div>
-          <CardTitle className="text-lg text-slate-800">
+          <CardTitle className="text-lg text-foreground">
             {isNetworkError ? "Error de conexión" : "Error inesperado"}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-center">
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-muted-foreground">
             {isNetworkError
               ? "No se pudo conectar con el servidor. Revisa tu conexión a internet."
               : "Hubo un problema al cargar esta sección. Por favor, intenta de nuevo."}
           </p>
           {import.meta.env.DEV && error.message && (
-            <p className="text-xs bg-slate-100 p-2 rounded text-left font-mono">
+            <p className="text-xs bg-muted p-2 rounded text-left font-mono">
               {error.message}
             </p>
           )}

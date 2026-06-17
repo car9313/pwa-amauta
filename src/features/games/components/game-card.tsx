@@ -22,7 +22,7 @@ export function GameCard({ config, onClick }: GameCardProps) {
       className={cn(
         "relative overflow-hidden rounded-2xl border-2 border-transparent p-5 sm:p-6 text-left",
         "bg-card shadow-sm hover:shadow-md transition-all duration-200",
-        "hover:scale-[1.02] group cursor-pointer min-h-[44px]",
+        "hover:scale-105 group cursor-pointer min-h-[44px]",
       )}
     >
       <div className="flex items-start gap-4">

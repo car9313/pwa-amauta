@@ -7,11 +7,11 @@ export function TeacherDashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="page-loading">
         <div className="relative">
-          <div className="absolute inset-0 rounded-full bg-indigo-500/20 animate-ping" />
-          <div className="relative w-16 h-16 rounded-full bg-indigo-500/30 flex items-center justify-center">
-            <Sparkles className="w-8 h-8 text-indigo-600 animate-spin" />
+          <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
+          <div className="relative w-16 h-16 rounded-full bg-primary/30 flex items-center justify-center">
+            <Sparkles className="w-8 h-8 text-primary animate-spin" />
           </div>
         </div>
       </div>
@@ -20,13 +20,13 @@ export function TeacherDashboardPage() {
 
   if (isError) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4 text-center px-4">
-        <div className="relative w-24 h-24 rounded-full bg-red-50 flex items-center justify-center">
-          <HelpCircle className="w-12 h-12 text-red-500" />
+      <div className="page-error">
+        <div className="relative w-24 h-24 rounded-full bg-destructive/10 flex items-center justify-center">
+          <HelpCircle className="w-12 h-12 text-destructive" />
         </div>
-        <h2 className="text-xl font-bold text-slate-700">¡Ups! Algo salió mal</h2>
-        <p className="text-slate-500 max-w-xs">{error?.message}</p>
-        <Button onClick={() => refetch()} className="bg-indigo-600 hover:bg-indigo-700">
+        <h2 className="text-xl font-bold text-secondary-foreground">¡Ups! Algo salió mal</h2>
+        <p className="text-muted-foreground max-w-xs">{error?.message}</p>
+        <Button onClick={() => refetch()} className="bg-primary hover:bg-primary/80">
           Intentar de nuevo
         </Button>
       </div>
@@ -40,7 +40,7 @@ export function TeacherDashboardPage() {
   return (
     <div className="space-y-4 sm:space-y-6 pb-6">
       {/* Welcome Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-indigo-600 via-indigo-500 to-purple-600 p-4 sm:p-6 text-white">
+      <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-primary via-primary/80 to-chart-3 p-4 sm:p-6 text-white">
         <div className="noise-overlay pointer-events-none absolute inset-0 z-0" />
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-2">
@@ -49,7 +49,7 @@ export function TeacherDashboardPage() {
             </div>
             <div>
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight">
-                ¡Hola, <span className="text-indigo-200">{dashboard?.name ?? "Docente"}</span>!
+                ¡Hola, <span className="text-primary-foreground/70">{dashboard?.name ?? "Docente"}</span>!
               </h1>
               <p className="text-xs sm:text-sm text-white/80">
                 {new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}
@@ -62,66 +62,66 @@ export function TeacherDashboardPage() {
       {/* Stats Overview */}
       <div className="grid grid-cols-3 gap-3">
         <div className="glass-card rounded-2xl p-3 sm:p-4 text-center">
-          <Users className="h-5 w-5 sm:h-6 sm:w-6 text-indigo-500 mx-auto" />
-          <p className="text-xl sm:text-2xl font-bold text-slate-800 mt-1">{dashboard?.totalStudents ?? 0}</p>
-          <p className="text-xs text-slate-500">Estudiantes</p>
+          <Users className="h-5 w-5 sm:h-6 sm:w-6 text-primary mx-auto" />
+          <p className="text-xl sm:text-2xl font-bold text-foreground mt-1">{dashboard?.totalStudents ?? 0}</p>
+          <p className="text-xs text-muted-foreground">Estudiantes</p>
         </div>
         <div className="glass-card rounded-2xl p-3 sm:p-4 text-center">
-          <BookOpen className="h-5 w-5 sm:h-6 sm:w-6 text-purple-500 mx-auto" />
-          <p className="text-xl sm:text-2xl font-bold text-slate-800 mt-1">{dashboard?.totalClasses ?? 0}</p>
-          <p className="text-xs text-slate-500">Clases</p>
+          <BookOpen className="h-5 w-5 sm:h-6 sm:w-6 text-chart-3 mx-auto" />
+          <p className="text-xl sm:text-2xl font-bold text-foreground mt-1">{dashboard?.totalClasses ?? 0}</p>
+          <p className="text-xs text-muted-foreground">Clases</p>
         </div>
         <div className="glass-card rounded-2xl p-3 sm:p-4 text-center">
-          <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-500 mx-auto" />
-          <p className="text-xl sm:text-2xl font-bold text-slate-800 mt-1">{dashboard?.averageMastery ?? 0}%</p>
-          <p className="text-xs text-slate-500">Dominio</p>
+          <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-success mx-auto" />
+          <p className="text-xl sm:text-2xl font-bold text-foreground mt-1">{dashboard?.averageMastery ?? 0}%</p>
+          <p className="text-xs text-muted-foreground">Dominio</p>
         </div>
       </div>
 
       {/* Classes */}
       <div>
-        <h2 className="text-lg font-bold text-slate-800 mb-3 px-1">Mis Clases</h2>
+        <h2 className="text-lg font-bold text-foreground mb-3 px-1">Mis Clases</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {classes.map((cls) => (
             <div key={cls.classId} className="glass-card rounded-2xl p-4 hover-lift">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-bold text-slate-800">{cls.className}</h3>
-                <span className="text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">
+                <h3 className="font-bold text-foreground">{cls.className}</h3>
+                <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full">
                   {cls.studentCount} alumnos
                 </span>
               </div>
 
               <div className="flex items-center gap-2 mb-3">
-                <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-linear-to-r from-indigo-500 to-purple-500"
+                    className="h-full rounded-full bg-linear-to-r from-primary to-chart-3"
                     style={{ width: `${cls.averageMastery}%` }}
                   />
                 </div>
-                <span className="text-sm font-bold text-slate-700">{cls.averageMastery}%</span>
+                <span className="text-sm font-bold text-secondary-foreground">{cls.averageMastery}%</span>
               </div>
 
               <div className="space-y-2">
                 {cls.students.slice(0, 3).map((student) => (
                   <div key={student.studentId} className="flex items-center gap-2 text-sm">
-                    <div className="h-6 w-6 rounded-full bg-slate-100 overflow-hidden shrink-0">
+                    <div className="h-6 w-6 rounded-full bg-muted overflow-hidden shrink-0">
                       {student.avatar ? (
                         <img src={student.avatar} alt={student.name} className="w-full h-full object-cover" />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-xs font-bold text-slate-500">
+                        <div className="w-full h-full flex items-center justify-center text-xs font-bold text-muted-foreground">
                           {student.name[0]}
                         </div>
                       )}
                     </div>
-                    <span className="flex-1 text-slate-700 truncate">{student.name}</span>
+                    <span className="flex-1 text-secondary-foreground truncate">{student.name}</span>
                     {student.riskFlags.length > 0 && (
-                      <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
+                      <AlertTriangle className="h-3.5 w-3.5 text-accent" />
                     )}
-                    <span className="text-xs font-medium text-slate-500">{student.mastery}%</span>
+                    <span className="text-xs font-medium text-muted-foreground">{student.mastery}%</span>
                   </div>
                 ))}
                 {cls.students.length > 3 && (
-                  <p className="text-xs text-slate-400 text-center pt-1">
+                  <p className="text-xs text-muted-foreground text-center pt-1">
                     +{cls.students.length - 3} estudiantes más
                   </p>
                 )}
@@ -136,20 +136,20 @@ export function TeacherDashboardPage() {
         {/* Subject Progress */}
         <div className="glass-card rounded-2xl p-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-slate-800">Progreso por Materia</h2>
-            <BarChart3 className="h-5 w-5 text-slate-400" />
+            <h2 className="text-lg font-bold text-foreground">Progreso por Materia</h2>
+            <BarChart3 className="h-5 w-5 text-muted-foreground" />
           </div>
 
           <div className="space-y-3">
             {subjectProgress.map((subject) => (
               <div key={subject.topicId} className="space-y-1">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-700 font-medium">{subject.title}</span>
-                  <span className="text-slate-500">{subject.mastery}%</span>
+                  <span className="text-secondary-foreground font-medium">{subject.title}</span>
+                  <span className="text-muted-foreground">{subject.mastery}%</span>
                 </div>
-                <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div className="h-2 bg-muted rounded-full overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-linear-to-r from-indigo-500 to-purple-500 transition-all duration-500"
+                    className="h-full rounded-full bg-linear-to-r from-primary to-chart-3 transition-all duration-500"
                     style={{ width: `${subject.mastery}%` }}
                   />
                 </div>
@@ -161,34 +161,34 @@ export function TeacherDashboardPage() {
         {/* Recent Activity */}
         <div className="glass-card rounded-2xl p-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-slate-800">Actividad Reciente</h2>
-            <ChevronRight className="h-5 w-5 text-slate-400" />
+            <h2 className="text-lg font-bold text-foreground">Actividad Reciente</h2>
+            <ChevronRight className="h-5 w-5 text-muted-foreground" />
           </div>
 
           <div className="space-y-3">
             {activity.map((item) => (
               <div
                 key={item.id}
-                className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors"
+                className="flex items-start gap-3 p-3 rounded-xl bg-muted hover:bg-muted transition-colors"
               >
                 <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center shrink-0">
                   {item.action.includes("Completó") ? (
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    <CheckCircle2 className="h-4 w-4 text-success" />
                   ) : item.action.includes("logro") ? (
-                    <Trophy className="h-4 w-4 text-amber-500" />
+                    <Trophy className="h-4 w-4 text-accent" />
                   ) : item.action.includes("atención") ? (
-                    <AlertTriangle className="h-4 w-4 text-red-500" />
+                    <AlertTriangle className="h-4 w-4 text-destructive" />
                   ) : (
                     <TrendingUp className="h-4 w-4 text-blue-500" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-700">
+                  <p className="text-sm font-medium text-secondary-foreground">
                     <span className="font-bold">{item.childName}</span> &mdash; {item.action}
                   </p>
-                  <p className="text-xs text-slate-500 truncate">{item.subject}</p>
+                  <p className="text-xs text-muted-foreground truncate">{item.subject}</p>
                 </div>
-                <span className="text-xs text-slate-400 shrink-0">{item.timestamp}</span>
+                <span className="text-xs text-muted-foreground shrink-0">{item.timestamp}</span>
               </div>
             ))}
           </div>
@@ -197,7 +197,7 @@ export function TeacherDashboardPage() {
 
       {/* Students at Risk */}
       {classes.some((c) => c.students.some((s) => s.riskFlags.length > 0)) && (
-        <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-amber-500 to-orange-600 p-4 sm:p-5">
+        <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-warning to-accent p-4 sm:p-5">
           <div className="flex items-center gap-2 mb-3">
             <AlertTriangle className="h-5 w-5 text-white" />
             <h2 className="text-lg font-bold text-white">Estudiantes que Requieren Atención</h2>

@@ -16,7 +16,7 @@ export function LevelScreen({ studentId = DEFAULT_STUDENT_ID }: LevelScreenProps
 
   if (isLoading) {
     return (
-      <Container className="flex items-center justify-center min-h-[60vh]">
+      <Container className="page-loading">
         <div className="relative">
           <div className="absolute inset-0 rounded-full bg-accent/20 animate-ping" />
           <div className="relative w-16 h-16 rounded-full bg-accent/30 flex items-center justify-center">
@@ -29,7 +29,7 @@ export function LevelScreen({ studentId = DEFAULT_STUDENT_ID }: LevelScreenProps
 
   if (isError) {
     return (
-      <Container className="flex flex-col items-center justify-center min-h-[60vh] space-y-4 text-center">
+      <Container className="page-error">
         <div className="relative w-24 h-24 rounded-full bg-destructive/10 flex items-center justify-center">
           <HelpCircle className="w-12 h-12 text-destructive" aria-hidden="true" />
         </div>

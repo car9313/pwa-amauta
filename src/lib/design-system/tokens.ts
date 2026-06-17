@@ -52,10 +52,34 @@ export const colors = {
   amautaWarmWhite: "#f6f3ee",
   amautaSurface: "#ffffff",
   amautaSurfaceAlt: "#f8f9fc",
+  success: "#10b981",
+  warning: "#f59e0b",
   primary: "#1f4fa3",
   accent: "#f2994a",
   foreground: "#1f3c78",
   mutedForeground: "#6b7280",
+} as const;
+
+export const fontSizes = {
+  xs: "0.75rem",
+  sm: "0.875rem",
+  base: "1rem",
+  lg: "1.125rem",
+  xl: "1.25rem",
+  "2xl": "1.5rem",
+  "3xl": "1.875rem",
+  "4xl": "2.25rem",
+  "5xl": "3rem",
+} as const;
+
+export const shadows = {
+  sm: "0 1px 2px rgba(31, 79, 163, 0.08)",
+  md: "0 6px 18px rgba(31, 79, 163, 0.10)",
+  lg: "0 12px 32px rgba(31, 79, 163, 0.14)",
+  xl: "0 20px 48px rgba(31, 79, 163, 0.16)",
+  "2xl": "0 32px 64px rgba(31, 79, 163, 0.18)",
+  glowBlue: "0 0 24px rgba(31, 79, 163, 0.18)",
+  glowOrange: "0 0 24px rgba(244, 112, 31, 0.20)",
 } as const;
 
 export const animationDelays = {

@@ -76,7 +76,7 @@ export function LessonPage({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="page-loading">
         <div className="relative">
           <div className="absolute inset-0 rounded-full bg-accent/20 animate-ping" />
           <div className="relative w-16 h-16 rounded-full bg-accent/30 flex items-center justify-center">
@@ -89,9 +89,9 @@ export function LessonPage({
 
   if (isError) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4 text-center px-4">
-        <div className="w-24 h-24 rounded-full bg-red-50 flex items-center justify-center">
-          <AlertTriangle className="h-10 w-10 text-red-500" />
+      <div className="page-error">
+        <div className="w-24 h-24 rounded-full bg-destructive/10 flex items-center justify-center">
+          <AlertTriangle className="h-10 w-10 text-destructive" />
         </div>
         <h2 className="text-xl font-bold text-foreground">¡Ups! Algo salió mal</h2>
         <p className="text-muted-foreground max-w-xs">
@@ -149,7 +149,7 @@ export function LessonPage({
                         "h-4 w-4 sm:h-5 sm:w-5 transition-colors",
                         star <= starsCount
                           ? "text-accent fill-accent"
-                          : "text-slate-200 fill-slate-200"
+                          : "text-muted-foreground/20 fill-muted-foreground/20"
                       )}
                     />
                   ))}

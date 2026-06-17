@@ -14,7 +14,7 @@ export function ParentDashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="page-loading">
         <div className="relative">
           <div className="absolute inset-0 rounded-full bg-accent/20 animate-ping" />
           <div className="relative w-16 h-16 rounded-full bg-accent/30 flex items-center justify-center animate-bounce-gentle">
@@ -27,7 +27,7 @@ export function ParentDashboardPage() {
 
   if (isError) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4 text-center px-4">
+      <div className="page-error">
         <div className="relative w-24 h-24 rounded-full bg-destructive/10 flex items-center justify-center">
           <HelpCircle className="w-12 h-12 text-destructive" />
         </div>
@@ -83,7 +83,7 @@ export function ParentDashboardPage() {
 
             <div className="relative z-10">
               <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-full bg-slate-100 overflow-hidden shrink-0 animate-bounce-gentle">
+                <div className="h-12 w-12 rounded-full bg-muted overflow-hidden shrink-0 animate-bounce-gentle">
                   <img 
                     src={child.avatar ?? "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=200&h=200&fit=crop"} 
                     alt={child.name}
@@ -91,16 +91,16 @@ export function ParentDashboardPage() {
                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-slate-800 truncate">{child.name}</h3>
-                  <p className="text-xs text-slate-500">Nivel {child.level}</p>
+                  <h3 className="font-bold text-foreground truncate">{child.name}</h3>
+                  <p className="text-xs text-muted-foreground">Nivel {child.level}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-lg font-bold text-accent">{child.points}</p>
-                  <p className="text-xs text-slate-500">puntos</p>
+                  <p className="text-xs text-muted-foreground">puntos</p>
                 </div>
               </div>
               
-              <div className="mt-3 flex items-center gap-4 text-xs text-slate-600">
+              <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <BarChart3 className="h-3 w-3 animate-gentle-pulse" />
                   <span>{child.precision}% precisión</span>
@@ -121,7 +121,7 @@ export function ParentDashboardPage() {
           onClick={() => setActivityExpanded(!activityExpanded)}
           className="flex items-center justify-between mb-4 cursor-pointer select-none"
         >
-          <h2 className="text-lg font-bold text-slate-800">Actividad Reciente</h2>
+          <h2 className="text-lg font-bold text-foreground">Actividad Reciente</h2>
           <div className="flex items-center gap-2">
             {!activityExpanded && activity.length > 0 && (
               <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
@@ -130,7 +130,7 @@ export function ParentDashboardPage() {
             )}
             <ChevronRight
               className={cn(
-                "h-5 w-5 text-slate-400 transition-transform duration-300",
+                "h-5 w-5 text-muted-foreground transition-transform duration-300",
                 activityExpanded && "rotate-90"
               )}
             />
@@ -148,28 +148,28 @@ export function ParentDashboardPage() {
               activity.map((item) => (
                 <div 
                   key={item.id}
-                  className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 hover:scale-[1.01] transition-all duration-200"
+                  className="flex items-start gap-3 p-3 rounded-xl bg-muted hover:bg-muted hover:scale-105 transition-all duration-200"
                 >
                   <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center shrink-0 animate-gentle-pulse">
                     {item.action.includes('Completó') ? (
-                      <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      <CheckCircle2 className="h-4 w-4 text-success" />
                     ) : item.action.includes('Nivel') ? (
-                      <Trophy className="h-4 w-4 text-amber-500" />
+                      <Trophy className="h-4 w-4 text-accent" />
                     ) : (
                       <TrendingUp className="h-4 w-4 text-blue-500" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-700">
+                    <p className="text-sm font-medium text-secondary-foreground">
                       <span className="font-bold">{item.childName}</span> - {item.action}
                     </p>
-                    <p className="text-xs text-slate-500 truncate">{item.subject}</p>
+                    <p className="text-xs text-muted-foreground truncate">{item.subject}</p>
                   </div>
-                  <span className="text-xs text-slate-400 shrink-0">{item.timestamp}</span>
+                  <span className="text-xs text-muted-foreground shrink-0">{item.timestamp}</span>
                 </div>
               ))
             ) : (
-              <p className="text-sm text-slate-500 text-center py-4">No hay actividad reciente</p>
+              <p className="text-sm text-muted-foreground text-center py-4">No hay actividad reciente</p>
             )}
           </div>
         </div>

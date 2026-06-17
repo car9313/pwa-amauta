@@ -33,7 +33,7 @@ export function GameHeader({ title, onBack, score, time, streak }: GameHeaderPro
         )}
         {score !== undefined && (
           <div className="flex items-center gap-1 text-sm">
-            <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
+            <Star className="h-4 w-4 text-accent fill-accent" />
             <span className="font-bold text-foreground">{score}</span>
           </div>
         )}

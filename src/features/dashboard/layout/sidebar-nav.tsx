@@ -64,7 +64,7 @@ export function SidebarNav({
           type="button"
           onClick={onLogout}
           variant="secondary"
-          className="w-full justify-start gap-3 rounded-2xl bg-red-50 text-red-700 hover:bg-red-100 hover:text-red-800"
+          className="w-full justify-start gap-3 rounded-2xl bg-destructive/10 text-destructive hover:bg-destructive/20 hover:text-destructive"
         >
           <LogOut className="h-4 w-4" />
           Cerrar sesión

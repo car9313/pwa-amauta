@@ -145,12 +145,12 @@ export function GamesPage() {
         {currentView === "portal" && (
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
-                <Sparkles className="h-5 w-5 text-emerald-500" />
+              <div className="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center">
+                <Sparkles className="h-5 w-5 text-success" />
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-slate-800">!Juguemos!</h1>
-                <p className="text-sm text-slate-500">Elige un juego para aprender matemáticas</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-foreground">!Juguemos!</h1>
+                <p className="text-sm text-muted-foreground">Elige un juego para aprender matemáticas</p>
               </div>
             </div>
 
@@ -171,7 +171,7 @@ export function GamesPage() {
               >
                 Volver
               </button>
-              <h2 className="text-base sm:text-lg font-bold text-slate-800">Memoria Matematica</h2>
+              <h2 className="text-base sm:text-lg font-bold text-foreground">Memoria Matematica</h2>
               <div className="w-16" />
             </div>
 

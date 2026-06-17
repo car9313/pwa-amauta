@@ -11,7 +11,7 @@ export function AuthInitializer({ children }: { children: React.ReactNode }) {
 
   if (isVerifying) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-linear-to-br from-amber-50 to-orange-50">
+      <div className="flex items-center justify-center min-h-screen bg-linear-to-br from-warning/10 to-accent/10">
         <div className="relative">
           <div className="absolute inset-0 rounded-full bg-accent/20 animate-ping" />
           <div className="relative w-16 h-16 rounded-full bg-accent/30 flex items-center justify-center">
@@ -25,7 +25,7 @@ export function AuthInitializer({ children }: { children: React.ReactNode }) {
 
   if (queryState.isLoading && !queryState.hasHydrated) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-linear-to-br from-amber-50 to-orange-50">
+      <div className="flex items-center justify-center min-h-screen bg-linear-to-br from-warning/10 to-accent/10">
         <div className="relative flex items-center gap-3">
           <div className="w-2 h-2 rounded-full bg-accent animate-bounce" style={{ animationDelay: "0ms" }} />
           <div className="w-2 h-2 rounded-full bg-accent animate-bounce" style={{ animationDelay: "150ms" }} />

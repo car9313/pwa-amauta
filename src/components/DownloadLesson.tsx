@@ -54,7 +54,7 @@ export function DownloadLesson({ lessonId, getLessonAssets }: Props) {
 
       {status === 'done' && results && (
         <div>
-          <p className="text-green-600">Descarga completada.</p>
+          <p className="text-success">Descarga completada.</p>
           <ul className="list-disc ml-5">
             {results.map(r => (
               <li key={r.url}>{r.url} — {r.ok ? 'ok' : `error (${r.reason})`}</li>
@@ -65,7 +65,7 @@ export function DownloadLesson({ lessonId, getLessonAssets }: Props) {
 
       {status === 'error' && results && (
         <div>
-          <p className="text-red-600">Algunos recursos fallaron:</p>
+          <p className="text-destructive">Algunos recursos fallaron:</p>
           <ul className="list-disc ml-5">
             {results.map(r => !r.ok && <li key={r.url}>{r.url} — {r.reason}</li>)}
           </ul>
