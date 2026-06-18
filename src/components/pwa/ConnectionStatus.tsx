@@ -4,7 +4,7 @@ import { useOfflineMode } from "@/features/auth/hooks/useOfflineMode";
 import { useAuthStore } from "@/features/auth/presentation/store/auth-store";
 import { AUTH_ERROR_MESSAGES } from "@/features/auth/domain/auth-error";
 import { useFailedMutationCount } from "@/hooks/useFailedMutationCount";
-import { Button } from "@/components/ui/button";
+import { AmautaButton } from "@/components/amauta";
 import { AnimatedPresence } from "@/components/ui/animated-presence";
 import { refreshAccessToken } from "@/lib/api/refresh";
 
@@ -67,7 +67,7 @@ export function ConnectionStatus() {
           <span className="text-sm font-medium">{authErrorMessage}</span>
           {!isStudent && (
             <>
-              <Button
+              <AmautaButton
                 variant="ghost"
                 size="sm"
                 onClick={handleAuthRetry}
@@ -76,15 +76,15 @@ export function ConnectionStatus() {
               >
                 <RefreshCw className={`mr-1 h-3 w-3 ${retryingAuth ? "animate-spin" : ""}`} />
                 {retryingAuth ? "Reintentando..." : "Reintentar"}
-              </Button>
-              <Button
+              </AmautaButton>
+              <AmautaButton
                 variant="ghost"
                 size="sm"
                 onClick={handleAuthDismiss}
                 className="ml-1 text-white hover:bg-destructive/90"
               >
                 <X className="h-3 w-3" />
-              </Button>
+              </AmautaButton>
             </>
           )}
         </div>
@@ -96,7 +96,7 @@ export function ConnectionStatus() {
           <span className="text-sm font-medium">
             {failedCount} {failedCount === 1 ? "cambio no se pudo guardar" : "cambios no se pudieron guardar"}
           </span>
-          <Button
+          <AmautaButton
             variant="ghost"
             size="sm"
             onClick={retry}
@@ -105,15 +105,15 @@ export function ConnectionStatus() {
           >
             <RefreshCw className={`mr-1 h-3 w-3 ${retrying ? "animate-spin" : ""}`} />
             {retrying ? "Reintentando..." : "Reintentar"}
-          </Button>
-          <Button
+          </AmautaButton>
+          <AmautaButton
             variant="ghost"
             size="sm"
             onClick={dismiss}
             className="ml-1 text-white hover:bg-destructive/90"
           >
             <X className="h-3 w-3" />
-          </Button>
+          </AmautaButton>
         </div>
       </AnimatedPresence>
     </>

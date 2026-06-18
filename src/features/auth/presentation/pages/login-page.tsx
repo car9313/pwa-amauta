@@ -3,18 +3,18 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LogIn, Loader2, WifiOff } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+  AmautaButton,
+  AmautaCard,
+  AmautaCardContent,
+  AmautaCardDescription,
+  AmautaCardHeader,
+  AmautaCardTitle,
+  AmautaInput,
+  AmautaLabel,
+} from "@/components/amauta";
 import { loginFormSchema, type LoginFormValues } from "../../domain/login-form.types";
-import { AuthLoadingScreen } from "../components/loading/auth-loading-screen";
+import { AmautaLoadingState } from "@/components/amauta";
 import { FormErrorBanner } from "../components/FormErrorBanner";
 import { useAuthStore } from "../store/auth-store";
 import { useLogin } from "@/features/auth/hooks/useAuth";
@@ -121,7 +121,7 @@ export function LoginPage() {
   };
 
   if (!hasHydrated) {
-    return <AuthLoadingScreen />;
+    return <AmautaLoadingState variant="page" label="Preparando tu sesión..." />;
   }
 
   const friendly = getFriendlyError(error);
@@ -134,12 +134,12 @@ export function LoginPage() {
       <div className="absolute right-1/4 top-1/4 h-64 w-64 rounded-full bg-primary/10 blur-3xl animate-float-gentle hidden sm:block" />
       <div className="absolute left-1/4 bottom-1/4 h-48 w-48 rounded-full bg-accent/10 blur-3xl animate-float-gentle-reverse animation-delay-2000 hidden sm:block" />
 
-      <Card className={cn(
+      <AmautaCard className={cn(
         "w-full max-w-md border-0 shadow-2xl",
         "transition-all duration-700 ease-out",
         isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95'
       )}>
-        <CardHeader className="space-y-3 text-center pt-8">
+        <AmautaCardHeader className="space-y-3 text-center pt-8">
           <div className={cn(
             "mx-auto mb-2 w-20 h-20 sm:w-24 sm:h-24 relative",
             "transition-all duration-700 delay-100",
@@ -152,23 +152,23 @@ export function LoginPage() {
             />
           </div>
 
-          <CardTitle className={cn(
+          <AmautaCardTitle className={cn(
             "text-2xl sm:text-3xl font-bold tracking-tight text-primary",
             "transition-all duration-500 delay-200",
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
           )}>
             ¡Bienvenido a Amauta!
-          </CardTitle>
+          </AmautaCardTitle>
 
-          <CardDescription className={cn(
+          <AmautaCardDescription className={cn(
             "text-sm sm:text-base transition-all duration-500 delay-300",
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
           )}>
             Inicia sesión para continuar tu aprendizaje
-          </CardDescription>
-        </CardHeader>
+          </AmautaCardDescription>
+        </AmautaCardHeader>
 
-        <CardContent className="px-6 sm:px-8 pb-6 sm:pb-8">
+        <AmautaCardContent className="px-6 sm:px-8 pb-6 sm:pb-8">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5">
             {!isOnline && offlineWelcome && (
               <div
@@ -189,10 +189,10 @@ export function LoginPage() {
               "space-y-2 transition-all duration-500 delay-400",
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             )}>
-              <Label htmlFor="email" className="text-foreground font-semibold text-sm sm:text-base">
+              <AmautaLabel htmlFor="email" className="text-foreground font-semibold text-sm sm:text-base">
                 Correo electrónico
-              </Label>
-              <Input
+              </AmautaLabel>
+              <AmautaInput
                 id="email"
                 type="email"
                 placeholder="correo@ejemplo.com"
@@ -209,10 +209,10 @@ export function LoginPage() {
               "space-y-2 transition-all duration-500 delay-500",
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             )}>
-              <Label htmlFor="password" className="text-foreground font-semibold text-sm sm:text-base">
+              <AmautaLabel htmlFor="password" className="text-foreground font-semibold text-sm sm:text-base">
                 Contraseña
-              </Label>
-              <Input
+              </AmautaLabel>
+              <AmautaInput
                 id="password"
                 type="password"
                 placeholder="••••••••"
@@ -225,7 +225,7 @@ export function LoginPage() {
               )}
             </div>
 
-            <Button
+            <AmautaButton
               type="submit"
               size="child-lg"
               className={cn(
@@ -256,7 +256,7 @@ export function LoginPage() {
                   Entrar
                 </span>
               )}
-            </Button>
+            </AmautaButton>
 
             <button
               type="button"
@@ -271,8 +271,8 @@ export function LoginPage() {
               ¿No tienes cuenta? <span className="font-semibold">Regístrate</span>
             </button>
           </form>
-        </CardContent>
-      </Card>
+        </AmautaCardContent>
+      </AmautaCard>
     </section>
   );
 }

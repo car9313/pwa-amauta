@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AmautaButton } from "@/components/amauta";
+import { AmautaCard, AmautaCardContent, AmautaCardHeader, AmautaCardTitle } from "@/components/amauta";
 import { AlertTriangle, RefreshCw, Home } from "lucide-react";
 
 export interface FallbackProps {
@@ -26,14 +26,14 @@ export function GenericFallback({
 }: GenericFallbackProps) {
   return (
     <div className="flex min-h-[200px] w-full items-center justify-center p-4">
-      <Card className="w-full max-w-md border-destructive/20 bg-destructive/10">
-        <CardHeader className="text-center">
+      <AmautaCard className="w-full max-w-md border-destructive/20 bg-destructive/10">
+        <AmautaCardHeader className="text-center">
           <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/20">
             <AlertTriangle className="h-6 w-6 text-destructive" />
           </div>
-          <CardTitle className="text-xl text-destructive">{title}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4 text-center">
+          <AmautaCardTitle className="text-xl text-destructive">{title}</AmautaCardTitle>
+        </AmautaCardHeader>
+        <AmautaCardContent className="space-y-4 text-center">
           <p className="text-sm text-destructive">{message}</p>
           {error.message && (
             <p className="text-xs text-destructive bg-destructive/20 p-2 rounded">
@@ -41,27 +41,27 @@ export function GenericFallback({
             </p>
           )}
           <div className="flex gap-2 justify-center">
-            <Button
+            <AmautaButton
               onClick={resetError}
               variant="outline"
               className="border-destructive/30 text-destructive hover:bg-destructive/20"
             >
               <RefreshCw className="mr-2 h-4 w-4" />
               {isNetworkError ? "Reintentar conexión" : "Intentar de nuevo"}
-            </Button>
+            </AmautaButton>
             {showHome && !isNetworkError && (
-              <Button
+              <AmautaButton
                 onClick={() => window.location.href = "/"}
                 variant="outline"
                 className="border-destructive/30 text-destructive hover:bg-destructive/20"
               >
                 <Home className="mr-2 h-4 w-4" />
                 Ir al inicio
-              </Button>
+              </AmautaButton>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </AmautaCardContent>
+      </AmautaCard>
     </div>
   );
 }
@@ -69,40 +69,40 @@ export function GenericFallback({
 export function StudentFallback({ resetError, isNetworkError }: FallbackProps) {
   return (
     <div className="flex min-h-[300px] w-full items-center justify-center p-4">
-      <Card className="w-full max-w-md border-0 bg-white shadow-xl">
-        <CardHeader className="text-center pb-2">
+      <AmautaCard className="w-full max-w-md border-0 bg-white shadow-xl">
+        <AmautaCardHeader className="text-center pb-2">
           <div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-accent/10">
             <AlertTriangle className="h-10 w-10 text-accent" />
           </div>
-          <CardTitle className="text-2xl font-bold text-primary">
+          <AmautaCardTitle className="text-2xl font-bold text-primary">
             {isNetworkError ? "¡Ups! No hay internet" : "¡Ups! Algo se atravesó"}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4 text-center">
+          </AmautaCardTitle>
+        </AmautaCardHeader>
+        <AmautaCardContent className="space-y-4 text-center">
           <p className="text-base text-muted-foreground">
             {isNetworkError
               ? "Parece que no hay conexión a internet. Pídele a un adulto que revise."
               : "Tuviste un pequeño percance. ¡No te preocupes! Puedes intentarlo de nuevo."}
           </p>
           <div className="flex flex-col gap-2">
-            <Button
+            <AmautaButton
               onClick={resetError}
               className="w-full bg-accent hover:bg-accent/90"
             >
               <RefreshCw className="mr-2 h-4 w-4" />
               {isNetworkError ? "¡Verificar de nuevo!" : "¡Intentar de nuevo!"}
-            </Button>
-            <Button
+            </AmautaButton>
+            <AmautaButton
               onClick={() => window.location.href = "/"}
               variant="outline"
               className="w-full border-2 border-muted"
             >
               <Home className="mr-2 h-4 w-4" />
               Volver al inicio
-            </Button>
+            </AmautaButton>
           </div>
-        </CardContent>
-      </Card>
+        </AmautaCardContent>
+      </AmautaCard>
     </div>
   );
 }
@@ -110,16 +110,16 @@ export function StudentFallback({ resetError, isNetworkError }: FallbackProps) {
 export function ParentFallback({ error, resetError, isNetworkError }: FallbackProps) {
   return (
     <div className="flex min-h-[250px] w-full items-center justify-center p-4">
-      <Card className="w-full max-w-md border-muted">
-        <CardHeader className="text-center">
+      <AmautaCard className="w-full max-w-md border-muted">
+        <AmautaCardHeader className="text-center">
           <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-warning/20">
             <AlertTriangle className="h-5 w-5 text-warning" />
           </div>
-          <CardTitle className="text-lg text-foreground">
+          <AmautaCardTitle className="text-lg text-foreground">
             {isNetworkError ? "Error de conexión" : "Error inesperado"}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 text-center">
+          </AmautaCardTitle>
+        </AmautaCardHeader>
+        <AmautaCardContent className="space-y-3 text-center">
           <p className="text-sm text-muted-foreground">
             {isNetworkError
               ? "No se pudo conectar con el servidor. Revisa tu conexión a internet."
@@ -131,20 +131,20 @@ export function ParentFallback({ error, resetError, isNetworkError }: FallbackPr
             </p>
           )}
           <div className="flex gap-2 justify-center pt-2">
-            <Button onClick={resetError} variant="outline">
+            <AmautaButton onClick={resetError} variant="outline">
               <RefreshCw className="mr-2 h-4 w-4" />
               {isNetworkError ? "Reintentar conexión" : "Reintentar"}
-            </Button>
-            <Button
+            </AmautaButton>
+            <AmautaButton
               onClick={() => window.location.href = "/"}
               variant="outline"
             >
               <Home className="mr-2 h-4 w-4" />
               Inicio
-            </Button>
+            </AmautaButton>
           </div>
-        </CardContent>
-      </Card>
+        </AmautaCardContent>
+      </AmautaCard>
     </div>
   );
 }

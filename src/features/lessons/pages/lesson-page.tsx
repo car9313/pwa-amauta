@@ -3,10 +3,10 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useQueryClient } from "@tanstack/react-query"
-import { Star, ChevronRight, HelpCircle, Sparkles, AlertTriangle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Container } from "@/components/ui/container"
-import { ProgressBar } from "@/components/ui/progress-bar"
+import { Star, ChevronRight, HelpCircle } from "lucide-react"
+import { AmautaButton, AmautaContainer } from "@/components/amauta"
+
+import { AmautaLoadingState, AmautaErrorState, AmautaProgress } from "@/components/amauta"
 
 import { cn } from "@/lib/utils"
 import { useNextExercise, useSubmitAnswer } from "@/features/exercises/hooks/useExercise"
@@ -75,32 +75,17 @@ export function LessonPage({
   }
 
   if (isLoading) {
-    return (
-      <div className="page-loading">
-        <div className="relative">
-          <div className="absolute inset-0 rounded-full bg-accent/20 animate-ping" />
-          <div className="relative w-16 h-16 rounded-full bg-accent/30 flex items-center justify-center">
-            <Sparkles className="w-8 h-8 text-accent animate-spin" />
-          </div>
-        </div>
-      </div>
-    )
+    return <AmautaLoadingState variant="page" />
   }
 
   if (isError) {
     return (
-      <div className="page-error">
-        <div className="w-24 h-24 rounded-full bg-destructive/10 flex items-center justify-center">
-          <AlertTriangle className="h-10 w-10 text-destructive" />
-        </div>
-        <h2 className="text-xl font-bold text-foreground">¡Ups! Algo salió mal</h2>
-        <p className="text-muted-foreground max-w-xs">
-          {(error instanceof Error ? error.message : null) ?? "No pudimos cargar el ejercicio. Intenta de nuevo."}
-        </p>
-        <Button onClick={onBack} className="bg-primary">
-          Volver al inicio
-        </Button>
-      </div>
+      <AmautaErrorState
+        title="¡Ups! Algo salió mal"
+        message={(error instanceof Error ? error.message : null) ?? "No pudimos cargar el ejercicio. Intenta de nuevo."}
+        onRetry={onBack}
+        retryLabel="Volver al inicio"
+      />
     )
   }
 
@@ -116,7 +101,7 @@ export function LessonPage({
   const stepProgress   = totalSteps > 0 ? (currentStep / totalSteps) * 100 : 0
 
   return (
-    <Container as="div" className="space-y-4 sm:space-y-6 pb-6">
+    <AmautaContainer as="div" className="space-y-4 sm:space-y-6 pb-6">
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <button
           onClick={onBack}
@@ -166,7 +151,7 @@ export function LessonPage({
               </span>
             </div>
 
-            <ProgressBar value={stepProgress} size="sm" color="primary" animated={false} />
+            <AmautaProgress value={stepProgress} size="sm" amautaVariant="lesson" animated={false} hideLabel />
           </div>
 
           {mainProblem && (
@@ -265,7 +250,7 @@ export function LessonPage({
           />
 
           <div className="space-y-3 pt-1">
-            <Button
+            <AmautaButton
               onClick={handleSubmit}
               disabled={!answer.trim() || isPending || submitted}
               size="child-lg"
@@ -284,7 +269,7 @@ export function LessonPage({
               ) : (
                 "Contestar"
               )}
-            </Button>
+            </AmautaButton>
 
             <button
               onClick={onSkip ?? onBack}
@@ -302,6 +287,6 @@ export function LessonPage({
           return [];
         }}
       />
-    </Container>
+    </AmautaContainer>
   )
 }

@@ -1,7 +1,9 @@
 import { useState, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
-import { BarChart3, Sparkles, AlertTriangle, Star, ChevronRight, RefreshCw } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { BarChart3, Star, ChevronRight } from "lucide-react"
+import { AmautaButton } from "@/components/amauta"
+
+import { AmautaLoadingState, AmautaErrorState } from "@/components/amauta"
 import { cn } from "@/lib/utils"
 import { useNextExercise, useSubmitAnswer } from "@/features/exercises/hooks/useExercise"
 import { exerciseKeys } from "@/lib/query/keys"
@@ -158,14 +160,14 @@ export function PracticePage() {
                 </div>
               </div>
 
-              <Button
+              <AmautaButton
                 onClick={handleStart}
                 size="child-lg"
                 className="w-full shadow-sm"
               >
                 Comenzar a practicar
                 <ChevronRight className="ml-1 h-5 w-5" />
-              </Button>
+              </AmautaButton>
             </div>
           </div>
         ) : (
@@ -196,26 +198,13 @@ export function PracticePage() {
             </div>
 
             {isLoadingState ? (
-              <div className="flex items-center justify-center min-h-[40vh]">
-                <div className="relative">
-                  <div className="absolute inset-0 rounded-full bg-accent/20 animate-ping" />
-                  <div className="relative w-16 h-16 rounded-full bg-accent/30 flex items-center justify-center">
-                    <Sparkles className="w-8 h-8 text-accent animate-spin" />
-                  </div>
-                </div>
-              </div>
+              <AmautaLoadingState variant="page" />
             ) : isError ? (
-              <div className="flex flex-col items-center justify-center min-h-[40vh] space-y-4 text-center px-4">
-                <div className="w-24 h-24 rounded-full bg-destructive/10 flex items-center justify-center">
-                  <AlertTriangle className="h-10 w-10 text-destructive" />
-                </div>
-                <h2 className="text-xl font-bold text-foreground">No pudimos cargar el ejercicio</h2>
-                <p className="text-muted-foreground max-w-xs">{(error instanceof Error ? error.message : null) ?? "Intenta de nuevo."}</p>
-                <Button onClick={() => refetch()} className="bg-primary">
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  Reintentar
-                </Button>
-              </div>
+              <AmautaErrorState
+                title="No pudimos cargar el ejercicio"
+                message={(error instanceof Error ? error.message : null) ?? "Intenta de nuevo."}
+                onRetry={() => refetch()}
+              />
             ) : (
               <div className="bg-card rounded-2xl shadow-sm border border-border p-5 sm:p-6 space-y-5">
                 <div className="flex items-center justify-between">
@@ -263,7 +252,7 @@ export function PracticePage() {
                   )}
                 />
 
-                <Button
+                <AmautaButton
                   onClick={handleSubmit}
                   disabled={!answer.trim() || isPending || submitted}
                   size="child-lg"
@@ -280,7 +269,7 @@ export function PracticePage() {
                   ) : (
                     "Contestar"
                   )}
-                </Button>
+                </AmautaButton>
               </div>
             )}
           </div>

@@ -1,6 +1,6 @@
 import { ArrowRight } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { AmautaCard, AmautaCardContent } from "@/components/amauta";
+import { AmautaButton } from "@/components/amauta";
 import { cn } from "@/lib/utils";
 
 type RoleCardProps = {
@@ -21,7 +21,7 @@ export function RoleCard({
   onSelect,
 }: RoleCardProps) {
   return (
-    <Card
+    <AmautaCard
       className={cn(
         "cursor-pointer border-border/70 bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md",
         accentClassName
@@ -30,7 +30,7 @@ export function RoleCard({
       role="button"
       tabIndex={0}
     >
-      <CardContent className="flex items-center gap-4 p-4 sm:p-5">
+      <AmautaCardContent className="flex items-center gap-4 p-4 sm:p-5">
         <div className="h-14 w-14 shrink-0 overflow-hidden rounded-2xl bg-muted sm:h-16 sm:w-16">
           <img
             src={imageSrc}
@@ -49,7 +49,7 @@ export function RoleCard({
           </p>
         </div>
 
-        <Button
+        <AmautaButton
           type="button"
           size="icon"
           variant="ghost"
@@ -57,8 +57,8 @@ export function RoleCard({
           aria-label={`Seleccionar ${highlight}`}
         >
           <ArrowRight className="h-4 w-4" />
-        </Button>
-      </CardContent>
-    </Card>
+        </AmautaButton>
+      </AmautaCardContent>
+    </AmautaCard>
   );
 }

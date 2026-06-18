@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { ProgressBar } from "@/components/ui/progress-bar"
+import { AmautaProgress } from "@/components/amauta"
 import { GameHeader } from "./game-header"
 import { GameResultScreen } from "./game-result"
 import type { GameResult } from "../domain/game.types"
@@ -83,10 +83,11 @@ export function TimedChallengeView({
           </span>
         </div>
 
-        <ProgressBar
+        <AmautaProgress
           value={timerPercent}
           size="md"
-          color={remainingSeconds > 30 ? "success" : remainingSeconds > 10 ? "accent" : "primary"}
+          amautaVariant={remainingSeconds > 30 ? "level" : remainingSeconds > 10 ? "xp" : "lesson"}
+          hideLabel
         />
 
         <p className="sr-only" aria-live="polite">

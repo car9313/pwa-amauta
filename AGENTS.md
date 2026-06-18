@@ -137,6 +137,7 @@ if ('serviceWorker' in navigator) {
 | Tema | Documento |
 |------|-----------|
 | **Índice general** | `src/docs/README.md` |
+| **Design System** | `src/docs/design/README.md` — catalogo completo con props, variantes y ejemplos |
 | **Arquitectura de capas** | `src/docs/fundamentos/ARCHITECTURE_LAYERS.md` |
 | **Autenticación** | `src/docs/core/AUTH_FLOW.md` |
 | **API endpoints** | `src/docs/core/API_CONTRACT.md` |
@@ -435,6 +436,7 @@ const mutation = useMutation({
 | Tema | Documento |
 |------|---------|
 | **Índice general** | `src/docs/README.md` |
+| **Design System** | `src/docs/design/README.md` — catalogo completo con props, variantes y ejemplos |
 | **Sistema de cola offline** | `src/docs/offline/OFFLINE_QUEUE_SYSTEM.md` |
 | Service Worker PWA | `src/docs/offline/SERVICE_WORKER.md` |
 | Manifest PWA | `src/docs/offline/MANIFEST.md` |

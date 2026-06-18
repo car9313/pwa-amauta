@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { AmautaButton } from "@/components/amauta";
 import {
   Sheet,
   SheetContent,
@@ -77,7 +77,7 @@ export function AppMenuSheet({ trigger }: AppMenuSheetProps) {
               />
             </div>
             {isAuthenticated && user && (
-              <Button
+              <AmautaButton
                 type="button"
                 className="w-full rounded-2xl py-6 text-base font-semibold bg-amauta-orange hover:bg-amauta-orange-dark"
                 onClick={handleLogout}
@@ -91,7 +91,7 @@ export function AppMenuSheet({ trigger }: AppMenuSheetProps) {
                     Cerrar sesión
                   </>
                 )}
-              </Button>
+              </AmautaButton>
             )}
           </div>
         </div>

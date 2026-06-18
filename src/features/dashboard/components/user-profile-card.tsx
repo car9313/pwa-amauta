@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { AmautaCard, AmautaCardContent } from "@/components/amauta";
 
 type UserProfileCardProps = {
   name: string;
@@ -8,8 +8,8 @@ type UserProfileCardProps = {
 
 export function UserProfileCard({ name, role, level }: UserProfileCardProps) {
   return (
-    <Card className="border-border/70 bg-muted/40 shadow-sm">
-      <CardContent className="flex items-center gap-4 p-4">
+    <AmautaCard className="border-border/70 bg-muted/40 shadow-sm">
+      <AmautaCardContent className="flex items-center gap-4 p-4">
         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-amauta-blue-light text-amauta-blue">
           <span className="text-xl font-semibold">👤</span>
         </div>
@@ -20,7 +20,7 @@ export function UserProfileCard({ name, role, level }: UserProfileCardProps) {
             {level ? `${level} - ${role}` : role}
           </p>
         </div>
-      </CardContent>
-    </Card>
+      </AmautaCardContent>
+    </AmautaCard>
   );
 }

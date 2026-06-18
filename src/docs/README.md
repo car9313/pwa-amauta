@@ -12,6 +12,17 @@ Para entender la aplicación desde la arquitectura general hasta los detalles es
 |---|-----------|-------------|
 | 1 | **[`VISION_GENERAL.md`](./vision/VISION_GENERAL.md)** | Visión general de Amauta en lenguaje natural: roles, funcionamiento online/offline, flujo del usuario. |
 
+### Nivel 0b — Design System
+
+| # | Documento | Que explica |
+|---|-----------|-------------|
+| 1b | **[`design/README.md`](./design/README.md)** | Indice del Design System: mapa de componentes, tokens, convenciones |
+| 2b | [`design/01-base-layer.md`](./design/01-base-layer.md) | Componentes base: Button, Card, Badge, Progress, Input, Dialog |
+| 3b | [`design/02-layout-layer.md`](./design/02-layout-layer.md) | Componentes de layout: Container, Section, Grid, Divider |
+| 4b | [`design/03-brand-layer.md`](./design/03-brand-layer.md) | Componentes de marca: Hero, CondorGuide, LearningPath, StatCard, Achievement |
+| 5b | [`design/04-patterns.md`](./design/04-patterns.md) | Patrones compuestos: HeroWithCondor, EducationalSection, CTAEducational, FeatureGrid, HowItWorks, StudentProgressPanel, ParentMetricsGrid |
+| 6b | [`design/05-story-layer.md`](./design/05-story-layer.md) | Componentes de estado: Transition, LoadingState, EmptyState, ErrorState, Reveal |
+
 ### Nivel 1 — Fundamentos
 
 | # | Documento | Qué explica |

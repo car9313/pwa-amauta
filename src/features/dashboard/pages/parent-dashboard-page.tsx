@@ -1,6 +1,6 @@
 import { useState } from "react"
-import { CheckCircle2, ChevronRight, TrendingUp, Sparkles, HelpCircle, Trophy, BarChart3 } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { CheckCircle2, ChevronRight, TrendingUp, Trophy, BarChart3 } from "lucide-react"
+import { AmautaLoadingState, AmautaErrorState } from "@/components/amauta"
 import { useParentDashboard } from "@/features/auth/hooks/useAuth"
 import { cn } from "@/lib/utils"
 import { useStagger } from "@/hooks/useStagger"
@@ -13,30 +13,15 @@ export function ParentDashboardPage() {
   const [activityExpanded, setActivityExpanded] = useState(true)
 
   if (isLoading) {
-    return (
-      <div className="page-loading">
-        <div className="relative">
-          <div className="absolute inset-0 rounded-full bg-accent/20 animate-ping" />
-          <div className="relative w-16 h-16 rounded-full bg-accent/30 flex items-center justify-center animate-bounce-gentle">
-            <Sparkles className="w-8 h-8 text-accent animate-sparkle" />
-          </div>
-        </div>
-      </div>
-    )
+    return <AmautaLoadingState variant="page" />
   }
 
   if (isError) {
     return (
-      <div className="page-error">
-        <div className="relative w-24 h-24 rounded-full bg-destructive/10 flex items-center justify-center">
-          <HelpCircle className="w-12 h-12 text-destructive" />
-        </div>
-        <h2 className="text-xl font-bold text-foreground">¡Ups! Algo salió mal</h2>
-        <p className="text-muted-foreground max-w-xs">{error?.message}</p>
-        <Button onClick={() => refetch()} className="bg-primary">
-          Intentar de nuevo
-        </Button>
-      </div>
+      <AmautaErrorState
+        message={error?.message}
+        onRetry={refetch}
+      />
     )
   }
 
