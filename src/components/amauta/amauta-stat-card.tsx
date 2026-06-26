@@ -3,7 +3,7 @@ import type { LucideIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
-type AmautaStatColor = "primary" | "accent" | "success" | "warning" | "info"
+type AmautaStatColor = "primary" | "accent" | "success" | "warning" | "info" | "yellow"
 
 interface AmautaStatCardProps {
   icon?: LucideIcon
@@ -45,6 +45,12 @@ const colorConfig: Record<AmautaStatColor, { bg: string; text: string; glow: str
     text: "text-[var(--amauta-blue)]",
     glow: "shadow-glow-blue",
     orb: "bg-[var(--amauta-blue)]/10",
+  },
+  yellow: {
+    bg: "bg-yellow-100 text-yellow-600",
+    text: "text-yellow-600",
+    glow: "shadow-[0_0_25px_rgba(202,138,4,0.35)]",
+    orb: "bg-yellow-600/10",
   },
 }
 

@@ -7,7 +7,8 @@ export type AuthErrorCode =
   | "REFRESH_FAILED"
   | "NETWORK_ERROR"
   | "SESSION_NOT_FOUND"
-  | "TIMEOUT";
+  | "TIMEOUT"
+  | "CONFLICT";
 
 export interface AuthError {
   code: AuthErrorCode;
@@ -23,6 +24,7 @@ export const AUTH_ERROR_MESSAGES: Record<AuthErrorCode, string> = {
   NETWORK_ERROR: "Sin conexión a internet. Puedes seguir usando la app en modo offline.",
   SESSION_NOT_FOUND: "No encontramos tu sesión. Por favor, inicia sesión.",
   TIMEOUT: "La conexión está muy lenta. Inténtalo de nuevo.",
+  CONFLICT: "El dato que intentas guardar fue modificado por otro dispositivo.",
 };
 
 export const OFFLINE_ERROR_CODES: readonly AuthErrorCode[] = [

@@ -132,13 +132,14 @@ Envuelve `ProgressBar` de shadcn. Agrega label semantico y valor numerico.
 ### Props
 
 ```typescript
-type AmautaProgressVariant = "lesson" | "xp" | "level" | "default"
+type AmautaProgressVariant = "lesson" | "xp" | "level" | "default" | "topic"
 
 interface AmautaProgressProps extends Omit<ProgressBarProps, "color"> {
   amautaVariant?: AmautaProgressVariant
   label?: string
   showValue?: boolean
   hideLabel?: boolean
+  colorByValue?: boolean
 }
 ```
 
@@ -150,6 +151,14 @@ interface AmautaProgressProps extends Omit<ProgressBarProps, "color"> {
 | `xp` | accent (naranja/amber) | "Puntos de experiencia" |
 | `level` | success (verde) | "Nivel" |
 | `default` | primary (azul) | "Progreso" |
+| `topic` | primary (configurable via colorByValue) | "Progreso" |
+
+### Prop especial: colorByValue
+
+Cuando `colorByValue={true}`, el color de la barra cambia segun el valor (alineado con Figma):
+- `value === 100` → success (verde)
+- `value >= 75` → primary (azul)
+- `value < 75` → accent (naranja)
 
 ### Comportamiento
 
@@ -162,6 +171,47 @@ interface AmautaProgressProps extends Omit<ProgressBarProps, "color"> {
 <AmautaProgress value={60} amautaVariant="xp" label="Experiencia" size="lg" />
 <AmautaProgress value={100} amautaVariant="level" showValue={false} />
 <AmautaProgress value={85} amautaVariant="lesson" hideLabel />
+```
+
+---
+
+## Character
+
+Mascota de Amauta sin burbuja de dialogo. Version simplificada de `CondorGuide` para usar como avatar o decoracion.
+
+### Props
+
+```typescript
+type CharacterSize = "sm" | "md" | "lg" | "xl"
+
+interface CharacterProps {
+  size?: CharacterSize
+  className?: string
+}
+```
+
+### Variantes de tamano
+
+| size | Clases |
+|------|--------|
+| `sm` | `w-12 h-12` |
+| `md` | `w-16 h-16` |
+| `lg` | `w-24 h-24` |
+| `xl` | `w-32 h-32` |
+
+### Comportamiento
+
+- Imagen desde `/img/amauta-mascot.jpg`
+- Sin burbuja de dialogo (a diferencia de `CondorGuide`)
+- `object-contain` para mantener aspect ratio
+- Borde redondeado completo (`rounded-full`) con borde blanco
+
+### Ejemplos
+
+```tsx
+<Character size="sm" />
+<Character size="lg" className="shadow-xl" />
+<Character size="xl" />
 ```
 
 ---

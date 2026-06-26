@@ -3,7 +3,7 @@ import { ErrorBoundary } from "@/components/error";
 import { AppRoutes } from "./routes/app-routes";
 import { useAuthStore } from "@/features/auth/presentation/store/auth-store";
 import { UpdateToast } from "@/components/UpdateToast";
-import { initBackgroundSync } from "@/lib/sync/background-sync";
+import { initBackgroundSync, stopBackgroundSync } from "@/lib/sync/background-sync";
 import { configureHttpClient } from "@/lib/api";
 import { DevOnlineToggle } from "@/components/dev";
 
@@ -26,6 +26,10 @@ export default function App() {
       },
     });
     initBackgroundSync({ intervalMs: 30000, autoSync: true });
+
+    return () => {
+      stopBackgroundSync();
+    };
   }, []);
 
   return (

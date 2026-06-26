@@ -86,13 +86,13 @@ export function LevelScreen({ studentId = DEFAULT_STUDENT_ID }: LevelScreenProps
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
                     <h3 className="font-medium text-foreground truncate">{subject.subjectName}</h3>
-                    <span className="text-sm font-bold text-muted-foreground shrink-0 ml-2">{Math.round(subject.mastery * 100)}%</span>
+                    <span className="text-sm font-bold text-muted-foreground shrink-0 ml-2">{Math.round(subject.mastery)}%</span>
                   </div>
                   <div className="mt-2">
                     <AmautaProgress
-                      value={Math.round(subject.mastery * 100)}
+                      value={Math.round(subject.mastery)}
                       size="sm"
-                      amautaVariant={subject.mastery >= 0.8 ? "level" : subject.mastery >= 0.5 ? "lesson" : "xp"}
+                      amautaVariant={subject.mastery >= 80 ? "level" : subject.mastery >= 50 ? "lesson" : "xp"}
                       animated
                       hideLabel
                     />

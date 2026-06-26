@@ -141,14 +141,14 @@ export function LoginPage() {
       )}>
         <AmautaCardHeader className="space-y-3 text-center pt-8">
           <div className={cn(
-            "mx-auto mb-2 w-20 h-20 sm:w-24 sm:h-24 relative",
+            "mx-auto mb-2 w-20 h-20 sm:w-24 sm:h-32 relative",
             "transition-all duration-700 delay-100",
             isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
           )}>
             <img
               src="/img/amauta-mascot.jpg"
               alt="Amauta"
-              className="w-full h-full object-cover rounded-2xl shadow-lg shadow-primary/30"
+              className="w-full h-full object-contain "
             />
           </div>
 

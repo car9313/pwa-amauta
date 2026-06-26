@@ -25,8 +25,8 @@ El sistema de diseno de Amauta envuelve componentes shadcn/ui con variantes sema
 |------|------------|---------|
 | Base | AmautaButton, AmautaCard, AmautaBadge, AmautaProgress, AmautaInput, AmautaDialog | `01-base-layer.md` |
 | Layout | AmautaContainer, AmautaSection, AmautaGrid, AmautaDivider | `02-layout-layer.md` |
-| Brand | AmautaHero, CondorGuide, AmautaLearningPath, AmautaStatCard, AmautaAchievement | `03-brand-layer.md` |
-| Patterns | HeroWithCondor, EducationalSection, CTAEducational, FeatureGrid, HowItWorks, StudentProgressPanel, ParentMetricsGrid | `04-patterns.md` |
+| Brand | AmautaHero, CondorGuide, Character, AmautaLearningPath, AmautaStatCard, AmautaAchievement | `03-brand-layer.md` |
+| Patterns | HeroWithCondor, EducationalSection, CTAEducational, FeatureGrid, HowItWorks, NavigationMenu, StudentProgressPanel, ParentMetricsGrid | `04-patterns.md` |
 | Story | AmautaTransition, AmautaLoadingState, AmautaEmptyState, AmautaErrorState, AmautaReveal | `05-story-layer.md` |
 
 ## Token System
@@ -40,4 +40,8 @@ El sistema de diseno de Amauta envuelve componentes shadcn/ui con variantes sema
 | `--amauta-orange-dark` | Naranja oscuro (hover) |
 | `--amauta-orange-light` | Naranja claro (fondos) |
 | `--amauta-surface-alt` | Fondo alternativo para secciones |
+| `--amauta-purple-500` | Purpura Figma (#8b5cf6) |
+| `--amauta-purple-600` | Purpura oscuro (#7c3aed) |
+| `--amauta-yellow-100` | Amarillo claro Figma (#fef9c3) |
+| `--amauta-yellow-600` | Amarillo Figma (#ca8a04) |
 | `--amauta-warm-white` | Blanco calido para fondos accent |

@@ -399,3 +399,58 @@ interface ParentMetricsGridProps {
   ]}
 />
 ```
+
+---
+
+## NavigationMenu
+
+Menu drawer lateral que se abre desde el Header. Contiene items de navegacion, avatar del usuario y boton de cerrar sesion.
+
+### Props
+
+```typescript
+interface NavigationMenuProps {
+  isOpen: boolean
+  onClose: () => void
+}
+```
+
+### Comportamiento
+
+- Se renderiza como un portal con overlay semitransparente (`bg-black/50`)
+- Panel lateral derecho de `w-80 max-w-[85vw]` con fondo blanco
+- El header muestra el avatar (`Character size="sm"`) y nombre del usuario desde `useAuthStore`
+- Los items de navegacion marcan el estado activo segun `location.pathname`
+- El footer tiene la mascota decorativa (`Character size="md"`) y el boton de cerrar sesion
+- `isOpen=false` retorna `null` (no se renderiza nada)
+
+### Items de navegacion
+
+| Path | Label | Icono |
+|------|-------|-------|
+| `/dashboard` | Mi Dashboard | Home |
+| `/lessons` | Lecciones | BookOpen |
+| `/practice` | Practica | BarChart3 |
+| `/games` | Juegos | Gamepad2 |
+| `/progress` | Mi Progreso | BarChart3 |
+| `/parent` | Panel de Padres | Users |
+
+### Ejemplos
+
+```tsx
+import { NavigationMenu } from "@/components/amauta"
+
+const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+return (
+  <>
+    <button onClick={() => setIsMenuOpen(true)}>
+      Abrir menu
+    </button>
+    <NavigationMenu
+      isOpen={isMenuOpen}
+      onClose={() => setIsMenuOpen(false)}
+    />
+  </>
+)
+```

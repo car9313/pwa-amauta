@@ -69,6 +69,7 @@ interface CondorGuideProps {
 | `sm` | `w-12 h-12` |
 | `md` | `w-16 h-16` |
 | `lg` | `w-20 h-20 sm:w-24 sm:h-24` |
+| `xl` | `w-32 h-32` |
 
 | position | Alineacion del contenedor |
 |----------|--------------------------|
@@ -179,6 +180,7 @@ interface AmautaStatCardProps {
 | `success` | Verde 15% | Verde | Sombra verde |
 | `warning` | Amarillo 15% | Amarillo | Sombra amarilla |
 | `info` | Azul claro | Azul | `shadow-glow-blue` |
+| `yellow` | Amarillo claro (`yellow-100`) | Amarillo (`yellow-600`) | Sombra amarilla |
 
 ### Trend
 

@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Plus, TrendingUp, BookOpen, ChevronRight, Calendar, Flame, Sparkles, Trophy, Star, Target } from "lucide-react"
-import { AmautaButton, AmautaCard, AmautaProgress, AmautaStatCard, AmautaAchievement, AmautaLoadingState, AmautaErrorState } from "@/components/amauta"
+import { Plus, TrendingUp, BookOpen, ChevronRight, Calendar, Flame, Trophy, Star, Target } from "lucide-react"
+import { AmautaButton, AmautaCard, AmautaProgress, AmautaStatCard, AmautaLoadingState, AmautaErrorState, Character } from "@/components/amauta"
 import { AgendaItem } from "../components/agenda-item"
 import { useStudentDashboard } from "@/hooks/useStudent"
 import { useStagger } from "@/hooks/useStagger"
@@ -64,9 +64,6 @@ export function StudentDashboardPage({
   const student = dashboard?.student
   const agenda = dashboard?.agenda ?? []
   const progress = dashboard?.progress ?? []
-  const totalProgress = progress.length > 0
-    ? Math.round(progress.reduce((sum, p) => sum + p.mastery, 0) / progress.length)
-    : 0
   const achievements = dashboard?.recentAchievements ?? []
 
   const weekDays = student?.streakWeek?.map((active) => ({ active })) ?? [
@@ -78,7 +75,7 @@ export function StudentDashboardPage({
   return (
     <div className="space-y-4 sm:space-y-6 pb-6">
       {/* Welcome Hero Card - Fully responsive */}
-      <div className="relative overflow-hidden rounded-2xl sm:rounded-4xl bg-linear-to-br from-primary via-primary/80 to-accent p-4 sm:p-6 text-white">
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-4xl bg-gradient-to-r from-blue-500 to-purple-600 p-4 sm:p-6 text-white">
         <div className="noise-overlay pointer-events-none absolute inset-0 z-0" />
         
         <div className="absolute -right-4 sm:-right-8 -top-4 sm:-top-8 h-16 sm:h-32 w-16 sm:w-32 rounded-full bg-white/10 blur-xl animate-pulse-ring hidden sm:block" />
@@ -97,12 +94,8 @@ export function StudentDashboardPage({
             
             <div className="relative animate-scale-in animate-bounce-gentle" style={stagger.getStyle(0)}>
               <div className="absolute inset-0 rounded-full bg-accent/30 animate-ping" />
-              <div className="relative h-12 w-12 sm:h-16 sm:w-16 rounded-full border-2 sm:border-4 border-white/40 overflow-hidden bg-white shadow-xl">
-                <img
-                  src={student?.avatar ?? "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=200&h=200&fit=crop"}
-                  alt={student?.name}
-                  className="h-full w-full object-cover"
-                />
+              <div className="relative">
+                <Character size="lg" />
               </div>
             </div>
           </div>
@@ -143,7 +136,7 @@ export function StudentDashboardPage({
 
       {/* Stats Grid */}
       <div className="grid grid-cols-3 gap-2 sm:gap-3 animate-fade-in-up" style={stagger.getStyle(2)}>
-        <AmautaStatCard icon={Trophy} value={student?.points ?? 0} label="Puntos" color="accent" />
+        <AmautaStatCard icon={Trophy} value={student?.points ?? 0} label="Puntos" color="yellow" />
         <AmautaStatCard icon={Star} value={`Nivel ${student?.level ?? 1}`} label="Progreso" color="primary" />
         <AmautaStatCard icon={Target} value={`${student?.precision ?? 0}%`} label="Precisión" color="success" />
       </div>
@@ -233,66 +226,39 @@ export function StudentDashboardPage({
 
       {/* Progress Section */}
       <div className="animate-fade-in-up" style={stagger.getStyle(4)}>
-        <AmautaCard amautaVariant="glass" className="p-3 sm:p-4 gap-0">
-          <div className="mb-3 sm:mb-4 flex items-center justify-between">
+        <div className="bg-card rounded-2xl p-5 shadow-sm border border-border">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <div className="flex h-7 sm:h-8 w-7 sm:w-8 items-center justify-center rounded-lg bg-destructive/10">
-                <TrendingUp className="h-4 sm:h-5 w-4 sm:w-5 text-destructive" />
+              <div className="flex h-7 sm:h-8 w-7 sm:w-8 items-center justify-center rounded-lg bg-orange-100">
+                <TrendingUp className="h-4 sm:h-5 w-4 sm:w-5 text-orange-600" />
               </div>
               <h2 className="text-base sm:text-lg font-bold text-foreground">Tu Progreso</h2>
             </div>
             <button onClick={() => navigate('/progress')} className="text-xs sm:text-sm font-semibold text-primary hover:underline hover:scale-105 transition-transform duration-200">Ver todo</button>
           </div>
 
-          {progress.length > 0 && (
-            <div className="relative mb-4 sm:mb-5 p-3 sm:p-4 rounded-xl bg-gradient-to-r from-primary/5 via-primary/10 to-accent/5 border border-primary/10 animate-scale-in">
-              <div className="absolute top-1/4 -right-8 h-24 w-24 rounded-full bg-accent/5 blur-md animate-float-gentle pointer-events-none" />
-
-              <Sparkles className="absolute top-2 right-2 h-5 w-5 text-accent animate-sparkle" />
-              <Sparkles className="absolute bottom-2 left-2 h-4 w-4 text-primary/60 animate-icon-float" />
-
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-foreground/70 uppercase tracking-wider">Progreso total</span>
-                <span className="text-lg font-black text-primary tabular-nums animate-bounce-gentle">{totalProgress}%</span>
-              </div>
-              <AmautaProgress
-                value={totalProgress}
-                amautaVariant="lesson"
-                size="lg"
-                showValue={false}
-              />
-              <p className="mt-2 text-xs text-muted-foreground font-medium animate-fade-in-up">
-                {totalProgress >= 80
-                  ? "¡Casi dominas todo! Sigue así 🏆"
-                  : totalProgress >= 50
-                  ? "¡Vas muy bien! Sigue practicando 💪"
-                  : totalProgress >= 20
-                  ? "¡Buen comienzo! Cada día sabrás más 🌟"
-                  : "¡Empieza tu primera lección! 🚀"}
-              </p>
-            </div>
-          )}
-
-          <div className="space-y-3 sm:space-y-4">
+          <div className="space-y-4">
             {progress.map((item) => (
               <div key={item.topicId} className="space-y-1.5 hover:scale-105 transition-transform duration-200 animate-fade-in-up">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-foreground">{item.title}</span>
-                  <span className="text-sm font-bold tabular-nums animate-bounce-gentle text-primary">{Math.round(item.mastery * 100)}%</span>
+                  <span className="text-sm font-bold tabular-nums text-primary">{Math.round(item.mastery)}%</span>
                 </div>
                 <AmautaProgress
-                  value={Math.round(item.mastery * 100)}
+                  value={Math.round(item.mastery)}
+                  amautaVariant="topic"
                   size="sm"
                   showValue={false}
+                  colorByValue
                 />
               </div>
             ))}
           </div>
-        </AmautaCard>
+        </div>
       </div>
 
       {/* Quick Actions */}
-      <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-linear-to-br from-accent to-accent/80 p-4 sm:p-5 animate-fade-in-up" style={stagger.getStyle(5)}>
+      <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-r from-orange-400 to-yellow-400 p-4 sm:p-5 animate-fade-in-up" style={stagger.getStyle(5)}>
         <div className="absolute -right-2 sm:-right-4 -top-2 sm:-top-4 h-12 sm:h-20 w-12 sm:w-20 rounded-full bg-white/10 blur-xl" />
         <div className="absolute -bottom-1 sm:-bottom-2 -left-1 sm:-left-2 h-10 sm:h-16 w-10 sm:w-16 rounded-full bg-white/10 blur-lg" />
 
@@ -310,8 +276,8 @@ export function StudentDashboardPage({
               <AmautaButton variant="ghost" size="child-sm" onClick={() => navigate('/practice')} className="bg-white/20 text-white hover:bg-white/30">¡Jugar!</AmautaButton>
             </div>
             
-            <div className="hidden sm:flex h-12 sm:h-14 w-12 sm:w-14 items-center justify-center rounded-full bg-white shadow-lg overflow-hidden animate-bounce-gentle">
-              <img src="/img/amauta-mascot.jpg" alt="Amauta" className="w-full h-full object-cover" />
+            <div className="hidden sm:flex items-center justify-center animate-bounce-gentle">
+              <Character size="md" />
             </div>
           </div>
         </div>
@@ -319,23 +285,44 @@ export function StudentDashboardPage({
 
       {/* Recent Achievements */}
       <div className="animate-fade-in-up" style={stagger.getStyle(6)}>
-        <AmautaCard amautaVariant="glass" className="p-3 sm:p-4 gap-0">
-          <div className="mb-3 sm:mb-4 flex items-center justify-between">
+        <div className="bg-card rounded-2xl p-5 shadow-sm border border-border">
+          <div className="flex items-center justify-between mb-4">
             <h2 className="text-base sm:text-lg font-bold text-foreground">Últimos Logros</h2>
             <ChevronRight className="h-4 sm:h-5 w-4 sm:w-5 text-muted-foreground hover:scale-110 transition-transform duration-200" />
           </div>
-          <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-2">
-            {achievements.map((achievement) => (
-              <AmautaAchievement
-                key={achievement.id}
-                title={achievement.title}
-                description={achievement.description}
-                unlocked={true}
-                size="sm"
-              />
-            ))}
-          </div>
-        </AmautaCard>
+
+          {achievements.length > 0 ? (
+            <div className="flex gap-3 overflow-x-auto pb-2">
+              {achievements.map((achievement) => {
+                const emojiMap: Record<string, string> = {
+                  streak: "\u{1F525}",
+                  level: "\u{2B50}",
+                  accuracy: "\u{1F3AF}",
+                }
+                const emoji = emojiMap[achievement.type] ?? "\u{1F3C6}"
+
+                return (
+                  <div
+                    key={achievement.id}
+                    className="flex-shrink-0 w-24 bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-3 text-center border border-yellow-200"
+                  >
+                    <div className="text-3xl mb-1">{emoji}</div>
+                    <p className="text-xs font-semibold text-foreground">
+                      {achievement.title}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {achievement.description}
+                    </p>
+                  </div>
+                )
+              })}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-4">
+              No hay logros aun
+            </p>
+          )}
+        </div>
       </div>
     </div>
   )

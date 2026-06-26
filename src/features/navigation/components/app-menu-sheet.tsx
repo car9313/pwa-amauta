@@ -34,10 +34,9 @@ export function AppMenuSheet({ trigger }: AppMenuSheetProps) {
 
       <SheetContent
         side="right"
-        className="w-[320px] overflow-y-auto border-l border-border bg-background p-0 sm:w-90"
+        className="w-[320px] border-l border-border bg-background p-0 sm:w-90"
       >
-        <div className="flex h-full flex-col">
-          <SheetHeader className="border-b border-border/60 px-4 py-4">
+          <SheetHeader className="shrink-0 border-b border-border/60 px-4 py-4">
             <SheetTitle className="sr-only">Menú de navegación</SheetTitle>
             {user && (
               <div className="flex items-center gap-3 rounded-2xl bg-amauta-blue-light p-3">
@@ -57,7 +56,7 @@ export function AppMenuSheet({ trigger }: AppMenuSheetProps) {
             )}
           </SheetHeader>
 
-          <nav className="flex-1 space-y-2 px-4 py-5">
+          <nav className="flex-1 overflow-y-auto space-y-2 px-4 py-5">
             {items.map((item) => (
               <NavItem
                 key={`${item.label}-${item.path}`}
@@ -68,7 +67,7 @@ export function AppMenuSheet({ trigger }: AppMenuSheetProps) {
             ))}
           </nav>
 
-          <div className="border-t border-border/60 p-4">
+          <div className="shrink-0 border-t border-border/60 p-4">
             <div className="mb-4 flex justify-center">
               <img
                 src="/icons/web-app-manifest-192x192.png"
@@ -94,7 +93,6 @@ export function AppMenuSheet({ trigger }: AppMenuSheetProps) {
               </AmautaButton>
             )}
           </div>
-        </div>
       </SheetContent>
     </Sheet>
   );

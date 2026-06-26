@@ -88,6 +88,26 @@ export default defineConfig({
             url: '/lessons/continue',
             icons: [{ src: '/icons/shortcut-96.png', sizes: '96x96', type: 'image/png' }]
           }
+        ],
+        screenshots: [
+          {
+            src: "/screenshots/dashboard-student.png",
+            sizes: "1080x1920",
+            type: "image/png",
+            form_factor: "wide",
+          },
+          {
+            src: "/screenshots/lesson-view.png",
+            sizes: "1080x1920",
+            type: "image/png",
+            form_factor: "narrow",
+          },
+          {
+            src: "/screenshots/practice-exercise.png",
+            sizes: "1080x1920",
+            type: "image/png",
+            form_factor: "narrow",
+          },
         ]
       },
 

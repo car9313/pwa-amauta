@@ -103,3 +103,9 @@ export type { AmautaLabelProps } from "./amauta-label"
 
 export { AmautaReveal } from "./amauta-reveal"
 export type { AmautaRevealProps } from "./amauta-reveal"
+
+export { Character } from "./character"
+export type { CharacterProps, CharacterSize } from "./character"
+
+export { NavigationMenu } from "./navigation-menu"
+export type { NavigationMenuProps } from "./navigation-menu"

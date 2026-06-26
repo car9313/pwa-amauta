@@ -6,13 +6,14 @@ interface CondorGuideProps {
   message?: string
   className?: string
   position?: "left" | "right" | "center"
-  size?: "sm" | "md" | "lg"
+  size?: "sm" | "md" | "lg" | "xl"
 }
 
 const sizeMap = {
   sm: "w-12 h-12",
   md: "w-16 h-16",
   lg: "w-20 h-20 sm:w-24 sm:h-24",
+  xl: "w-32 h-32",
 }
 
 function CondorGuide({
