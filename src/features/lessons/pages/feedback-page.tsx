@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom"
 import { CheckCircle, Star, RefreshCw, Home, Sparkles, AlertTriangle, ChevronRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { AmautaButton } from "@/components/amauta"
 import { cn } from "@/lib/utils"
 import type { ExerciseResult, Mistake } from "@/features/exercises/domain/exercise.types"
 
@@ -84,7 +84,7 @@ export function FeedbackPage() {
   if (state?.queued) {
     return (
       <div
-        className="page-loading animate-fade-in-up"
+        className="flex items-center justify-center min-h-[60vh] animate-fade-in-up"
       >
         <div className="bg-card rounded-2xl shadow-sm border border-border p-8 max-w-md w-full text-center space-y-6">
           <div className="flex justify-center">
@@ -100,13 +100,13 @@ export function FeedbackPage() {
               Se enviará automáticamente cuando tengas conexión a internet.
             </p>
           </div>
-          <Button
+          <AmautaButton
             onClick={() => navigate("/lessons")}
             size="child-lg"
             className="w-full"
           >
             Continuar
-          </Button>
+          </AmautaButton>
         </div>
       </div>
     )
@@ -226,7 +226,7 @@ export function FeedbackPage() {
         )}
 
         <div className="p-6 sm:p-8 space-y-3">
-          <Button
+          <AmautaButton
             onClick={() => navigate("/lessons")}
             size="child-lg"
             className={cn(
@@ -247,9 +247,9 @@ export function FeedbackPage() {
                 <ChevronRight className="ml-1 h-5 w-5" />
               </>
             )}
-          </Button>
+          </AmautaButton>
 
-          <Button
+          <AmautaButton
             onClick={() => navigate("/dashboard/student")}
             variant="outline"
             size="child-lg"
@@ -257,7 +257,7 @@ export function FeedbackPage() {
           >
             <Home className="mr-2 h-4 w-4" />
             Volver al inicio
-          </Button>
+          </AmautaButton>
         </div>
       </div>
     </div>

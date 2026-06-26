@@ -1,6 +1,6 @@
 import { useState } from "react"
-import { CheckCircle2, ChevronRight, TrendingUp, Sparkles, HelpCircle, Trophy, BarChart3 } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { CheckCircle2, ChevronRight, TrendingUp, Trophy, BarChart3 } from "lucide-react"
+import { AmautaLoadingState, AmautaErrorState, Character } from "@/components/amauta"
 import { useParentDashboard } from "@/features/auth/hooks/useAuth"
 import { cn } from "@/lib/utils"
 import { useStagger } from "@/hooks/useStagger"
@@ -13,30 +13,15 @@ export function ParentDashboardPage() {
   const [activityExpanded, setActivityExpanded] = useState(true)
 
   if (isLoading) {
-    return (
-      <div className="page-loading">
-        <div className="relative">
-          <div className="absolute inset-0 rounded-full bg-accent/20 animate-ping" />
-          <div className="relative w-16 h-16 rounded-full bg-accent/30 flex items-center justify-center animate-bounce-gentle">
-            <Sparkles className="w-8 h-8 text-accent animate-sparkle" />
-          </div>
-        </div>
-      </div>
-    )
+    return <AmautaLoadingState variant="page" />
   }
 
   if (isError) {
     return (
-      <div className="page-error">
-        <div className="relative w-24 h-24 rounded-full bg-destructive/10 flex items-center justify-center">
-          <HelpCircle className="w-12 h-12 text-destructive" />
-        </div>
-        <h2 className="text-xl font-bold text-foreground">¡Ups! Algo salió mal</h2>
-        <p className="text-muted-foreground max-w-xs">{error?.message}</p>
-        <Button onClick={() => refetch()} className="bg-primary">
-          Intentar de nuevo
-        </Button>
-      </div>
+      <AmautaErrorState
+        message={error?.message}
+        onRetry={refetch}
+      />
     )
   }
 
@@ -47,7 +32,7 @@ export function ParentDashboardPage() {
   return (
     <div className="space-y-4 sm:space-y-6 pb-6">
       {/* Welcome Header */}
-      <div className="relative overflow-hidden rounded-2xl sm:rounded-4xl bg-linear-to-br from-primary via-primary/70 to-accent p-4 sm:p-6 text-white animate-fade-in-up" style={stagger.getStyle(0)}>
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-4xl bg-gradient-to-r from-blue-500 to-purple-600 p-4 sm:p-6 text-white animate-fade-in-up" style={stagger.getStyle(0)}>
         <div className="noise-overlay pointer-events-none absolute inset-0 z-0" />
 
         <div className="absolute -right-4 sm:-right-8 -top-4 sm:-top-8 h-16 sm:h-32 w-16 sm:w-32 rounded-full bg-white/10 blur-xl animate-pulse-ring hidden sm:block" />
@@ -83,12 +68,8 @@ export function ParentDashboardPage() {
 
             <div className="relative z-10">
               <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-full bg-muted overflow-hidden shrink-0 animate-bounce-gentle">
-                  <img 
-                    src={child.avatar ?? "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=200&h=200&fit=crop"} 
-                    alt={child.name}
-                    className="w-full h-full object-cover"
-                  />
+                <div className="shrink-0 animate-bounce-gentle">
+                  <Character size="sm" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold text-foreground truncate">{child.name}</h3>

@@ -60,6 +60,10 @@
   --amauta-orange: #f4701f;
   --amauta-orange-light: #fccca1;
   --amauta-orange-dark: #ea601b;
+  --amauta-purple-500: #8b5cf6;
+  --amauta-purple-600: #7c3aed;
+  --amauta-yellow-100: #fef9c3;
+  --amauta-yellow-600: #ca8a04;
   --amauta-warm-white: #f6f3ee;
   --amauta-surface: #ffffff;
   --amauta-surface-alt: #f8f9fc;
@@ -160,6 +164,10 @@
   --color-amauta-orange: var(--amauta-orange);
   --color-amauta-orange-light: var(--amauta-orange-light);
   --color-amauta-orange-dark: var(--amauta-orange-dark);
+  --color-amauta-purple-500: var(--amauta-purple-500);
+  --color-amauta-purple-600: var(--amauta-purple-600);
+  --color-amauta-yellow-100: var(--amauta-yellow-100);
+  --color-amauta-yellow-600: var(--amauta-yellow-600);
   --color-amauta-warm-white: var(--amauta-warm-white);
   --color-amauta-surface: var(--amauta-surface);
   --color-amauta-surface-alt: var(--amauta-surface-alt);

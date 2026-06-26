@@ -1,9 +1,8 @@
-import { Button } from "@/components/ui/button";
+import { AmautaButton, AmautaScrollArea } from "@/components/amauta";
 import { LogOut, X } from "lucide-react";
 import { NavItem } from "../components/nav-item";
 import { UserProfileCard } from "../components/user-profile-card";
 import type { NavItemConfig } from "./nav-items";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 type SidebarNavProps = {
   titleLogo?: string;
@@ -29,7 +28,7 @@ export function SidebarNav({
       <div className="flex items-center justify-between px-4 pt-4">
         <img src={titleLogo} alt="Amauta" className="h-9 w-auto object-contain" />
         {onClose ? (
-          <Button
+          <AmautaButton
             type="button"
             variant="ghost"
             size="icon"
@@ -38,7 +37,7 @@ export function SidebarNav({
             className="rounded-full text-foreground hover:bg-muted"
           >
             <X className="h-5 w-5" />
-          </Button>
+          </AmautaButton>
         ) : null}
       </div>
 
@@ -49,18 +48,18 @@ export function SidebarNav({
       {/* <Separator className="bg-border/70" />
 
        */}
-       <ScrollArea className="flex-1 px-4 py-4">
+       <AmautaScrollArea className="flex-1 px-4 py-4">
         <nav className="flex flex-col gap-3">
           {navItems.map((item) => (
             <NavItem key={item.href} item={item} onClick={onClose} />
           ))}
         </nav>
-      </ScrollArea>
+      </AmautaScrollArea>
 
       <div className="p-4">
       {/*   <Separator className="mb-4 bg-border/70" />
  */}
-        <Button
+        <AmautaButton
           type="button"
           onClick={onLogout}
           variant="secondary"
@@ -68,7 +67,7 @@ export function SidebarNav({
         >
           <LogOut className="h-4 w-4" />
           Cerrar sesión
-        </Button>
+        </AmautaButton>
       </div>
     </aside>
   );

@@ -1,6 +1,6 @@
 import { AlertCircle, KeyRound, Loader2, RefreshCw, WifiOff } from "lucide-react";
 import type { AuthError, AuthErrorCode } from "../../domain/auth-error";
-import { Button } from "@/components/ui/button";
+import { AmautaButton } from "@/components/amauta";
 import { cn } from "@/lib/utils";
 
 const ICON_BY_CODE: Record<AuthErrorCode, typeof AlertCircle> = {
@@ -59,7 +59,7 @@ export function FormErrorBanner({
         <p className="font-semibold leading-snug">{error.message}</p>
       </div>
       {canRetry && (
-        <Button
+        <AmautaButton
           type="button"
           variant="ghost"
           size="sm"
@@ -69,7 +69,7 @@ export function FormErrorBanner({
         >
           <RefreshCw className="mr-1 h-3.5 w-3.5" />
           Reintentar
-        </Button>
+        </AmautaButton>
       )}
     </div>
   );

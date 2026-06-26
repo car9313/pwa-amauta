@@ -1,35 +1,20 @@
-import { CheckCircle2, ChevronRight, TrendingUp, Sparkles, HelpCircle, Trophy, BarChart3, AlertTriangle, GraduationCap, Users, BookOpen } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { CheckCircle2, ChevronRight, TrendingUp, Trophy, BarChart3, AlertTriangle, GraduationCap, Users, BookOpen } from "lucide-react"
+import { AmautaLoadingState, AmautaErrorState, AmautaProgress } from "@/components/amauta"
 import { useTeacherDashboard } from "@/features/auth/hooks/useAuth"
 
 export function TeacherDashboardPage() {
   const { data: dashboard, isLoading, isError, error, refetch } = useTeacherDashboard();
 
   if (isLoading) {
-    return (
-      <div className="page-loading">
-        <div className="relative">
-          <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
-          <div className="relative w-16 h-16 rounded-full bg-primary/30 flex items-center justify-center">
-            <Sparkles className="w-8 h-8 text-primary animate-spin" />
-          </div>
-        </div>
-      </div>
-    )
+    return <AmautaLoadingState variant="page" />
   }
 
   if (isError) {
     return (
-      <div className="page-error">
-        <div className="relative w-24 h-24 rounded-full bg-destructive/10 flex items-center justify-center">
-          <HelpCircle className="w-12 h-12 text-destructive" />
-        </div>
-        <h2 className="text-xl font-bold text-secondary-foreground">¡Ups! Algo salió mal</h2>
-        <p className="text-muted-foreground max-w-xs">{error?.message}</p>
-        <Button onClick={() => refetch()} className="bg-primary hover:bg-primary/80">
-          Intentar de nuevo
-        </Button>
-      </div>
+      <AmautaErrorState
+        message={error?.message}
+        onRetry={refetch}
+      />
     )
   }
 
@@ -147,12 +132,7 @@ export function TeacherDashboardPage() {
                   <span className="text-secondary-foreground font-medium">{subject.title}</span>
                   <span className="text-muted-foreground">{subject.mastery}%</span>
                 </div>
-                <div className="h-2 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-linear-to-r from-primary to-chart-3 transition-all duration-500"
-                    style={{ width: `${subject.mastery}%` }}
-                  />
-                </div>
+                <AmautaProgress value={subject.mastery} size="sm" amautaVariant="lesson" hideLabel />
               </div>
             ))}
           </div>

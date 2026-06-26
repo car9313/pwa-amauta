@@ -29,7 +29,8 @@ class HttpError extends Error {
     message: string,
     public statusCode: number,
     public code: AuthErrorCode,
-    public isOffline: boolean = false
+    public isOffline: boolean = false,
+    public serverData?: unknown
   ) {
     super(message);
     this.name = "HttpError";
@@ -154,6 +155,17 @@ export class HttpClient {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+
+      if (response.status === 409) {
+        throw new HttpError(
+          errorData.message ?? "Conflict",
+          response.status,
+          "CONFLICT",
+          false,
+          errorData
+        );
+      }
+
       const authError = mapHttpErrorToAuthError(
         new Error(errorData.message ?? `Error ${response.status}`),
         true

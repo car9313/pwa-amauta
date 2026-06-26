@@ -1,4 +1,4 @@
-import { httpClient as requestJson } from "@/lib/http/client";
+import { httpClient as requestJson, isHttpError } from "@/lib/http/client";
 import { refreshAccessToken } from "@/lib/api/refresh";
 import { useAuthStore } from "@/features/auth/presentation/store/auth-store";
 import { shouldRetry, getRetryDelay } from "./retry";
@@ -59,6 +59,17 @@ async function executeMutation(
 
     return { success: true, data: response };
   } catch (error) {
+    if (isHttpError(error) && error.statusCode === 409 && error.serverData) {
+      const resolved = resolveMutationConflict(
+        mutation.type,
+        mutation.payload,
+        error.serverData,
+        mutation.createdAt,
+      );
+
+      return { success: true, data: resolved.resolved };
+    }
+
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return { success: false, error: errorMessage };
   }

@@ -1,8 +1,7 @@
-import { ChevronRight, Lightbulb, Sparkles, HelpCircle, Trophy, Target, AlertTriangle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Container } from "@/components/ui/container"
-import { ProgressBar } from "@/components/ui/progress-bar"
+import { ChevronRight, Lightbulb, Trophy, Target, AlertTriangle } from "lucide-react"
+import { AmautaCard, AmautaContainer } from "@/components/amauta"
+
+import { AmautaLoadingState, AmautaErrorState, AmautaProgress } from "@/components/amauta"
 import { useStudentProgress } from "@/features/auth/hooks/useAuth"
 
 const DEFAULT_STUDENT_ID = "stu_001"
@@ -16,29 +15,20 @@ export function LevelScreen({ studentId = DEFAULT_STUDENT_ID }: LevelScreenProps
 
   if (isLoading) {
     return (
-      <Container className="page-loading">
-        <div className="relative">
-          <div className="absolute inset-0 rounded-full bg-accent/20 animate-ping" />
-          <div className="relative w-16 h-16 rounded-full bg-accent/30 flex items-center justify-center">
-            <Sparkles className="w-8 h-8 text-accent animate-spin" aria-hidden="true" />
-          </div>
-        </div>
-      </Container>
+      <AmautaContainer className="flex items-center justify-center min-h-[60vh]">
+        <AmautaLoadingState variant="page" />
+      </AmautaContainer>
     )
   }
 
   if (isError) {
     return (
-      <Container className="page-error">
-        <div className="relative w-24 h-24 rounded-full bg-destructive/10 flex items-center justify-center">
-          <HelpCircle className="w-12 h-12 text-destructive" aria-hidden="true" />
-        </div>
-        <h2 className="text-xl font-bold text-foreground">¡Ups! Algo salió mal</h2>
-        <p className="text-muted-foreground max-w-xs">{error?.message}</p>
-        <Button onClick={() => refetch()} size="child-lg" aria-label="Intentar de nuevo">
-          Intentar de nuevo
-        </Button>
-      </Container>
+      <AmautaContainer className="flex flex-col items-center justify-center min-h-[60vh]">
+        <AmautaErrorState
+          message={error?.message}
+          onRetry={() => refetch()}
+        />
+      </AmautaContainer>
     )
   }
 
@@ -47,7 +37,7 @@ export function LevelScreen({ studentId = DEFAULT_STUDENT_ID }: LevelScreenProps
   const weakAreas = progress?.weakAreas ?? []
 
   return (
-    <Container className="space-y-4 sm:space-y-6 pb-6">
+    <AmautaContainer className="space-y-4 sm:space-y-6 pb-6">
       <section aria-label="Progreso general">
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/70 to-accent p-4 sm:p-6 text-white animate-fade-in-up">
           <div className="noise-overlay pointer-events-none absolute inset-0 z-0" />
@@ -84,7 +74,7 @@ export function LevelScreen({ studentId = DEFAULT_STUDENT_ID }: LevelScreenProps
       </section>
 
       <section aria-label="Progreso por materia">
-        <Card variant="glass" className="gap-0 rounded-2xl p-4 animate-fade-in-up" style={{ animationDelay: "200ms" }}>
+        <AmautaCard className="gap-0 rounded-2xl p-4 animate-fade-in-up" style={{ animationDelay: "200ms" }}>
           <div className="flex items-center gap-2 mb-4">
             <Target className="h-5 w-5 text-primary" aria-hidden="true" />
             <h2 className="text-lg font-bold text-foreground">Por Materia</h2>
@@ -96,14 +86,15 @@ export function LevelScreen({ studentId = DEFAULT_STUDENT_ID }: LevelScreenProps
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
                     <h3 className="font-medium text-foreground truncate">{subject.subjectName}</h3>
-                    <span className="text-sm font-bold text-muted-foreground shrink-0 ml-2">{Math.round(subject.mastery * 100)}%</span>
+                    <span className="text-sm font-bold text-muted-foreground shrink-0 ml-2">{Math.round(subject.mastery)}%</span>
                   </div>
                   <div className="mt-2">
-                    <ProgressBar
-                      value={Math.round(subject.mastery * 100)}
+                    <AmautaProgress
+                      value={Math.round(subject.mastery)}
                       size="sm"
-                      color={subject.mastery >= 0.8 ? "success" : subject.mastery >= 0.5 ? "primary" : "accent"}
+                      amautaVariant={subject.mastery >= 80 ? "level" : subject.mastery >= 50 ? "lesson" : "xp"}
                       animated
+                      hideLabel
                     />
                   </div>
                 </div>
@@ -111,11 +102,11 @@ export function LevelScreen({ studentId = DEFAULT_STUDENT_ID }: LevelScreenProps
               </div>
             ))}
           </div>
-        </Card>
+        </AmautaCard>
       </section>
 
       <section aria-label="Logros">
-        <Card variant="glass" className="gap-0 rounded-2xl p-4 animate-fade-in-up" style={{ animationDelay: "300ms" }}>
+        <AmautaCard className="gap-0 rounded-2xl p-4 animate-fade-in-up" style={{ animationDelay: "300ms" }}>
           <div className="flex items-center gap-2 mb-4">
             <Trophy className="h-5 w-5 text-accent" aria-hidden="true" />
             <h2 className="text-lg font-bold text-foreground">Logros</h2>
@@ -138,12 +129,12 @@ export function LevelScreen({ studentId = DEFAULT_STUDENT_ID }: LevelScreenProps
           ) : (
             <p className="text-muted-foreground text-sm">Aún no tienes logros. ¡Sigue practicando!</p>
           )}
-        </Card>
+        </AmautaCard>
       </section>
 
       {weakAreas.length > 0 && (
         <section aria-label="Áreas a mejorar">
-          <Card variant="glass" className="gap-0 rounded-2xl p-4 animate-fade-in-up" style={{ animationDelay: "400ms" }}>
+          <AmautaCard className="gap-0 rounded-2xl p-4 animate-fade-in-up" style={{ animationDelay: "400ms" }}>
             <div className="flex items-center gap-2 mb-4">
               <AlertTriangle className="h-5 w-5 text-accent" aria-hidden="true" />
               <h2 className="text-lg font-bold text-foreground">Áreas a Mejorar</h2>
@@ -161,9 +152,9 @@ export function LevelScreen({ studentId = DEFAULT_STUDENT_ID }: LevelScreenProps
                 </div>
               ))}
             </div>
-          </Card>
+          </AmautaCard>
         </section>
       )}
-    </Container>
+    </AmautaContainer>
   )
 }

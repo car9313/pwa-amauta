@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { ProgressBar } from "@/components/ui/progress-bar"
+import { AmautaProgress } from "@/components/amauta"
 import { GameHeader } from "./game-header"
 import { GameResultScreen } from "./game-result"
 import type { QuizQuestion, GameResult } from "../domain/game.types"
@@ -61,7 +61,7 @@ export function QuizGameView({
       />
 
       <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
-        <ProgressBar value={progress} size="sm" color="primary" />
+        <AmautaProgress value={progress} size="sm" amautaVariant="lesson" hideLabel />
 
         <div className="p-5 sm:p-6 space-y-6">
           <div className="flex items-center justify-between text-sm text-muted-foreground">

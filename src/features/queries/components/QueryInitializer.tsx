@@ -1,5 +1,5 @@
 import { useQueryInitializer } from "../hooks/useQueryInitializer";
-import { cn } from "@/lib/utils";
+import { AmautaLoadingState } from "@/components/amauta";
 
 interface QueryInitializerProps {
   children: React.ReactNode;
@@ -14,17 +14,8 @@ export function QueryInitializer({
 
   if (isLoading && !hasHydrated) {
     return (
-      <div
-        className={cn(
-          "flex items-center justify-center min-h-[200px]",
-          loadingClassName
-        )}
-      >
-        <div className="relative flex items-center gap-3">
-          <div className="w-2 h-2 rounded-full bg-accent animate-bounce" style={{ animationDelay: "0ms" }} />
-          <div className="w-2 h-2 rounded-full bg-accent animate-bounce" style={{ animationDelay: "150ms" }} />
-          <div className="w-2 h-2 rounded-full bg-accent animate-bounce" style={{ animationDelay: "300ms" }} />
-        </div>
+      <div className={loadingClassName}>
+        <AmautaLoadingState variant="page" />
       </div>
     );
   }

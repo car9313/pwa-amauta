@@ -1,19 +1,15 @@
 import { Suspense } from "react"
 import { Outlet, useLocation } from "react-router-dom"
-import { Breadcrumbs } from "@/components/ui/breadcrumb"
-import { Container } from "@/components/ui/container"
+import { AmautaBreadcrumbs, AmautaContainer } from "@/components/amauta"
 import { Shell } from "@/components/ui/shell"
 import { ErrorBoundary } from "@/components/error"
+import { AmautaLoadingState } from "@/components/amauta"
 import { useAuthStore } from "@/features/auth/presentation/store/auth-store"
 
 const LAYOUT_ROUTES = ["/dashboard", "/lessons", "/progress", "/practice", "/games"]
 
 function PageFallback() {
-  return (
-    <div className="page-loading">
-      <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-    </div>
-  );
+  return <AmautaLoadingState variant="page" />;
 }
 
 export function AmautaLayout() {
@@ -26,16 +22,12 @@ export function AmautaLayout() {
   return (
     <ErrorBoundary fallbackType={layoutFallbackType}>
       <Shell>
-        <Container as="main" className="py-4">
-          {showBreadcrumb && (
-            <div className="mb-4 sm:mb-6">
-              <Breadcrumbs />
-            </div>
-          )}
+        <AmautaContainer as="main" className="py-4">
+          {showBreadcrumb && <AmautaBreadcrumbs />}
           <Suspense fallback={<PageFallback />}>
             <Outlet />
           </Suspense>
-        </Container>
+        </AmautaContainer>
       </Shell>
     </ErrorBoundary>
   )
