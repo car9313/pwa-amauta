@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useTranslation } from "react-i18next"
 import { HelpCircle, RefreshCw } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -13,12 +14,14 @@ interface AmautaErrorStateProps {
 }
 
 function AmautaErrorState({
-  title = "¡Ups! Algo salió mal",
+  title,
   message,
   onRetry,
   retryLabel,
   className,
 }: AmautaErrorStateProps) {
+  const { t } = useTranslation("errors")
+
   return (
     <div
       className={cn(
@@ -34,7 +37,7 @@ function AmautaErrorState({
       </div>
 
       <h3 className="text-lg font-bold text-foreground">
-        {title}
+        {title ?? t("errorState.title")}
       </h3>
 
       {message && (
@@ -50,7 +53,7 @@ function AmautaErrorState({
             className="gap-2"
           >
             <RefreshCw className="h-4 w-4" />
-            {retryLabel ?? "Intentar de nuevo"}
+            {retryLabel ?? t("errorState.retry")}
           </AmautaButton>
         </div>
       )}

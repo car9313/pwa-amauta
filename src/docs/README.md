@@ -129,6 +129,14 @@ Solo caching. Sin manejo de cola offline.
 
 ---
 
+### Sistema de Internacionalización (Plan)
+
+| Documento | Propósito |
+|-----------|-----------|
+| **[`I18N_PLAN.md`](./planificacion/I18N_PLAN.md)** | Plan completo de i18n offline-first: 13 fases, migración por dominios, geo-detección, variantes regionales. |
+
+---
+
 ## Leyenda
 
 - **🆕 Nuevo/Actualizado** — Documento creado o actualizado para reflejar el estado actual

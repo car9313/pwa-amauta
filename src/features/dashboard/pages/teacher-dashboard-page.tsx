@@ -1,8 +1,11 @@
 import { CheckCircle2, ChevronRight, TrendingUp, Trophy, BarChart3, AlertTriangle, GraduationCap, Users, BookOpen } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { AmautaLoadingState, AmautaErrorState, AmautaProgress } from "@/components/amauta"
 import { useTeacherDashboard } from "@/features/auth/hooks/useAuth"
+import { DASHBOARD_ACTIONS, matchAction } from "../domain/dashboard.constants"
 
 export function TeacherDashboardPage() {
+  const { t } = useTranslation("dashboard")
   const { data: dashboard, isLoading, isError, error, refetch } = useTeacherDashboard();
 
   if (isLoading) {
@@ -34,7 +37,7 @@ export function TeacherDashboardPage() {
             </div>
             <div>
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight">
-                ¡Hola, <span className="text-primary-foreground/70">{dashboard?.name ?? "Docente"}</span>!
+                {t("teacher.welcome", { name: dashboard?.name ?? "Docente" })}
               </h1>
               <p className="text-xs sm:text-sm text-white/80">
                 {new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}
@@ -49,30 +52,30 @@ export function TeacherDashboardPage() {
         <div className="glass-card rounded-2xl p-3 sm:p-4 text-center">
           <Users className="h-5 w-5 sm:h-6 sm:w-6 text-primary mx-auto" />
           <p className="text-xl sm:text-2xl font-bold text-foreground mt-1">{dashboard?.totalStudents ?? 0}</p>
-          <p className="text-xs text-muted-foreground">Estudiantes</p>
+          <p className="text-xs text-muted-foreground">{t("teacher.students")}</p>
         </div>
         <div className="glass-card rounded-2xl p-3 sm:p-4 text-center">
           <BookOpen className="h-5 w-5 sm:h-6 sm:w-6 text-chart-3 mx-auto" />
           <p className="text-xl sm:text-2xl font-bold text-foreground mt-1">{dashboard?.totalClasses ?? 0}</p>
-          <p className="text-xs text-muted-foreground">Clases</p>
+          <p className="text-xs text-muted-foreground">{t("teacher.classes")}</p>
         </div>
         <div className="glass-card rounded-2xl p-3 sm:p-4 text-center">
           <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-success mx-auto" />
           <p className="text-xl sm:text-2xl font-bold text-foreground mt-1">{dashboard?.averageMastery ?? 0}%</p>
-          <p className="text-xs text-muted-foreground">Dominio</p>
+          <p className="text-xs text-muted-foreground">{t("teacher.mastery")}</p>
         </div>
       </div>
 
       {/* Classes */}
       <div>
-        <h2 className="text-lg font-bold text-foreground mb-3 px-1">Mis Clases</h2>
+        <h2 className="text-lg font-bold text-foreground mb-3 px-1">{t("teacher.myClasses")}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {classes.map((cls) => (
             <div key={cls.classId} className="glass-card rounded-2xl p-4 hover-lift">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-bold text-foreground">{cls.className}</h3>
                 <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full">
-                  {cls.studentCount} alumnos
+                  {t("teacher.studentsCount", { count: cls.studentCount })}
                 </span>
               </div>
 
@@ -107,7 +110,7 @@ export function TeacherDashboardPage() {
                 ))}
                 {cls.students.length > 3 && (
                   <p className="text-xs text-muted-foreground text-center pt-1">
-                    +{cls.students.length - 3} estudiantes más
+                    {t("teacher.moreStudents", { count: cls.students.length - 3 })}
                   </p>
                 )}
               </div>
@@ -121,7 +124,7 @@ export function TeacherDashboardPage() {
         {/* Subject Progress */}
         <div className="glass-card rounded-2xl p-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-foreground">Progreso por Materia</h2>
+            <h2 className="text-lg font-bold text-foreground">{t("teacher.subjectProgress")}</h2>
             <BarChart3 className="h-5 w-5 text-muted-foreground" />
           </div>
 
@@ -141,7 +144,7 @@ export function TeacherDashboardPage() {
         {/* Recent Activity */}
         <div className="glass-card rounded-2xl p-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-foreground">Actividad Reciente</h2>
+            <h2 className="text-lg font-bold text-foreground">{t("teacher.recentActivity")}</h2>
             <ChevronRight className="h-5 w-5 text-muted-foreground" />
           </div>
 
@@ -152,15 +155,19 @@ export function TeacherDashboardPage() {
                 className="flex items-start gap-3 p-3 rounded-xl bg-muted hover:bg-muted transition-colors"
               >
                 <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center shrink-0">
-                  {item.action.includes("Completó") ? (
-                    <CheckCircle2 className="h-4 w-4 text-success" />
-                  ) : item.action.includes("logro") ? (
-                    <Trophy className="h-4 w-4 text-accent" />
-                  ) : item.action.includes("atención") ? (
-                    <AlertTriangle className="h-4 w-4 text-destructive" />
-                  ) : (
-                    <TrendingUp className="h-4 w-4 text-blue-500" />
-                  )}
+                  {(() => {
+                    const actionType = matchAction(item.action)
+                    if (actionType === DASHBOARD_ACTIONS.COMPLETED) {
+                      return <CheckCircle2 className="h-4 w-4 text-success" />
+                    }
+                    if (actionType === DASHBOARD_ACTIONS.ACHIEVEMENT) {
+                      return <Trophy className="h-4 w-4 text-accent" />
+                    }
+                    if (actionType === DASHBOARD_ACTIONS.ATTENTION) {
+                      return <AlertTriangle className="h-4 w-4 text-destructive" />
+                    }
+                    return <TrendingUp className="h-4 w-4 text-blue-500" />
+                  })()}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-secondary-foreground">
@@ -180,7 +187,7 @@ export function TeacherDashboardPage() {
         <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-warning to-accent p-4 sm:p-5">
           <div className="flex items-center gap-2 mb-3">
             <AlertTriangle className="h-5 w-5 text-white" />
-            <h2 className="text-lg font-bold text-white">Estudiantes que Requieren Atención</h2>
+            <h2 className="text-lg font-bold text-white">{t("teacher.atRiskStudents")}</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -195,7 +202,7 @@ export function TeacherDashboardPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-bold truncate">{student.name}</p>
-                        <p className="text-xs text-white/70">{student.mastery}% dominio</p>
+                        <p className="text-xs text-white/70">{t("teacher.studentMastery", { mastery: student.mastery })}</p>
                       </div>
                     </div>
                     <div className="mt-2 flex flex-wrap gap-1">

@@ -35,6 +35,7 @@ export function useMemoryGame(difficulty: MemoryDifficulty = "easy"): UseMemoryG
         id: `expr-${i}`,
         pairId: `pair-${i}`,
         content: pair.expression,
+        displayValue: pair.expression,
         isFlipped: false,
         isMatched: false,
       })
@@ -42,6 +43,7 @@ export function useMemoryGame(difficulty: MemoryDifficulty = "easy"): UseMemoryG
         id: `res-${i}`,
         pairId: `pair-${i}`,
         content: pair.result,
+        displayValue: pair.result,
         isFlipped: false,
         isMatched: false,
       })

@@ -1,13 +1,15 @@
 import { useState } from "react"
 import { CheckCircle2, ChevronRight, TrendingUp, Trophy, BarChart3 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { AmautaLoadingState, AmautaErrorState, Character } from "@/components/amauta"
 import { useParentDashboard } from "@/features/auth/hooks/useAuth"
 import { cn } from "@/lib/utils"
 import { useStagger } from "@/hooks/useStagger"
-
+import { DASHBOARD_ACTIONS, matchAction } from "../domain/dashboard.constants"
 
 
 export function ParentDashboardPage() {
+  const { t } = useTranslation("dashboard")
   const { data: dashboard, isLoading, isError, error, refetch } = useParentDashboard();
   const stagger = useStagger({ count: 4, baseDelay: 50, totalDuration: 300 })
   const [activityExpanded, setActivityExpanded] = useState(true)
@@ -40,7 +42,7 @@ export function ParentDashboardPage() {
 
         <div className="relative z-10">
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight">
-            ¡Hola, <span className="text-amauta-orange-light">{parent?.name ?? ' Padres'}</span>!
+            {t("parent.welcome", { name: parent?.name ?? "Padres" })}
           </h1>
           <p className="mt-1 text-xs sm:text-sm text-white/80">
             {new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}
@@ -73,22 +75,22 @@ export function ParentDashboardPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold text-foreground truncate">{child.name}</h3>
-                  <p className="text-xs text-muted-foreground">Nivel {child.level}</p>
+                  <p className="text-xs text-muted-foreground">{t("parent.childLevel", { level: child.level })}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-lg font-bold text-accent">{child.points}</p>
-                  <p className="text-xs text-muted-foreground">puntos</p>
+                  <p className="text-xs text-muted-foreground">{t("parent.points")}</p>
                 </div>
               </div>
-              
+
               <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <BarChart3 className="h-3 w-3 animate-gentle-pulse" />
-                  <span>{child.precision}% precisión</span>
+                  <span>{t("parent.precision", { precision: child.precision })}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Trophy className="h-3 w-3 text-accent animate-gentle-pulse animation-delay-500" />
-                  <span>{child.streakDays} días racha</span>
+                  <span>{t("parent.streakDays", { days: child.streakDays })}</span>
                 </div>
               </div>
             </div>
@@ -102,11 +104,11 @@ export function ParentDashboardPage() {
           onClick={() => setActivityExpanded(!activityExpanded)}
           className="flex items-center justify-between mb-4 cursor-pointer select-none"
         >
-          <h2 className="text-lg font-bold text-foreground">Actividad Reciente</h2>
+          <h2 className="text-lg font-bold text-foreground">{t("parent.recentActivity")}</h2>
           <div className="flex items-center gap-2">
             {!activityExpanded && activity.length > 0 && (
               <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                {activity.length} items
+                {activity.length} {t("parent.items")}
               </span>
             )}
             <ChevronRight
@@ -117,7 +119,7 @@ export function ParentDashboardPage() {
             />
           </div>
         </div>
-        
+
         <div
           className={cn(
             "overflow-hidden transition-all duration-500 ease-out",
@@ -127,18 +129,21 @@ export function ParentDashboardPage() {
           <div className="space-y-3">
             {activity.length > 0 ? (
               activity.map((item) => (
-                <div 
+                <div
                   key={item.id}
                   className="flex items-start gap-3 p-3 rounded-xl bg-muted hover:bg-muted hover:scale-105 transition-all duration-200"
                 >
                   <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center shrink-0 animate-gentle-pulse">
-                    {item.action.includes('Completó') ? (
-                      <CheckCircle2 className="h-4 w-4 text-success" />
-                    ) : item.action.includes('Nivel') ? (
-                      <Trophy className="h-4 w-4 text-accent" />
-                    ) : (
-                      <TrendingUp className="h-4 w-4 text-blue-500" />
-                    )}
+                    {(() => {
+                      const actionType = matchAction(item.action)
+                      if (actionType === DASHBOARD_ACTIONS.COMPLETED) {
+                        return <CheckCircle2 className="h-4 w-4 text-success" />
+                      }
+                      if (actionType === DASHBOARD_ACTIONS.LEVEL_UP) {
+                        return <Trophy className="h-4 w-4 text-accent" />
+                      }
+                      return <TrendingUp className="h-4 w-4 text-blue-500" />
+                    })()}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-secondary-foreground">
@@ -150,7 +155,7 @@ export function ParentDashboardPage() {
                 </div>
               ))
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-4">No hay actividad reciente</p>
+              <p className="text-sm text-muted-foreground text-center py-4">{t("parent.noActivity")}</p>
             )}
           </div>
         </div>
@@ -162,25 +167,25 @@ export function ParentDashboardPage() {
         <div className="absolute -bottom-4 -left-4 h-16 w-16 rounded-full bg-accent/20 blur-xl animate-float-gentle animation-delay-1000" />
 
         <div className="relative z-10">
-          <h2 className="text-lg font-bold text-white">Resumen de Hijos</h2>
-          <p className="mt-1 text-sm text-white/80">Monitorea el progreso de tu familia</p>
-          
+          <h2 className="text-lg font-bold text-white">{t("parent.childrenSummary")}</h2>
+          <p className="mt-1 text-sm text-white/80">{t("parent.monitorDescription")}</p>
+
           <div className="mt-4 grid grid-cols-3 gap-3 text-center">
             <div className="animate-fade-in-up" style={{ animationDelay: "100ms" }}>
               <p className="text-2xl font-bold text-white animate-bounce-gentle">{children.length}</p>
-              <p className="text-xs text-white/70">Hijos</p>
+              <p className="text-xs text-white/70">{t("parent.childrenCount")}</p>
             </div>
             <div className="animate-fade-in-up" style={{ animationDelay: "200ms" }}>
               <p className="text-2xl font-bold text-white animate-bounce-gentle animation-delay-500">
                 {children.reduce((sum, c) => sum + c.points, 0)}
               </p>
-              <p className="text-xs text-white/70">Puntos</p>
+              <p className="text-xs text-white/70">{t("parent.totalPoints")}</p>
             </div>
             <div className="animate-fade-in-up" style={{ animationDelay: "300ms" }}>
               <p className="text-2xl font-bold text-white animate-bounce-gentle animation-delay-1000">
                 {Math.round(children.reduce((sum, c) => sum + c.precision, 0) / (children.length || 1))}%
               </p>
-              <p className="text-xs text-white/70">Promedio</p>
+              <p className="text-xs text-white/70">{t("parent.average")}</p>
             </div>
           </div>
         </div>

@@ -188,6 +188,12 @@ export async function queueMutation<
   endpoint: string,
   method?: "POST" | "PUT" | "PATCH" | "DELETE"
 ): Promise<QueueMutationResult> {
+  const USE_MOCKS = import.meta.env.VITE_USE_MOCK === "true";
+
+  if (USE_MOCKS) {
+    return { online: true, queued: false, data: null };
+  }
+
   const online = isOnline();
 
   if (online) {

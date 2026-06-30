@@ -1,0 +1,23 @@
+{
+  "loading": "Cargando...",
+  "loadingData": "Cargando datos...",
+  "error": "Error",
+  "retry": "Reintentar",
+  "retryConnection": "Reintentar conexión",
+  "back": "Volver",
+  "close": "Cerrar",
+  "save": "Guardar",
+  "cancel": "Cancelar",
+  "next": "Siguiente",
+  "previous": "Anterior",
+  "continue": "Continuar",
+  "home": "Inicio",
+  "confirm": "Aceptar",
+  "noResults": "Sin resultados",
+  "viewAll": "Ver todo",
+  "search": "Buscar",
+  "delete": "Eliminar",
+  "edit": "Editar",
+  "closeMenu": "Cerrar menú",
+  "openMenu": "Abrir menú"
+}

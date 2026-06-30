@@ -1,9 +1,11 @@
+import { useTranslation } from "react-i18next";
 import { AmautaButton, AmautaContainer } from "@/components/amauta";
 import { AppMenuSheet } from "@/features/navigation/components/app-menu-sheet";
 import { Menu } from "lucide-react";
 
 export function AppHeader() {
-  
+  const { t } = useTranslation();
+
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur">
       <AmautaContainer className="flex h-16 items-center justify-between">
@@ -23,7 +25,7 @@ export function AppHeader() {
                 variant="ghost"
                 size="icon"
                 className="rounded-full text-amauta-blue hover:bg-amauta-blue-light"
-                aria-label="Abrir menú"
+                aria-label={t("navigation:header.ariaLabel")}
               >
                 <Menu className="h-5 w-5" />
               </AmautaButton>

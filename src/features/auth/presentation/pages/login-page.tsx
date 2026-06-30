@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslation } from "react-i18next";
 import { LogIn, Loader2, WifiOff } from "lucide-react";
 import {
   AmautaButton,
@@ -44,6 +45,7 @@ function getFriendlyError(error: AuthError | null): {
 }
 
 export function LoginPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
   const { login, isLoading, error, reset } = useLogin();
@@ -94,21 +96,21 @@ export function LoginPage() {
     const { field } = getFriendlyError(error);
     if (field === "password") {
       const friendly = SESSION_CLOSED_CODES.includes(error.code)
-        ? "Tu sesión fue cerrada. Inicia sesión de nuevo."
-        : "No encontramos tu cuenta. ¿Está bien escrito tu correo?";
+        ? t("auth:login.sessionClosedMessage")
+        : t("auth:login.accountNotFoundMessage");
       setError("password", { type: "manual", message: friendly });
     } else {
       setError("password", { type: "manual", message: undefined });
     }
-  }, [error, setError]);
+  }, [error, setError, t]);
 
   const offlineWelcome = useMemo(() => {
     if (isOnline) return null;
     if (lastUserName) {
-      return `¡Hola de nuevo, ${lastUserName}! Vuelve a tener internet para jugar.`;
+      return t("auth:login.offlineWelcome", { name: lastUserName });
     }
-    return "No tienes internet. Vuelve cuando tengas conexión para empezar a jugar.";
-  }, [isOnline, lastUserName]);
+    return t("auth:login.offlineMessage");
+  }, [isOnline, lastUserName, t]);
 
   const onSubmit = (values: LoginFormValues): void => {
     setLastSubmitted(values);
@@ -121,7 +123,7 @@ export function LoginPage() {
   };
 
   if (!hasHydrated) {
-    return <AmautaLoadingState variant="page" label="Preparando tu sesión..." />;
+    return <AmautaLoadingState variant="page" label={t("auth:login.preparing")} />;
   }
 
   const friendly = getFriendlyError(error);
@@ -157,14 +159,14 @@ export function LoginPage() {
             "transition-all duration-500 delay-200",
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
           )}>
-            ¡Bienvenido a Amauta!
+            {t("auth:login.title")}
           </AmautaCardTitle>
 
           <AmautaCardDescription className={cn(
             "text-sm sm:text-base transition-all duration-500 delay-300",
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
           )}>
-            Inicia sesión para continuar tu aprendizaje
+            {t("auth:login.subtitle")}
           </AmautaCardDescription>
         </AmautaCardHeader>
 
@@ -190,12 +192,12 @@ export function LoginPage() {
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             )}>
               <AmautaLabel htmlFor="email" className="text-foreground font-semibold text-sm sm:text-base">
-                Correo electrónico
+                {t("auth:login.emailLabel")}
               </AmautaLabel>
               <AmautaInput
                 id="email"
                 type="email"
-                placeholder="correo@ejemplo.com"
+                placeholder={t("auth:login.emailPlaceholder")}
                 className="border-input bg-background/50 focus:bg-background transition-all duration-200 focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 aria-invalid={!!errors.email}
                 {...register("email")}
@@ -210,12 +212,12 @@ export function LoginPage() {
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             )}>
               <AmautaLabel htmlFor="password" className="text-foreground font-semibold text-sm sm:text-base">
-                Contraseña
+                {t("auth:login.passwordLabel")}
               </AmautaLabel>
               <AmautaInput
                 id="password"
                 type="password"
-                placeholder="••••••••"
+                placeholder={t("auth:login.passwordPlaceholder")}
                 className="border-input bg-background/50 focus:bg-background transition-all duration-200 focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 aria-invalid={!!errors.password}
                 {...register("password")}
@@ -238,22 +240,22 @@ export function LoginPage() {
               )}
               disabled={submitDisabled}
               aria-disabled={submitDisabled}
-              title={!isOnline ? "Necesitas internet para iniciar sesión" : undefined}
+              title={!isOnline ? t("auth:login.offlineTitle") : undefined}
             >
               {isLoading ? (
                 <span className="flex items-center gap-2">
                   <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
-                  Conectando...
+                  {t("auth:login.submitLoading")}
                 </span>
               ) : !isOnline ? (
                 <span className="flex items-center gap-2">
                   <WifiOff className="h-4 w-4" />
-                  Sin internet
+                  {t("auth:login.offlineButton")}
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
                   <LogIn className="h-4 w-4" />
-                  Entrar
+                  {t("auth:login.submitButton")}
                 </span>
               )}
             </AmautaButton>
@@ -268,7 +270,7 @@ export function LoginPage() {
                 isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               )}
             >
-              ¿No tienes cuenta? <span className="font-semibold">Regístrate</span>
+              {t("auth:login.registerLink")} <span className="font-semibold">{t("auth:login.registerLinkText")}</span>
             </button>
           </form>
         </AmautaCardContent>

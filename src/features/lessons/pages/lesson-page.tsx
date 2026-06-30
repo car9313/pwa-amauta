@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 import { useQueryClient } from "@tanstack/react-query"
 import { Star, ChevronRight, HelpCircle } from "lucide-react"
 import { AmautaButton, AmautaContainer } from "@/components/amauta"
@@ -39,6 +40,7 @@ export function LessonPage({
   onBack,
   onSkip,
 }: LessonPageProps) {
+  const { t } = useTranslation("lessons")
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const tenantId = useAuthStore((state) => state.user?.tenantId ?? null)
@@ -81,15 +83,15 @@ export function LessonPage({
   if (isError) {
     return (
       <AmautaErrorState
-        title="¡Ups! Algo salió mal"
-        message={(error instanceof Error ? error.message : null) ?? "No pudimos cargar el ejercicio. Intenta de nuevo."}
+        title={t("lesson.errorTitle")}
+        message={(error instanceof Error ? error.message : null) ?? t("lesson.errorMessage")}
         onRetry={onBack}
-        retryLabel="Volver al inicio"
+        retryLabel={t("lesson.goHome")}
       />
     )
   }
 
-  const title          = lessonTitle ?? exercise?.topicId ?? "Lección"
+  const title          = lessonTitle ?? exercise?.topicId ?? t("lesson.title")
   const starsCount     = difficultyToStars(exercise?.difficulty ?? "MEDIUM")
   const currentStep    = exercise?.stepCurrent   ?? initialStep
   const totalSteps     = exercise?.stepTotal     ?? stepTotal
@@ -97,7 +99,7 @@ export function LessonPage({
   const explanation    = exercise?.hints?.[0] ?? ""
   const demoContent    = exercise?.demoContent ?? exercise?.hints?.[1] ?? null
   const secondaryQ     = exercise?.secondaryQuestion ?? null
-  const subInstruction = exercise?.subInstruction ?? "¡Hazlo como en la pizarra!"
+  const subInstruction = exercise?.subInstruction ?? t("lesson.subInstruction")
   const stepProgress   = totalSteps > 0 ? (currentStep / totalSteps) * 100 : 0
 
   return (
@@ -108,10 +110,10 @@ export function LessonPage({
           className="flex items-center gap-1 hover:text-primary transition-colors"
         >
           <ChevronRight className="h-4 w-4 rotate-180" />
-          Inicio
+          {t("lesson.home")}
         </button>
         <span>/</span>
-        <span className="text-foreground font-medium">Lección</span>
+        <span className="text-foreground font-medium">{t("lesson.title")}</span>
       </div>
 
       <div
@@ -125,7 +127,7 @@ export function LessonPage({
 
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-1.5">
-                <span className="text-xs text-muted-foreground">Dificultad:</span>
+                <span className="text-xs text-muted-foreground">{t("lesson.difficulty")}</span>
                 <div className="flex gap-0.5">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star
@@ -144,10 +146,7 @@ export function LessonPage({
               <div className="h-4 w-px bg-border hidden sm:block" />
 
               <span className="text-xs sm:text-sm text-muted-foreground font-medium">
-                Paso{" "}
-                <span className="text-primary font-bold">{currentStep}</span>
-                {" "}de{" "}
-                <span className="text-primary font-bold">{totalSteps}</span>
+                {t("lesson.step", { current: currentStep, total: totalSteps })}
               </span>
             </div>
 
@@ -157,7 +156,7 @@ export function LessonPage({
           {mainProblem && (
             <div className="rounded-xl border border-border bg-muted/50 p-4 space-y-3">
               <p className="text-sm sm:text-base text-foreground font-medium">
-                Resuelve:{" "}
+                {t("lesson.resolve")}{" "}
                 <span className="text-lg sm:text-2xl font-bold text-foreground">
                   {mainProblem}
                 </span>
@@ -183,7 +182,7 @@ export function LessonPage({
               ) : (
                 <div className="bg-amauta-blue-dark rounded-xl p-4 sm:p-5 flex items-center justify-between gap-4">
                   <p className="text-white/50 text-sm italic">
-                    Demostración visual próximamente
+                    {t("lesson.demoPlaceholder")}
                   </p>
                   <div className="hidden sm:block w-16 h-16 rounded-lg bg-white/10 overflow-hidden flex-shrink-0">
                     <img
@@ -238,7 +237,7 @@ export function LessonPage({
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-            placeholder="Ej: 15/8"
+            placeholder={t("lesson.inputPlaceholder")}
             disabled={submitted}
             className={cn(
               "w-full h-12 px-4 text-lg sm:text-xl font-bold text-foreground",
@@ -262,12 +261,12 @@ export function LessonPage({
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  Verificando...
+                  {t("lesson.verifying")}
                 </span>
               ) : submitted ? (
-                "¡Respuesta enviada!"
+                t("lesson.submitted")
               ) : (
-                "Contestar"
+                t("lesson.submit")
               )}
             </AmautaButton>
 
@@ -275,7 +274,7 @@ export function LessonPage({
               onClick={onSkip ?? onBack}
               className="w-full text-center text-sm sm:text-base font-medium text-primary hover:text-primary/80 transition-colors flex items-center justify-center gap-1 py-2"
             >
-              Saltar paso
+              {t("lesson.skip")}
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>

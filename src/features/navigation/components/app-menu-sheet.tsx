@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { AmautaButton } from "@/components/amauta";
 import {
   Sheet,
@@ -17,6 +18,7 @@ type AppMenuSheetProps = {
 };
 
 export function AppMenuSheet({ trigger }: AppMenuSheetProps) {
+  const { t } = useTranslation();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const user = useAuthStore((state) => state.user);
   const { logout, isLoading: isLoggingOut } = useLogout();
@@ -37,7 +39,7 @@ export function AppMenuSheet({ trigger }: AppMenuSheetProps) {
         className="w-[320px] border-l border-border bg-background p-0 sm:w-90"
       >
           <SheetHeader className="shrink-0 border-b border-border/60 px-4 py-4">
-            <SheetTitle className="sr-only">Menú de navegación</SheetTitle>
+            <SheetTitle className="sr-only">{t("navigation:menu.title")}</SheetTitle>
             {user && (
               <div className="flex items-center gap-3 rounded-2xl bg-amauta-blue-light p-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-amauta-blue">
@@ -83,11 +85,11 @@ export function AppMenuSheet({ trigger }: AppMenuSheetProps) {
                 disabled={isLoggingOut}
               >
                 {isLoggingOut ? (
-                  "Cerrando sesión..."
+                  t("navigation:menu.logoutLoading")
                 ) : (
                   <>
                     <LogOut className="mr-2 h-5 w-5" />
-                    Cerrar sesión
+                    {t("navigation:menu.logoutButton")}
                   </>
                 )}
               </AmautaButton>

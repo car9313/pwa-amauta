@@ -1,4 +1,4 @@
-
+import i18next from "i18next";
 import type { UserRole } from "@/features/auth/domain/types";
 import {
   Home,
@@ -20,43 +20,43 @@ export type NavigationItem = {
 
 export const navigationItems: NavigationItem[] = [
   {
-    label: "Mi Dashboard",
+    label: i18next.t("navigation:navItems.dashboard"),
     path: "/dashboard/student",
     icon: Home,
     roles: ["student", "parent"],
   },
   {
-    label: "Lecciones",
+    label: i18next.t("navigation:navItems.lessons"),
     path: "/lessons",
     icon: BookOpen,
     roles: ["student", "parent"],
   },
   {
-    label: "Práctica",
+    label: i18next.t("navigation:navItems.practice"),
     path: "/practice",
     icon: BarChart3,
     roles: ["student", "parent"],
   },
   {
-    label: "¡Juguemos!",
+    label: i18next.t("navigation:navItems.games"),
     path: "/games",
     icon: Gamepad2,
     roles: ["student", "parent"],
   },
   {
-    label: "Mi Progreso",
+    label: i18next.t("navigation:navItems.progress"),
     path: "/progress",
     icon: TrendingUp,
     roles: ["student", "parent"],
   },
   {
-    label: "Panel de Padres",
+    label: i18next.t("navigation:navItems.parentPanel"),
     path: "/dashboard/parent",
     icon: Users,
     roles: ["parent"],
   },
   {
-    label: "Panel Docente",
+    label: i18next.t("navigation:navItems.teacherPanel"),
     path: "/dashboard/teacher",
     icon: GraduationCap,
     roles: ["teacher"],

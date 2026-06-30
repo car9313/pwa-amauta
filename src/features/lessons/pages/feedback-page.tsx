@@ -1,4 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 import { CheckCircle, Star, RefreshCw, Home, Sparkles, AlertTriangle, ChevronRight } from "lucide-react"
 import { AmautaButton } from "@/components/amauta"
 import { cn } from "@/lib/utils"
@@ -26,13 +27,6 @@ const SCORE_COLORS = {
     border: "border-destructive/20",
     ring: "ring-destructive/20",
   },
-}
-
-const MISTAKE_LABELS: Record<Mistake["type"], string> = {
-  CARRY_MISSED: "Olvidaste llevar el número",
-  COLUMN_MISALIGN: "Desalineaste las columnas",
-  SIGN_ERROR: "Confundiste suma con resta",
-  CALCULATION_ERROR: "Error en el cálculo",
 }
 
 function ScoreCircle({ score, size = 120 }: { score: number; size?: number }) {
@@ -72,9 +66,17 @@ function ScoreCircle({ score, size = 120 }: { score: number; size?: number }) {
 }
 
 export function FeedbackPage() {
+  const { t } = useTranslation("lessons")
   const navigate = useNavigate()
   const location = useLocation()
   const state = location.state as { result?: ExerciseResult; queued?: boolean } | null
+
+  const MISTAKE_LABELS: Record<Mistake["type"], string> = {
+    CARRY_MISSED: t("feedback.carryMissed"),
+    COLUMN_MISALIGN: t("feedback.columnMisalign"),
+    SIGN_ERROR: t("feedback.signError"),
+    CALCULATION_ERROR: t("feedback.calculationError"),
+  }
 
   if (!state?.result && !state?.queued) {
     navigate("/lessons", { replace: true })
@@ -94,10 +96,10 @@ export function FeedbackPage() {
           </div>
           <div className="space-y-2">
             <h1 className="text-2xl font-bold text-foreground">
-              ¡Respuesta guardada!
+              {t("feedback.queuedTitle")}
             </h1>
             <p className="text-muted-foreground">
-              Se enviará automáticamente cuando tengas conexión a internet.
+              {t("feedback.queuedDescription")}
             </p>
           </div>
           <AmautaButton
@@ -105,7 +107,7 @@ export function FeedbackPage() {
             size="child-lg"
             className="w-full"
           >
-            Continuar
+            {t("feedback.continue")}
           </AmautaButton>
         </div>
       </div>
@@ -143,7 +145,7 @@ export function FeedbackPage() {
             {isExcellent && (
               <>
                 <h1 className="text-2xl sm:text-3xl font-bold text-success">
-                  ¡Excelente trabajo!
+                  {t("feedback.excellent")}
                 </h1>
                 <p className="text-success">{result.feedbackSummary}</p>
               </>
@@ -151,7 +153,7 @@ export function FeedbackPage() {
             {isGood && (
               <>
                 <h1 className="text-2xl sm:text-3xl font-bold text-accent">
-                  ¡Buen trabajo!
+                  {t("feedback.good")}
                 </h1>
                 <p className="text-accent">{result.feedbackSummary}</p>
               </>
@@ -159,7 +161,7 @@ export function FeedbackPage() {
             {isFailed && (
               <>
                 <h1 className="text-2xl sm:text-3xl font-bold text-destructive">
-                  ¡Sigue intentando!
+                  {t("feedback.failed")}
                 </h1>
                 <p className="text-destructive">{result.feedbackSummary}</p>
               </>
@@ -170,7 +172,7 @@ export function FeedbackPage() {
         {result.mistakes.length > 0 && (
           <div className="px-6 sm:px-8 py-4 border-b border-border">
             <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-              Revisa tus errores
+              {t("feedback.reviewMistakes")}
             </h2>
             <div className="space-y-2">
               {result.mistakes.map((mistake, i) => (
@@ -186,7 +188,7 @@ export function FeedbackPage() {
                       {MISTAKE_LABELS[mistake.type] ?? mistake.type}
                     </p>
                     <div className="flex items-center gap-1 mt-1">
-                      <span className="text-xs text-destructive/70">Gravedad:</span>
+                      <span className="text-xs text-destructive/70">{t("feedback.severity")}</span>
                       <div className="flex gap-0.5">
                         {[1, 2, 3].map((dot) => (
                           <div
@@ -216,9 +218,9 @@ export function FeedbackPage() {
               </div>
               <div>
                 <p className="text-sm font-medium text-primary">
-                  {result.nextAction.action === "ADVANCE" && "Siguiente tema: listo para avanzar"}
-                  {result.nextAction.action === "REINFORCE" && "Sigue practicando para reforzar"}
-                  {result.nextAction.action === "REMEDIATE" && "Repasemos lo básico primero"}
+                  {result.nextAction.action === "ADVANCE" && t("feedback.advance")}
+                  {result.nextAction.action === "REINFORCE" && t("feedback.reinforce")}
+                  {result.nextAction.action === "REMEDIATE" && t("feedback.remediate")}
                 </p>
               </div>
             </div>
@@ -239,11 +241,11 @@ export function FeedbackPage() {
             {isFailed ? (
               <>
                 <RefreshCw className="mr-2 h-5 w-5" />
-                Intentar de nuevo
+                {t("feedback.retry")}
               </>
             ) : (
               <>
-                Siguiente
+                {t("feedback.next")}
                 <ChevronRight className="ml-1 h-5 w-5" />
               </>
             )}
@@ -256,7 +258,7 @@ export function FeedbackPage() {
             className="w-full"
           >
             <Home className="mr-2 h-4 w-4" />
-            Volver al inicio
+            {t("feedback.goHome")}
           </AmautaButton>
         </div>
       </div>

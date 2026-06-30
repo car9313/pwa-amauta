@@ -1,0 +1,26 @@
+{
+  "types": {
+    "visualAddition": "Suma visual",
+    "visualSubtraction": "Resta visual",
+    "visualMultiplication": "Multiplicación visual",
+    "visualDivision": "División visual",
+    "textProblem": "Problema de texto",
+    "interactive": "Interactivo"
+  },
+  "feedback": {
+    "correct": "¡Correcto!",
+    "incorrect": "Incorrecto",
+    "hint": "Pista",
+    "showHint": "Mostrar pista",
+    "hideHint": "Ocultar pista",
+    "noHint": "No hay pistas disponibles",
+    "tryAgain": "Intenta de nuevo",
+    "showSolution": "Ver solución"
+  },
+  "answerTypes": {
+    "numeric": "Numérica",
+    "text": "Texto",
+    "select": "Seleccionar",
+    "multipleChoice": "Opción múltiple"
+  }
+}

@@ -87,5 +87,5 @@ function AmautaProgress({
   )
 }
 
-export { AmautaProgress, variantToColor, variantToLabel }
+export { AmautaProgress }
 export type { AmautaProgressProps, AmautaProgressVariant }

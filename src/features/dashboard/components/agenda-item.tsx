@@ -1,4 +1,5 @@
 import { Clock, CheckCircle2 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -37,6 +38,7 @@ export function AgendaItem({
   status,
   onStart,
 }: AgendaItemProps) {
+  const { t } = useTranslation("dashboard")
   const cfg = statusConfig[status]
   const Icon = cfg.icon
 
@@ -68,7 +70,7 @@ export function AgendaItem({
             onClick={onStart}
             className="bg-primary hover:bg-primary/80 text-white rounded-xl"
           >
-            Iniciar
+            {t("agenda.start")}
           </Button>
         )}
       </div>

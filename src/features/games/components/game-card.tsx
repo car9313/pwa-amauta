@@ -1,4 +1,5 @@
 import { Gamepad2, Timer, HelpCircle, Grid3x3 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { cn } from "@/lib/utils"
 import type { GameConfig, GameId } from "../domain/game.types"
 
@@ -14,6 +15,7 @@ interface GameCardProps {
 }
 
 export function GameCard({ config, onClick }: GameCardProps) {
+  const { t } = useTranslation("games")
   const Icon = ICON_MAP[config.icon] ?? Gamepad2
 
   return (
@@ -31,11 +33,11 @@ export function GameCard({ config, onClick }: GameCardProps) {
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">
-            {config.title}
+            {t(`${config.id}.title`)}
           </h3>
-          <p className="text-sm text-muted-foreground mt-1">{config.description}</p>
+          <p className="text-sm text-muted-foreground mt-1">{t(`${config.id}.description`)}</p>
           <span className="inline-block mt-2 text-xs font-medium text-muted-foreground">
-            ~{config.estimatedMinutes} min
+            {t("common.estimatedTime", { minutes: config.estimatedMinutes })}
           </span>
         </div>
       </div>

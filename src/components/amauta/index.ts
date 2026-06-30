@@ -1,4 +1,4 @@
-export { AmautaButton, amautaButtonVariants } from "./amauta-button"
+export { AmautaButton } from "./amauta-button"
 export type { AmautaButtonProps, AmautaButtonVariant } from "./amauta-button"
 
 export {
@@ -12,10 +12,10 @@ export {
 } from "./amauta-card"
 export type { AmautaCardProps, AmautaCardVariant } from "./amauta-card"
 
-export { AmautaBadge, amautaBadgeVariants } from "./amauta-badge"
+export { AmautaBadge } from "./amauta-badge"
 export type { AmautaBadgeProps } from "./amauta-badge"
 
-export { AmautaProgress, variantToColor, variantToLabel } from "./amauta-progress"
+export { AmautaProgress } from "./amauta-progress"
 export type { AmautaProgressProps, AmautaProgressVariant } from "./amauta-progress"
 
 export { AmautaInput } from "./amauta-input"
@@ -53,7 +53,7 @@ export type { CondorGuideProps } from "./condor-guide"
 export { AmautaLearningPath } from "./amauta-learning-path"
 export type { AmautaLearningPathProps, LearningPathStep, LearningPathStepStatus } from "./amauta-learning-path"
 
-export { AmautaStatCard, colorConfig } from "./amauta-stat-card"
+export { AmautaStatCard } from "./amauta-stat-card"
 export type { AmautaStatCardProps, AmautaStatColor } from "./amauta-stat-card"
 
 export { AmautaAchievement } from "./amauta-achievement"

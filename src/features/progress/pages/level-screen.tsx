@@ -1,4 +1,5 @@
 import { ChevronRight, Lightbulb, Trophy, Target, AlertTriangle } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { AmautaCard, AmautaContainer } from "@/components/amauta"
 
 import { AmautaLoadingState, AmautaErrorState, AmautaProgress } from "@/components/amauta"
@@ -11,6 +12,7 @@ interface LevelScreenProps {
 }
 
 export function LevelScreen({ studentId = DEFAULT_STUDENT_ID }: LevelScreenProps) {
+  const { t } = useTranslation("progress")
   const { data: progress, isLoading, isError, error, refetch } = useStudentProgress(studentId)
 
   if (isLoading) {
@@ -38,12 +40,12 @@ export function LevelScreen({ studentId = DEFAULT_STUDENT_ID }: LevelScreenProps
 
   return (
     <AmautaContainer className="space-y-4 sm:space-y-6 pb-6">
-      <section aria-label="Progreso general">
+      <section aria-label={t("generalProgress")}>
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/70 to-accent p-4 sm:p-6 text-white animate-fade-in-up">
           <div className="noise-overlay pointer-events-none absolute inset-0 z-0" />
           <div className="relative z-10">
             <h1 className="text-xl sm:text-2xl font-bold">
-              Mi Progreso
+              {t("title")}
             </h1>
 
             <div className="mt-4 flex items-center gap-4">
@@ -65,19 +67,19 @@ export function LevelScreen({ studentId = DEFAULT_STUDENT_ID }: LevelScreenProps
                 </div>
               </div>
               <div>
-                <p className="text-white/80 text-sm">Progreso general</p>
-                <p className="text-xl font-bold">{progress?.studentName ?? "Estudiante"}</p>
+                <p className="text-white/80 text-sm">{t("overallProgress")}</p>
+                <p className="text-xl font-bold">{t("progressOf", { name: progress?.studentName ?? t("student") })}</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section aria-label="Progreso por materia">
+      <section aria-label={t("bySubject")}>
         <AmautaCard className="gap-0 rounded-2xl p-4 animate-fade-in-up" style={{ animationDelay: "200ms" }}>
           <div className="flex items-center gap-2 mb-4">
             <Target className="h-5 w-5 text-primary" aria-hidden="true" />
-            <h2 className="text-lg font-bold text-foreground">Por Materia</h2>
+            <h2 className="text-lg font-bold text-foreground">{t("bySubject")}</h2>
           </div>
 
           <div className="space-y-3">
@@ -105,11 +107,11 @@ export function LevelScreen({ studentId = DEFAULT_STUDENT_ID }: LevelScreenProps
         </AmautaCard>
       </section>
 
-      <section aria-label="Logros">
+      <section aria-label={t("achievements")}>
         <AmautaCard className="gap-0 rounded-2xl p-4 animate-fade-in-up" style={{ animationDelay: "300ms" }}>
           <div className="flex items-center gap-2 mb-4">
             <Trophy className="h-5 w-5 text-accent" aria-hidden="true" />
-            <h2 className="text-lg font-bold text-foreground">Logros</h2>
+            <h2 className="text-lg font-bold text-foreground">{t("achievements")}</h2>
           </div>
 
           {achievements.length > 0 ? (
@@ -127,17 +129,17 @@ export function LevelScreen({ studentId = DEFAULT_STUDENT_ID }: LevelScreenProps
               ))}
             </div>
           ) : (
-            <p className="text-muted-foreground text-sm">Aún no tienes logros. ¡Sigue practicando!</p>
+            <p className="text-muted-foreground text-sm">{t("noAchievements")}</p>
           )}
         </AmautaCard>
       </section>
 
       {weakAreas.length > 0 && (
-        <section aria-label="Áreas a mejorar">
+        <section aria-label={t("weakAreas")}>
           <AmautaCard className="gap-0 rounded-2xl p-4 animate-fade-in-up" style={{ animationDelay: "400ms" }}>
             <div className="flex items-center gap-2 mb-4">
               <AlertTriangle className="h-5 w-5 text-accent" aria-hidden="true" />
-              <h2 className="text-lg font-bold text-foreground">Áreas a Mejorar</h2>
+              <h2 className="text-lg font-bold text-foreground">{t("weakAreas")}</h2>
             </div>
 
             <div className="space-y-3">

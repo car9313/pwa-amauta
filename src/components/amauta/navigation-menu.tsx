@@ -1,4 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom"
+import { useTranslation } from "react-i18next"
+import i18next from "i18next"
 import { Home, BookOpen, Gamepad2, BarChart3, Users, LogOut, X } from "lucide-react"
 
 import { useAuthStore } from "@/features/auth/presentation/store/auth-store"
@@ -17,15 +19,16 @@ interface NavItem {
 }
 
 const menuItems: NavItem[] = [
-  { path: "/dashboard", label: "Mi Dashboard", icon: Home },
-  { path: "/lessons", label: "Lecciones", icon: BookOpen },
-  { path: "/practice", label: "Practica", icon: BarChart3 },
-  { path: "/games", label: "Juegos", icon: Gamepad2 },
-  { path: "/progress", label: "Mi Progreso", icon: BarChart3 },
-  { path: "/parent", label: "Panel de Padres", icon: Users },
+  { path: "/dashboard", label: i18next.t("navigation:navItems.dashboard"), icon: Home },
+  { path: "/lessons", label: i18next.t("navigation:navItems.lessons"), icon: BookOpen },
+  { path: "/practice", label: i18next.t("navigation:navItems.practice"), icon: BarChart3 },
+  { path: "/games", label: i18next.t("navigation:navItems.games"), icon: Gamepad2 },
+  { path: "/progress", label: i18next.t("navigation:navItems.progress"), icon: BarChart3 },
+  { path: "/parent", label: i18next.t("navigation:navItems.parentPanel"), icon: Users },
 ]
 
 function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const user = useAuthStore((state) => state.user)
@@ -53,7 +56,7 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
       <div className="fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl z-50 flex flex-col">
         <div className="p-4 border-b border-border">
           <div className="flex items-center justify-between mb-4">
-            <span className="text-lg font-bold text-foreground">Menu</span>
+            <span className="text-lg font-bold text-foreground">{t("navigation:menu.menuTitle")}</span>
             <button
               onClick={onClose}
               className="p-2 hover:bg-secondary rounded-full transition-colors"
@@ -65,9 +68,9 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
           <div className="flex items-center gap-3 p-3 bg-secondary rounded-lg">
             <Character size="sm" />
             <div>
-              <p className="font-semibold text-foreground">{user?.name ?? "Usuario"}</p>
+              <p className="font-semibold text-foreground">{user?.name ?? t("navigation:menu.userLabel")}</p>
               <p className="text-xs text-muted-foreground capitalize">
-                {user?.role === "student" ? "Estudiante" : user?.role === "parent" ? "Padre" : "Profesor"}
+                {user?.role === "student" ? t("navigation:menu.studentRole") : user?.role === "parent" ? t("navigation:menu.parentRole") : t("navigation:menu.teacherRole")}
               </p>
             </div>
           </div>
@@ -108,7 +111,7 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
             className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
           >
             <LogOut className="w-5 h-5" />
-            <span className="font-medium">Cerrar sesion</span>
+            <span className="font-medium">{t("navigation:menu.logoutButton")}</span>
           </button>
         </div>
       </div>

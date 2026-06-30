@@ -15,11 +15,23 @@ export interface StoredUser {
   storedAt: number;
 }
 
-export interface UserPreferences {
-  id: string;
+export interface UserPreferencesEntry {
+  id: "user-preferences";
   selectedStudentId: string | null;
+  locale: string | null;
   updatedAt: number;
 }
+
+export interface LocaleCacheEntry {
+  id: string;
+  userId: string;
+  localeId: string;
+  data: unknown;
+  version: string;
+  cachedAt: number;
+}
+
+export type PreferencesEntry = UserPreferencesEntry | LocaleCacheEntry;
 
 export interface QueuedMutation {
   id: string;
@@ -80,7 +92,7 @@ export interface Student {
 export interface AmautaDatabase extends Dexie {
   tokens: EntityTable<TokenData, "id">;
   users: EntityTable<StoredUser, "id">;
-  preferences: EntityTable<UserPreferences, "id">;
+  preferences: EntityTable<PreferencesEntry, "id">;
   mutations: EntityTable<QueuedMutation, "id">;
   exercises: EntityTable<Exercise, "id">;
   lessons: EntityTable<Lesson, "id">;
@@ -99,4 +111,29 @@ db.version(1).stores({
   lessons: "id, subject",
   progress: "studentId, lessonId",
   students: "id",
+});
+
+db.version(2).stores({
+  tokens: "id",
+  users: "id",
+  preferences: "id",
+  mutations: "id, status, priority, createdAt, type",
+  exercises: "id, type, difficulty, subject",
+  lessons: "id, subject",
+  progress: "studentId, lessonId",
+  students: "id",
+  localeCache: "id",
+});
+
+db.version(3).stores({
+  tokens: "id",
+  users: "id",
+  preferences: "id, userId, localeId, cachedAt",
+  mutations: "id, status, priority, createdAt, type",
+  exercises: "id, type, difficulty, subject",
+  lessons: "id, subject",
+  progress: "studentId, lessonId",
+  students: "id",
+}).upgrade(tx => {
+  return tx.table("preferences").delete("user-preferences");
 });

@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from "react"
+import { useTranslation } from "react-i18next"
 import { Sparkles } from "lucide-react"
 import { GAME_CONFIGS } from "../domain/game-config"
 import { useMemoryGame } from "../hooks/useMemoryGame"
@@ -120,6 +121,7 @@ function TimedChallengeWrapper({ onBack }: { onBack: () => void }) {
 }
 
 export function GamesPage() {
+  const { t } = useTranslation("games")
   const [currentView, setCurrentView] = useState<GameView>("portal")
   const [memoryDifficulty] = useState<"easy" | "medium" | "hard">("easy")
 
@@ -149,8 +151,8 @@ export function GamesPage() {
                 <Sparkles className="h-5 w-5 text-success" />
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-foreground">!Juguemos!</h1>
-                <p className="text-sm text-muted-foreground">Elige un juego para aprender matemáticas</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-foreground">{t("common.letsPlay")}</h1>
+                <p className="text-sm text-muted-foreground">{t("common.selectGame")}</p>
               </div>
             </div>
 
@@ -169,9 +171,9 @@ export function GamesPage() {
                 onClick={handleBackToPortal}
                 className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors"
               >
-                Volver
+                {t("common.back")}
               </button>
-              <h2 className="text-base sm:text-lg font-bold text-foreground">Memoria Matematica</h2>
+              <h2 className="text-base sm:text-lg font-bold text-foreground">{t("memory.title")}</h2>
               <div className="w-16" />
             </div>
 

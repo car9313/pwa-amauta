@@ -103,6 +103,42 @@ Actualmente la app usa **mock data** (no hay `.env` con `VITE_API_BASE_URL`). Es
 Las mutaciones POST se manejan mediante **app-level outbox** (Dexie + queue-manager + background-sync).
 El SW solo usa `NetworkOnly` para POSTs — no hay `BackgroundSyncPlugin` ni doble encolado.
 
+### 6. Catch Handler Global (safety net)
+
+> Añadido en 2026-06-30 para evitar errores `no-response` de Workbox.
+
+Cuando una estrategia runtime (ej: `NetworkFirst` para API GET) no puede resolver una request porque **la red falló y no hay respuesta en cache**, Workbox lanza un error `no-response` que resulta en `net::ERR_FAILED` y unhandled promise rejection en el SW.
+
+`setCatchHandler` captura todos los casos no resueltos por las rutas runtime y devuelve una respuesta HTTP controlada:
+
+```typescript
+setCatchHandler(async ({ request }) => {
+  const isApiRequest =
+    request.url.includes('.amauta.axentra.io') ||
+    request.url.includes('/api/') ||
+    request.url.includes('/v1/')
+
+  if (isApiRequest) {
+    return new Response(JSON.stringify({
+      error: 'service_unavailable',
+      message: 'No se pudo conectar con el servidor'
+    }), {
+      status: 502,
+      headers: { 'Content-Type': 'application/json' }
+    })
+  }
+
+  return Response.error()
+})
+```
+
+**Comportamiento:**
+
+| Escenario | Antes | Después |
+|-----------|-------|---------|
+| API no disponible + sin cache | `no-response` → `net::ERR_FAILED` | Response 502 JSON |
+| App-level fetch catch | Promesa rechazada (catch needed) | HTTP error manejable por `HttpClient` |
+
 ---
 
 ## Estrategia de Caching para Navegación SPA
@@ -342,6 +378,20 @@ VitePWA({
 2. Ir a Application → Cache Storage → verificar que `precache-v2` tiene entries
 3. En la consola del SW, verificar que no hay errores `no-response`
 
+### Error `no-response` en API requests
+
+Este error ocurre cuando el SW intercepta una request a la API con `NetworkFirst`, la red falla y no hay respuesta en cache.
+
+**Causas posibles:**
+- El backend no está disponible (en desarrollo, staging, o produccion caido)
+- `VITE_USE_MOCK=false` pero la API no existe
+- Primera request a un endpoint (cache vacio)
+
+**Solución:** El `setCatchHandler` global (sección 6) captura estos casos y devuelve un 502 JSON en vez de lanzar `no-response`. Si el error persiste, verificar:
+1. Que el SW compilado incluya el `setCatchHandler` (revisar `sw.ts`)
+2. Que la estrategia `NetworkFirst` tenga `networkTimeoutSeconds` adecuado
+3. En desarrollo con mocks: `VITE_USE_MOCK=true` en `.env.production`
+
 ### Mutaciones Offline No Sincronizan
 
 1. Verificar que `initBackgroundSync()` se llama en `App.tsx`
@@ -374,3 +424,5 @@ VitePWA({
 | 2026-06-06 | Agregada sección "Caches que no aparecen en desarrollo" | Explica por qué `api-get-cache-v1` y `static-resources-v1` no se crean con mocks |
 | 2026-06-06 | Agregado `id: '/'` al manifest | Elimina warning de Chrome "id is not specified" |
 | 2026-06-06 | Actualizado `includeAssets` en snippet de ejemplo | Incluye `icons/*.webp` y `icons/maskable-*.png` |
+| 2026-06-30 | Agregado `setCatchHandler` global | Evita error `no-response` cuando API no disponible + sin cache |
+| 2026-06-30 | `VITE_USE_MOCK=true` en `.env.production` | Backend no implementado, usar mocks en preview |

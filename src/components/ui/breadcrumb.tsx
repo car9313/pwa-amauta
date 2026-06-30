@@ -1,5 +1,7 @@
 "use client"
 
+import { useTranslation } from "react-i18next"
+import i18next from "i18next"
 import { Link, useLocation } from "react-router-dom"
 import { ChevronRight, Home } from "lucide-react"
 
@@ -10,20 +12,21 @@ interface BreadcrumbItem {
 
 const ROUTE_MAP: Record<string, string> = {
   "": "",
-  "dashboard": "Dashboard",
+  "dashboard": i18next.t("navigation:breadcrumbs.dashboard"),
   "student": "",
-  "lessons": "Lecciones",
-  "progress": "Mi Progreso",
-  "roles": "Seleccionar Rol",
-  "register": "Registrarse",
-  "login": "Iniciar Sesión",
-  "practice": "Práctica",
-  "games": "Juegos",
+  "lessons": i18next.t("navigation:breadcrumbs.lessons"),
+  "progress": i18next.t("navigation:breadcrumbs.progress"),
+  "roles": i18next.t("navigation:breadcrumbs.roleSelection"),
+  "register": i18next.t("navigation:breadcrumbs.register"),
+  "login": i18next.t("navigation:breadcrumbs.login"),
+  "practice": i18next.t("navigation:breadcrumbs.practice"),
+  "games": i18next.t("navigation:breadcrumbs.games"),
 }
 
 const EXCLUDED_ROUTES = ["/", "/login", "/register", "/roles"]
 
 export function Breadcrumbs() {
+  const { t } = useTranslation()
   const location = useLocation()
   const pathSegments = location.pathname.split("/").filter(Boolean)
 
@@ -32,7 +35,7 @@ export function Breadcrumbs() {
   }
 
   const buildBreadcrumbs = (): BreadcrumbItem[] => {
-    const items: BreadcrumbItem[] = [{ label: "Inicio", path: "/" }]
+    const items: BreadcrumbItem[] = [{ label: t("navigation:breadcrumbs.home"), path: "/" }]
     
     let currentPath = ""
     for (const segment of pathSegments) {

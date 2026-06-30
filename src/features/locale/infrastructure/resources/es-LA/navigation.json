@@ -1,0 +1,41 @@
+{
+  "sidebar": {
+    "closeMenu": "Cerrar menú",
+    "logout": "Cerrar sesión"
+  },
+  "navItems": {
+    "dashboard": "Mi Dashboard",
+    "lessons": "Lecciones",
+    "practice": "Práctica",
+    "games": "¡Juguemos!",
+    "progress": "Mi Progreso",
+    "parentPanel": "Panel de Padres",
+    "teacherPanel": "Panel Docente",
+    "login": "Iniciar sesión",
+    "register": "Registro"
+  },
+  "menu": {
+    "title": "Menú de navegación",
+    "menuTitle": "Menu",
+    "logoutLoading": "Cerrando sesión...",
+    "logoutButton": "Cerrar sesión",
+    "userLabel": "Usuario",
+    "studentRole": "Estudiante",
+    "parentRole": "Padre",
+    "teacherRole": "Profesor"
+  },
+  "breadcrumbs": {
+    "home": "Inicio",
+    "dashboard": "Dashboard",
+    "lessons": "Lecciones",
+    "progress": "Mi Progreso",
+    "roleSelection": "Seleccionar Rol",
+    "register": "Registrarse",
+    "login": "Iniciar Sesión",
+    "practice": "Práctica",
+    "games": "Juegos"
+  },
+  "header": {
+    "ariaLabel": "Abrir menú"
+  }
+}
