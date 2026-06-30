@@ -1,5 +1,5 @@
 import type { AuthUser } from "@/features/auth/domain/types";
-import { db, type TokenData, type StoredUser } from "./db";
+import { db, type TokenData, type StoredUser, type UserPreferencesEntry } from "./db";
 
 export { type TokenData, type StoredUser } from "./db";
 
@@ -78,14 +78,15 @@ export async function saveSelectedStudentId(studentId: string | null): Promise<v
   await db.preferences.put({
     id: "user-preferences",
     selectedStudentId: studentId ?? "",
+    locale: null,
     updatedAt: now,
-  });
+  } as UserPreferencesEntry);
 }
 
 export async function getSelectedStudentId(): Promise<string | null> {
   const prefs = await db.preferences.get("user-preferences");
   if (!prefs) return null;
-  return prefs.selectedStudentId || null;
+  return (prefs as UserPreferencesEntry).selectedStudentId || null;
 }
 
 export async function clearSelectedStudentId(): Promise<void> {

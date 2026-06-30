@@ -6,7 +6,10 @@ import App from './App'
 import { registerServiceWorker } from './serviceWorkerRegistration'
 import { BrowserRouter } from 'react-router-dom'
 import { AuthInitializer } from './features/auth/presentation/components/AuthInitializer'
+import { LocaleInitializer } from './features/locale/components/LocaleInitializer'
 import { initSentry } from './lib/sentry'
+
+import './features/locale/infrastructure/i18n'
 
 initSentry()
 
@@ -58,9 +61,11 @@ root.render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <AuthInitializer>
-          <App />
-        </AuthInitializer>
+        <LocaleInitializer>
+          <AuthInitializer>
+            <App />
+          </AuthInitializer>
+        </LocaleInitializer>
       </BrowserRouter>
     </QueryClientProvider>
   </StrictMode>,

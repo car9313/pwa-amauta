@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { AmautaProgress } from "@/components/amauta"
@@ -38,6 +39,8 @@ export function QuizGameView({
   onBack,
   onReset,
 }: QuizGameViewProps) {
+  const { t } = useTranslation("games")
+
   if (isFinished && result) {
     return (
       <GameResultScreen
@@ -55,7 +58,7 @@ export function QuizGameView({
   return (
     <div className="space-y-4">
       <GameHeader
-        title="Quiz de Opción Múltiple"
+        title={t("quiz.title")}
         onBack={onBack}
         score={score}
       />
@@ -66,10 +69,10 @@ export function QuizGameView({
         <div className="p-5 sm:p-6 space-y-6">
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span>
-              Pregunta {currentIndex + 1} de {totalCount}
+              {t("quiz.question", { current: currentIndex + 1, total: totalCount })}
             </span>
             <span>
-              Correctas: <span className="font-bold text-success">{correctCount}</span>
+              {t("quiz.correctCount")}{" "}<span className="font-bold text-success">{correctCount}</span>
             </span>
           </div>
 
@@ -77,7 +80,7 @@ export function QuizGameView({
             {currentQuestion.prompt}
           </p>
 
-          <div className="space-y-2" role="radiogroup" aria-label="Opciones de respuesta">
+          <div className="space-y-2" role="radiogroup" aria-label={t("quiz.options")}>
             {currentQuestion.options.map((option, i) => {
               let optionStyle = "border-border bg-card hover:border-border/80"
               if (showFeedback) {
@@ -119,7 +122,7 @@ export function QuizGameView({
               )}
               aria-live="polite"
             >
-              {isCorrect ? "¡Correcto!" : `Respuesta: ${currentQuestion.options[currentQuestion.correctIndex]}`}
+              {isCorrect ? t("quiz.correct") : `${t("quiz.answer")} ${currentQuestion.options[currentQuestion.correctIndex]}`}
             </div>
           )}
 
@@ -129,7 +132,7 @@ export function QuizGameView({
               size="child-lg"
               className="w-full"
             >
-              {currentIndex + 1 >= totalCount ? "Ver resultado" : "Siguiente"}
+              {currentIndex + 1 >= totalCount ? t("quiz.viewResult") : t("quiz.next")}
             </Button>
           )}
         </div>

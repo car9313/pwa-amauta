@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest"
 import { render, screen } from "@testing-library/react"
-import { AmautaDialog, AmautaDialogTrigger, AmautaDialogContent, AmautaDialogHeader, AmautaDialogFooter, AmautaDialogTitle, AmautaDialogDescription, AmautaDialogClose } from "./amauta-dialog"
+import { AmautaDialog, AmautaDialogContent, AmautaDialogHeader, AmautaDialogFooter, AmautaDialogTitle, AmautaDialogDescription, AmautaDialogClose } from "./amauta-dialog"
 
 describe("AmautaDialog", () => {
   it("renders AmautaDialogTitle text", () => {

@@ -1,7 +1,9 @@
+import { useTranslation } from "react-i18next";
 import { WifiOff } from "lucide-react";
 import { useOnlineStatus } from "@/features/auth/hooks/useOnlineStatus";
 
 export function PublicConnectionBanner() {
+  const { t } = useTranslation();
   const isOnline = useOnlineStatus();
 
   if (isOnline) return null;
@@ -14,7 +16,7 @@ export function PublicConnectionBanner() {
     >
       <WifiOff className="h-4 w-4" />
       <span className="text-sm font-medium">
-        No tienes internet. Algunas funciones no estarán disponibles.
+        {t("auth:banner.offlineMessage")}
       </span>
     </div>
   );

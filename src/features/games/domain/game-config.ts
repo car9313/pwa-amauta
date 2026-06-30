@@ -3,8 +3,6 @@ import type { GameConfig } from "./game.types"
 export const GAME_CONFIGS: GameConfig[] = [
   {
     id: "memory",
-    title: "Memoria Matemática",
-    description: "Encuentra los pares de operaciones y resultados",
     icon: "grid",
     color: "#1f4fa3",
     bgClass: "bg-blue-50",
@@ -12,8 +10,6 @@ export const GAME_CONFIGS: GameConfig[] = [
   },
   {
     id: "timed",
-    title: "Reto Contrarreloj",
-    description: "Responde la mayor cantidad en 60 segundos",
     icon: "timer",
     color: "#f4701f",
     bgClass: "bg-orange-50",
@@ -21,8 +17,6 @@ export const GAME_CONFIGS: GameConfig[] = [
   },
   {
     id: "quiz",
-    title: "Quiz de Opción Múltiple",
-    description: "Elige la respuesta correcta entre 4 opciones",
     icon: "help-circle",
     color: "#059669",
     bgClass: "bg-emerald-50",

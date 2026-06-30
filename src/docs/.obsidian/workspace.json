@@ -1,24 +1,24 @@
 {
   "main": {
-    "id": "526c34b71b11caf1",
+    "id": "6d6bfe661c4cbe45",
     "type": "split",
     "children": [
       {
-        "id": "70156ba24ad9ca27",
+        "id": "fdc6da682c0f38ef",
         "type": "tabs",
         "children": [
           {
-            "id": "b58dcd5101bd4191",
+            "id": "1171652146d4b33d",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "planificacion/REWARD_ANIMATIONS.md",
+                "file": "arreglar/I18N_PLAN_v2.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "REWARD_ANIMATIONS"
+              "title": "I18N_PLAN_v2"
             }
           }
         ]
@@ -27,15 +27,15 @@
     "direction": "vertical"
   },
   "left": {
-    "id": "f837956db45424f3",
+    "id": "531d343e1a4aa1fd",
     "type": "split",
     "children": [
       {
-        "id": "1b8a045e163903ae",
+        "id": "2c3903fb6285ca06",
         "type": "tabs",
         "children": [
           {
-            "id": "2cc0a58ad19666f8",
+            "id": "715c3aeae12a2e7c",
             "type": "leaf",
             "state": {
               "type": "file-explorer",
@@ -48,7 +48,7 @@
             }
           },
           {
-            "id": "b1059ed3b64ac8a6",
+            "id": "0a384c1c5e97a727",
             "type": "leaf",
             "state": {
               "type": "search",
@@ -65,7 +65,7 @@
             }
           },
           {
-            "id": "b4c79b8bcfe511bc",
+            "id": "c2b19f64c1a5df18",
             "type": "leaf",
             "state": {
               "type": "bookmarks",
@@ -81,20 +81,20 @@
     "width": 300
   },
   "right": {
-    "id": "ff89178a156f21db",
+    "id": "5f2deb04c2588273",
     "type": "split",
     "children": [
       {
-        "id": "e416a8c0235070b4",
+        "id": "bebba8c9297c6182",
         "type": "tabs",
         "children": [
           {
-            "id": "073a41fc2c96bfa7",
+            "id": "14c2c1cbb76531bb",
             "type": "leaf",
             "state": {
               "type": "backlink",
               "state": {
-                "file": "FASE3-MUTACIONES-UNIFICADAS.md",
+                "file": "arreglar/I18N_PLAN_v2.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,25 +104,25 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Enlaces entrantes de FASE3-MUTACIONES-UNIFICADAS"
+              "title": "Enlaces entrantes de I18N_PLAN_v2"
             }
           },
           {
-            "id": "ecdbcb3d93ba7ff7",
+            "id": "e1438afe8383e280",
             "type": "leaf",
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "FASE3-MUTACIONES-UNIFICADAS.md",
+                "file": "arreglar/I18N_PLAN_v2.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Enlaces salientes de FASE3-MUTACIONES-UNIFICADAS"
+              "title": "Enlaces salientes de I18N_PLAN_v2"
             }
           },
           {
-            "id": "2a414f0f2235bdc7",
+            "id": "00ae963c67bffdb1",
             "type": "leaf",
             "state": {
               "type": "tag",
@@ -137,7 +137,7 @@
             }
           },
           {
-            "id": "f0fecdec7df1293f",
+            "id": "c150a9de3914e175",
             "type": "leaf",
             "state": {
               "type": "all-properties",
@@ -151,18 +151,18 @@
             }
           },
           {
-            "id": "2c44fb738f1a4e94",
+            "id": "9887f400e3394fb5",
             "type": "leaf",
             "state": {
               "type": "outline",
               "state": {
-                "file": "FASE3-MUTACIONES-UNIFICADAS.md",
+                "file": "arreglar/I18N_PLAN_v2.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Esquema de FASE3-MUTACIONES-UNIFICADAS"
+              "title": "Esquema de I18N_PLAN_v2"
             }
           }
         ]
@@ -183,30 +183,11 @@
       "bases:Crear nueva base": false
     }
   },
-  "active": "b58dcd5101bd4191",
+  "active": "715c3aeae12a2e7c",
   "lastOpenFiles": [
-    "planificacion/UX_CHILD_MIGRATION.md",
-    "planificacion/SOUND_SYSTEM.md",
-    "planificacion/REWARD_ANIMATIONS.md",
-    "planificacion/MASCOT_IMPLEMENTATION.md",
-    "planificacion/PLAN.md",
-    "planificacion/ROADMAP.md",
-    "DEXIE_INDEXEDDB_GUIDE.md",
-    "testing/FASE4-TESTS-AUTH-ERROR.md",
-    "testing/FASE3C-TESTS-CLIENT.md",
-    "testing/FASE3B-TESTS-KEYS.md",
-    "testing/FASE3-TESTS-CONFLICT.md",
-    "TODOS.md",
-    "testing/CONFLICTOS.md",
-    "testing/FASE2-TESTS-RETRY.md",
-    "testing/FASE1-INFRAESTRUCTURA.md",
-    "ROADMAP.md",
-    "TESTING_STRATEGY_GUIDE.md",
-    "VISION_GENERAL.md",
-    "SERVICE_WORKER.md",
-    "README.md",
-    "ARCHITECTURE_LAYERS.md",
-    "API_CONTRACT.md",
-    "FASE3-MUTACIONES-UNIFICADAS.md"
+    "arreglar/FASE3_RESUMEN.md",
+    "arreglar/FASE2_RESUMEN.md",
+    "arreglar/I18N_PLAN_v2.md",
+    "arreglar/I18N_FIXES_F0_F1.md"
   ]
 }

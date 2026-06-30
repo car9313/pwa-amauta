@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { AmautaButton, AmautaScrollArea } from "@/components/amauta";
 import { LogOut, X } from "lucide-react";
 import { NavItem } from "../components/nav-item";
@@ -23,6 +24,7 @@ export function SidebarNav({
   onClose,
   onLogout,
 }: SidebarNavProps) {
+  const { t } = useTranslation();
   return (
     <aside className="flex h-full w-full flex-col bg-background">
       <div className="flex items-center justify-between px-4 pt-4">
@@ -33,7 +35,7 @@ export function SidebarNav({
             variant="ghost"
             size="icon"
             onClick={onClose}
-            aria-label="Cerrar menú"
+            aria-label={t("navigation:sidebar.closeMenu")}
             className="rounded-full text-foreground hover:bg-muted"
           >
             <X className="h-5 w-5" />
@@ -66,7 +68,7 @@ export function SidebarNav({
           className="w-full justify-start gap-3 rounded-2xl bg-destructive/10 text-destructive hover:bg-destructive/20 hover:text-destructive"
         >
           <LogOut className="h-4 w-4" />
-          Cerrar sesión
+          {t("navigation:sidebar.logout")}
         </AmautaButton>
       </div>
     </aside>

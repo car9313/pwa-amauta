@@ -1,3 +1,4 @@
+import i18next from "i18next";
 import {
   LayoutDashboard,
   BookOpen,
@@ -13,17 +14,17 @@ export type NavItemConfig = {
 };
 
 export const studentNavItems: NavItemConfig[] = [
-  { label: "Mi Dashboard", href: "/dashboard/student", icon: LayoutDashboard },
-  { label: "Lecciones", href: "/lessons", icon: BookOpen },
-  { label: "Práctica", href: "/practice", icon: BarChart3 },
-  { label: "¡Juguemos!", href: "/games", icon: Gamepad2 },
-  { label: "Mi Progreso", href: "/progress", icon: BarChart3 },
-  { label: "Panel de Padres", href: "/dashboard/parent", icon: Users },
+  { label: i18next.t("navigation:navItems.dashboard"), href: "/dashboard/student", icon: LayoutDashboard },
+  { label: i18next.t("navigation:navItems.lessons"), href: "/lessons", icon: BookOpen },
+  { label: i18next.t("navigation:navItems.practice"), href: "/practice", icon: BarChart3 },
+  { label: i18next.t("navigation:navItems.games"), href: "/games", icon: Gamepad2 },
+  { label: i18next.t("navigation:navItems.progress"), href: "/progress", icon: BarChart3 },
+  { label: i18next.t("navigation:navItems.parentPanel"), href: "/dashboard/parent", icon: Users },
 ];
 
 export const parentNavItems: NavItemConfig[] = [
-  { label: "Mi Dashboard", href: "/dashboard/parent", icon: LayoutDashboard },
-  { label: "Lecciones", href: "/lessons", icon: BookOpen },
-  { label: "Progreso", href: "/progress", icon: BarChart3 },
-  { label: "Panel de Padres", href: "/dashboard/parent", icon: Users },
+  { label: i18next.t("navigation:navItems.dashboard"), href: "/dashboard/parent", icon: LayoutDashboard },
+  { label: i18next.t("navigation:navItems.lessons"), href: "/lessons", icon: BookOpen },
+  { label: i18next.t("navigation:navItems.progress"), href: "/progress", icon: BarChart3 },
+  { label: i18next.t("navigation:navItems.parentPanel"), href: "/dashboard/parent", icon: Users },
 ];

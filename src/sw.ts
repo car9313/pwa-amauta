@@ -18,7 +18,7 @@ declare const self: ServiceWorkerGlobalScope & {
 }
 
 import { precacheAndRoute, cleanupOutdatedCaches, PrecacheFallbackPlugin } from 'workbox-precaching'
-import { registerRoute, NavigationRoute } from 'workbox-routing'
+import { registerRoute, NavigationRoute, setCatchHandler } from 'workbox-routing'
 import {
   CacheFirst,
   NetworkFirst,
@@ -80,7 +80,16 @@ registerRoute(
   })
 )
 
-// 3) Scripts / CSS / Fonts -> StaleWhileRevalidate
+// 3) Locales -> CacheFirst (versionados, nunca cambian sin cambiar URL)
+registerRoute(
+  ({ url }) => url.pathname.startsWith('/locales/'),
+  new CacheFirst({
+    cacheName: 'static-resources-v1',
+    plugins: [new CacheableResponsePlugin({ statuses: [0, 200] })]
+  })
+)
+
+// 4) Scripts / CSS / Fonts -> StaleWhileRevalidate
 registerRoute(
   ({ request }) =>
     request.destination === 'script' ||
@@ -92,14 +101,14 @@ registerRoute(
   })
 )
 
-// 4) POSTs a /api/ -> NetworkOnly (el app-level outbox maneja retries)
+// 5) POSTs a /api/ -> NetworkOnly (el app-level outbox maneja retries)
 registerRoute(
   ({ url, request }) => request.method === 'POST' && url.pathname.startsWith('/api/'),
   new NetworkOnly(),
   'POST'
 )
 
-// 5) Navegación SPA -> stale-while-revalidate con fallback a precache
+// 6) Navegación SPA -> stale-while-revalidate con fallback a precache
 // Pattern: "rápido primero, luego fresco si se puede" + offline fallback
 registerRoute(
   new NavigationRoute(
@@ -114,6 +123,33 @@ registerRoute(
     })
   )
 )
+
+/* -------------------------
+   Catch handler global (safety net)
+   Cuando NetworkFirst (API) o cualquier otra estrategia
+   no puede resolver una request (network fail + sin cache),
+   Workbox lanza "no-response". Este handler captura esos
+   casos y devuelve una respuesta HTTP con código 502
+   en vez de dejar que la promesa se rechace.
+   ------------------------- */
+setCatchHandler(async ({ request }) => {
+  const isApiRequest =
+    request.url.includes('.amauta.axentra.io') ||
+    request.url.includes('/api/') ||
+    request.url.includes('/v1/')
+
+  if (isApiRequest) {
+    return new Response(JSON.stringify({
+      error: 'service_unavailable',
+      message: 'No se pudo conectar con el servidor'
+    }), {
+      status: 502,
+      headers: { 'Content-Type': 'application/json' }
+    })
+  }
+
+  return Response.error()
+})
 
 /* -------------------------
    Mensajes desde la app (SKIP_WAITING, CACHE_URLS)

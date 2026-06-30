@@ -1,6 +1,28 @@
-import { describe, it, expect } from 'vitest'
-import { mapHttpErrorToAuthError, AUTH_ERROR_MESSAGES } from './auth-error'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { mapHttpErrorToAuthError, getAuthErrorMessage } from './auth-error'
 import { TimeoutError } from '@/lib/async/withTimeout'
+
+beforeEach(() => {
+  vi.resetAllMocks()
+})
+
+vi.mock('i18next', () => {
+  const t = vi.fn((key: string) => {
+    const map: Record<string, string> = {
+      'auth:errors.tokenExpired': 'Tu sesión expiró. Conéctate a internet para renovarla automáticamente.',
+      'auth:errors.tokenInvalid': 'Tu sesión no es válida. Por favor, inicia sesión de nuevo.',
+      'auth:errors.tokenRevoked': 'Tu sesión fue cerrada por seguridad. Por favor, inicia sesión de nuevo.',
+      'auth:errors.refreshFailed': 'No pudimos renovar tu sesión. Por favor, inicia sesión de nuevo.',
+      'auth:errors.networkError': 'Sin conexión a internet. Puedes seguir usando la app en modo offline.',
+      'auth:errors.sessionNotFound': 'No encontramos tu sesión. Por favor, inicia sesión.',
+      'auth:errors.timeout': 'La conexión está muy lenta. Inténtalo de nuevo.',
+      'auth:errors.conflict': 'El dato que intentas guardar fue modificado por otro dispositivo.',
+      'auth:errors.unknown': 'Error desconocido',
+    }
+    return map[key] ?? key
+  })
+  return { default: { t }, t }
+})
 
 describe('mapHttpErrorToAuthError', () => {
   describe('timeout errors', () => {
@@ -28,7 +50,7 @@ describe('mapHttpErrorToAuthError', () => {
       const result = mapHttpErrorToAuthError(new Error('anything'), false)
       expect(result.code).toBe('NETWORK_ERROR')
       expect(result.isOffline).toBe(true)
-      expect(result.message).toBe(AUTH_ERROR_MESSAGES.NETWORK_ERROR)
+      expect(result.message).toBe(getAuthErrorMessage("NETWORK_ERROR"))
     })
 
     it('returns NETWORK_ERROR even for null error when offline', () => {
@@ -42,7 +64,7 @@ describe('mapHttpErrorToAuthError', () => {
     it('returns TOKEN_INVALID for 401 status', () => {
       const result = mapHttpErrorToAuthError(new Error('401 Unauthorized'), true)
       expect(result.code).toBe('TOKEN_INVALID')
-      expect(result.message).toBe(AUTH_ERROR_MESSAGES.TOKEN_INVALID)
+      expect(result.message).toBe(getAuthErrorMessage("TOKEN_INVALID"))
       expect(result.isOffline).toBeUndefined()
     })
 
@@ -61,7 +83,7 @@ describe('mapHttpErrorToAuthError', () => {
         new Error('401 Token has been revoked'), true
       )
       expect(result.code).toBe('TOKEN_REVOKED')
-      expect(result.message).toBe(AUTH_ERROR_MESSAGES.TOKEN_REVOKED)
+      expect(result.message).toBe(getAuthErrorMessage("TOKEN_REVOKED"))
     })
 
     it('returns TOKEN_REVOKED when unauthorized includes "invalid"', () => {
@@ -83,7 +105,7 @@ describe('mapHttpErrorToAuthError', () => {
     it('returns TOKEN_REVOKED for 403 status', () => {
       const result = mapHttpErrorToAuthError(new Error('403 Forbidden'), true)
       expect(result.code).toBe('TOKEN_REVOKED')
-      expect(result.message).toBe(AUTH_ERROR_MESSAGES.TOKEN_REVOKED)
+      expect(result.message).toBe(getAuthErrorMessage("TOKEN_REVOKED"))
     })
   })
 
@@ -114,7 +136,7 @@ describe('mapHttpErrorToAuthError', () => {
         new Error('Something went wrong'), true
       )
       expect(result.code).toBe('REFRESH_FAILED')
-      expect(result.message).toBe(AUTH_ERROR_MESSAGES.REFRESH_FAILED)
+      expect(result.message).toBe(getAuthErrorMessage("REFRESH_FAILED"))
     })
 
     it('returns REFRESH_FAILED for empty error message', () => {
@@ -146,8 +168,8 @@ describe('mapHttpErrorToAuthError', () => {
     })
   })
 
-  describe('AUTH_ERROR_MESSAGES', () => {
-    it('defines a message for every AuthErrorCode', () => {
+  describe('getAuthErrorMessage', () => {
+    it('returns a message for every AuthErrorCode', () => {
       const codes = [
         'TOKEN_EXPIRED',
         'TOKEN_INVALID',
@@ -159,15 +181,16 @@ describe('mapHttpErrorToAuthError', () => {
       ] as const
 
       for (const code of codes) {
-        expect(AUTH_ERROR_MESSAGES[code]).toBeDefined()
-        expect(AUTH_ERROR_MESSAGES[code].length).toBeGreaterThan(0)
+        const msg = getAuthErrorMessage(code)
+        expect(msg).toBeDefined()
+        expect(msg.length).toBeGreaterThan(0)
       }
     })
 
     it('all messages are in Spanish', () => {
-      const messages = Object.values(AUTH_ERROR_MESSAGES)
-      for (const msg of messages) {
-        expect(msg).toMatch(/[a-záéíóúñ]/i)
+      const codes = ['TOKEN_EXPIRED', 'TOKEN_INVALID', 'TOKEN_REVOKED', 'REFRESH_FAILED', 'NETWORK_ERROR', 'SESSION_NOT_FOUND', 'TIMEOUT', 'CONFLICT'] as const
+      for (const code of codes) {
+        expect(getAuthErrorMessage(code)).toMatch(/[a-záéíóúñ]/i)
       }
     })
   })

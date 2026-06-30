@@ -264,6 +264,22 @@ Esto activa:
 - Intervalo cada 30s → procesa cola si hay pendientes
 - Procesamiento inicial al mount si hay mutations pendientes + conexión
 
+### Modo Mock (`VITE_USE_MOCK=true`)
+
+Cuando la app está configurada con mocks (sin backend real), el sistema de cola se desactiva automáticamente:
+
+1. **`initBackgroundSync()`** detecta `VITE_USE_MOCK=true` → ejecuta `clearAllMutations()` para limpiar la tabla `mutations` de cualquier mutación stale de sesiones anteriores, y retorna sin iniciar el background sync.
+
+2. **`queueMutation()`** detecta `VITE_USE_MOCK=true` → retorna `{ online: true, queued: false, data: null }` sin encolar ninguna mutación.
+
+**¿Qué datos se pierden?** Solo la tabla `mutations` (cola de sincronización). Las tablas `progress`, `exercises`, `users`, `tokens`, `preferences` NO se modifican. La progresión local del estudiante se preserva intacta.
+
+**¿Por qué es seguro?**
+- En mock mode no hay backend al cual sincronizar
+- Las mutaciones stale de sesiones anteriores (con `status: "failed"`) no pueden ejecutarse nunca
+- Sin esta limpieza, `ConnectionStatus` muestra un banner rojo persistente con "1 cambio no se pudo guardar" que el usuario no puede resolver
+- Cuando se active el backend real (`VITE_USE_MOCK=false`), la cola empieza vacía y se puebla normalmente con nuevas mutaciones
+
 ---
 
 ## Integración con el Service Worker

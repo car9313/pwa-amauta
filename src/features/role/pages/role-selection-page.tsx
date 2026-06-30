@@ -1,58 +1,60 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { getDashboardPath } from "@/features/auth/presentation/routing/auth-navigation";
-import { useAuthStore } from "@/features/auth/presentation/store/auth-store";
-import { RoleCard } from "./components/role-card";
+import { useEffect } from "react"
+import { useNavigate } from "react-router-dom"
+import { useTranslation } from "react-i18next"
+import { getDashboardPath } from "@/features/auth/presentation/routing/auth-navigation"
+import { useAuthStore } from "@/features/auth/presentation/store/auth-store"
+import { RoleCard } from "./components/role-card"
 
 export function RoleSelectionPage() {
-  const navigate = useNavigate();
+  const { t } = useTranslation("role")
+  const navigate = useNavigate()
 
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const user = useAuthStore((state) => state.user);
-  const hasHydrated = useAuthStore((state) => state.hasHydrated);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  const user = useAuthStore((state) => state.user)
+  const hasHydrated = useAuthStore((state) => state.hasHydrated)
 
   useEffect(() => {
-    if (!hasHydrated) return;
+    if (!hasHydrated) return
 
     if (isAuthenticated && user?.role) {
-      navigate(getDashboardPath(user.role), { replace: true });
+      navigate(getDashboardPath(user.role), { replace: true })
     }
-  }, [hasHydrated, isAuthenticated, user, navigate]);
+  }, [hasHydrated, isAuthenticated, user, navigate])
 
   const handleSelectRole = (nextRole: "student" | "parent") => {
     if (!isAuthenticated) {
-      navigate("/login", { replace: true });
-      return;
+      navigate("/login", { replace: true })
+      return
     }
 
-    navigate(getDashboardPath(nextRole), { replace: true });
-  };
+    navigate(getDashboardPath(nextRole), { replace: true })
+  }
 
   if (!hasHydrated) {
-    return null;
+    return null
   }
 
   return (
     <section className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-5xl items-center justify-center px-4 py-6 sm:px-6 lg:px-8">
       <div className="flex w-full max-w-md flex-col gap-4 sm:max-w-lg md:max-w-xl">
         <RoleCard
-          title="Soy"
-          highlight="Estudiante"
+          title={t("iAm")}
+          highlight={t("student")}
           imageSrc="/student.jpg"
-          imageAlt="Estudiante"
+          imageAlt={t("student")}
           accentClassName="border-amauta-orange/20"
           onSelect={() => handleSelectRole("student")}
         />
 
         <RoleCard
-          title="Soy"
-          highlight="Padre o Madre"
+          title={t("iAm")}
+          highlight={t("parent")}
           imageSrc="/parent.jpg"
-          imageAlt="Padre o madre"
+          imageAlt={t("parent")}
           accentClassName="border-amauta-blue/20"
           onSelect={() => handleSelectRole("parent")}
         />
       </div>
     </section>
-  );
+  )
 }

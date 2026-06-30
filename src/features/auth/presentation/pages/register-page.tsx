@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslation } from "react-i18next";
+import i18next from "i18next";
 import { User, Mail, Lock, ArrowRight, WifiOff, Loader2 } from "lucide-react";
 import {
   AmautaButton,
@@ -24,20 +26,15 @@ import { useRegister } from "../../hooks/useAuth";
 import { useOnlineStatus } from "../../hooks/useOnlineStatus";
 import type { AuthError } from "../../domain/auth-error";
 
-function friendlyMessageForField(error: AuthError): string {
-  if (error.code === "TIMEOUT") {
-    return "La conexión está muy lenta. ¿Lo intentamos de nuevo?";
-  }
-  if (error.code === "NETWORK_ERROR") {
-    return "No pudimos crear tu cuenta. Revisa tu conexión e inténtalo de nuevo.";
-  }
-  if (error.code === "TOKEN_REVOKED" || error.code === "SESSION_NOT_FOUND") {
-    return "Tu sesión fue cerrada. Crea una cuenta nueva.";
-  }
+const friendlyMessageForField = (error: AuthError): string => {
+  if (error.code === "TIMEOUT") return i18next.t("auth:register.timeoutMessage");
+  if (error.code === "NETWORK_ERROR") return i18next.t("auth:register.networkErrorMessage");
+  if (error.code === "TOKEN_REVOKED" || error.code === "SESSION_NOT_FOUND") return i18next.t("auth:register.sessionClosedMessage");
   return error.message;
-}
+};
 
 export function RegisterPage() {
+  const { t } = useTranslation();
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
   const { register: registerUser, isLoading, error, reset } = useRegister();
   const isOnline = useOnlineStatus();
@@ -76,8 +73,8 @@ export function RegisterPage() {
 
   const offlineMessage = useMemo(() => {
     if (isOnline) return null;
-    return "No tienes internet. Vuelve cuando tengas conexión para crear tu cuenta.";
-  }, [isOnline]);
+    return t("auth:register.offlineMessage");
+  }, [isOnline, t]);
 
   const onSubmit = (values: RegisterFormValues): void => {
     setLastSubmitted(values);
@@ -90,7 +87,7 @@ export function RegisterPage() {
   };
 
   if (!hasHydrated) {
-    return <AmautaLoadingState variant="page" label="Preparando tu sesión..." />;
+    return <AmautaLoadingState variant="page" label={t("auth:register.preparing")} />;
   }
 
   const submitDisabled = isLoading || !isOnline;
@@ -120,11 +117,11 @@ export function RegisterPage() {
           </div>
 
           <AmautaCardTitle className="text-2xl sm:text-3xl font-bold tracking-tight text-primary">
-            ¡Únete a Amauta!
+            {t("auth:register.title")}
           </AmautaCardTitle>
 
           <AmautaCardDescription className="text-sm sm:text-base">
-            Crea tu cuenta para comenzar a aprender
+            {t("auth:register.subtitle")}
           </AmautaCardDescription>
         </AmautaCardHeader>
 
@@ -150,13 +147,13 @@ export function RegisterPage() {
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             )}>
               <AmautaLabel htmlFor="name" className="text-foreground font-semibold text-sm">
-                Nombre completo
+                {t("auth:register.nameLabel")}
               </AmautaLabel>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <AmautaInput
                   id="name"
-                  placeholder="Mario García"
+                  placeholder={t("auth:register.namePlaceholder")}
                   className="pl-10 border-input bg-background/50 focus:bg-background transition-all duration-200 focus:ring-2 focus:ring-primary/20"
                   aria-invalid={!!errors.name}
                   {...register("name")}
@@ -172,14 +169,14 @@ export function RegisterPage() {
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             )}>
               <AmautaLabel htmlFor="email" className="text-foreground font-semibold text-sm">
-                Correo electrónico
+                {t("auth:register.emailLabel")}
               </AmautaLabel>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <AmautaInput
                   id="email"
                   type="email"
-                  placeholder="correo@ejemplo.com"
+                  placeholder={t("auth:register.emailPlaceholder")}
                   className="pl-10 border-input bg-background/50 focus:bg-background transition-all duration-200 focus:ring-2 focus:ring-primary/20"
                   aria-invalid={!!errors.email}
                   {...register("email")}
@@ -195,14 +192,14 @@ export function RegisterPage() {
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             )}>
               <AmautaLabel htmlFor="password" className="text-foreground font-semibold text-sm">
-                Contraseña
+                {t("auth:register.passwordLabel")}
               </AmautaLabel>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <AmautaInput
                   id="password"
                   type="password"
-                  placeholder="••••••••"
+                  placeholder={t("auth:register.passwordPlaceholder")}
                   className="pl-10 border-input bg-background/50 focus:bg-background transition-all duration-200 focus:ring-2 focus:ring-primary/20"
                   aria-invalid={!!errors.password}
                   {...register("password")}
@@ -218,14 +215,14 @@ export function RegisterPage() {
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             )}>
               <AmautaLabel htmlFor="confirmPassword" className="text-foreground font-semibold text-sm">
-                Confirmar contraseña
+                {t("auth:register.confirmPasswordLabel")}
               </AmautaLabel>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <AmautaInput
                   id="confirmPassword"
                   type="password"
-                  placeholder="••••••••"
+                  placeholder={t("auth:register.passwordPlaceholder")}
                   className="pl-10 border-input bg-background/50 focus:bg-background transition-all duration-200 focus:ring-2 focus:ring-primary/20"
                   aria-invalid={!!errors.confirmPassword}
                   {...register("confirmPassword")}
@@ -241,7 +238,7 @@ export function RegisterPage() {
               size="child-lg"
               disabled={submitDisabled}
               aria-disabled={submitDisabled}
-              title={!isOnline ? "Necesitas internet para crear una cuenta" : undefined}
+              title={!isOnline ? t("auth:register.offlineTitle") : undefined}
               className={cn(
                 "w-full mt-2",
                 "bg-linear-to-r from-accent to-amauta-orange-dark",
@@ -255,16 +252,16 @@ export function RegisterPage() {
               {isLoading ? (
                 <span className="flex items-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Creando tu cuenta...
+                  {t("auth:register.submitLoading")}
                 </span>
               ) : !isOnline ? (
                 <span className="flex items-center gap-2">
                   <WifiOff className="h-4 w-4" />
-                  Sin internet
+                  {t("auth:register.offlineButton")}
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
-                  Registrarme
+                  {t("auth:register.submitButton")}
                   <ArrowRight className="h-4 w-4" />
                 </span>
               )}
@@ -274,9 +271,9 @@ export function RegisterPage() {
               "text-center text-sm font-medium text-muted-foreground transition-all duration-500 delay-600",
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             )}>
-              ¿Ya tienes cuenta?{' '}
+              {t("auth:register.loginLink")}{' '}
               <Link to="/login" className="text-primary hover:underline font-semibold">
-                Inicia sesión
+                {t("auth:register.loginLinkText")}
               </Link>
             </p>
           </form>

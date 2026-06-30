@@ -1,4 +1,5 @@
 import { processQueue, getQueueState, getPendingMutationsCount, triggerSync as doTriggerSync } from "./queue-manager";
+import { clearAllMutations } from "@/lib/api/storage/offline-queue";
 
 let syncInterval: ReturnType<typeof setInterval> | null = null;
 let isRunning = false;
@@ -148,6 +149,13 @@ export async function initBackgroundSync(options?: {
   intervalMs?: number;
   autoSync?: boolean;
 }): Promise<void> {
+  const USE_MOCKS = import.meta.env.VITE_USE_MOCK === "true";
+
+  if (USE_MOCKS) {
+    await clearAllMutations();
+    return;
+  }
+
   const pendingCount = await getPendingMutationsCount();
 
   if (pendingCount > 0 && navigator.onLine) {

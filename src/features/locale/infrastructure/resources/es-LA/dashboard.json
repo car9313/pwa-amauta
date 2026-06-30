@@ -1,0 +1,61 @@
+{
+  "student": {
+    "welcome": "¡Hola, {{name}}!",
+    "streakLabel": "Racha actual",
+    "streakDays": "días",
+    "points": "Puntos",
+    "progress": "Progreso",
+    "precision": "Precisión",
+    "todayAgenda": "Agenda de Hoy",
+    "addPlaceholder": "Escribe una tarea...",
+    "addButton": "Añadir",
+    "customTask": "Tarea personalizada",
+    "noTasks": "No hay tareas para hoy",
+    "yourProgress": "Tu Progreso",
+    "viewAll": "Ver todo",
+    "continueLesson": "Continuar Lección",
+    "continue": "Continuar",
+    "play": "¡Jugar!",
+    "followLearning": "¡Sigue aprendiendo!",
+    "followDescription": "Completa tus lecciones de hoy con Amauta",
+    "latestAchievements": "Últimos Logros",
+    "noAchievements": "No hay logros aun",
+    "minutes": "min",
+    "weekDays": ["L", "M", "M", "J", "V", "S", "D"],
+    "level": "Nivel {{level}}"
+  },
+  "parent": {
+    "welcome": "¡Hola, {{name}}!",
+    "childLevel": "Nivel {{level}}",
+    "points": "puntos",
+    "precision": "{{precision}}% precisión",
+    "streakDays": "{{days}} días racha",
+    "recentActivity": "Actividad Reciente",
+    "items": "items",
+    "noActivity": "No hay actividad reciente",
+    "childrenSummary": "Resumen de Hijos",
+    "monitorDescription": "Monitorea el progreso de tu familia",
+    "childrenCount": "Hijos",
+    "totalPoints": "Puntos",
+    "average": "Promedio"
+  },
+  "teacher": {
+    "welcome": "¡Hola, {{name}}!",
+    "students": "Estudiantes",
+    "classes": "Clases",
+    "mastery": "Dominio",
+    "myClasses": "Mis Clases",
+    "studentsCount": "{{count}} alumnos",
+    "moreStudents": "+{{count}} estudiantes más",
+    "subjectProgress": "Progreso por Materia",
+    "recentActivity": "Actividad Reciente",
+    "atRiskStudents": "Estudiantes que Requieren Atención",
+    "studentMastery": "{{mastery}}% dominio"
+  },
+  "agenda": {
+    "start": "Iniciar"
+  },
+  "profile": {
+    "title": "Perfil"
+  }
+}

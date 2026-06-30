@@ -51,5 +51,5 @@ function AmautaButton({
   )
 }
 
-export { AmautaButton, amautaButtonVariants }
+export { AmautaButton }
 export type { AmautaButtonProps, AmautaButtonVariant }

@@ -52,5 +52,5 @@ function AmautaBadge({
   )
 }
 
-export { AmautaBadge, amautaBadgeVariants }
+export { AmautaBadge }
 export type { AmautaBadgeProps }

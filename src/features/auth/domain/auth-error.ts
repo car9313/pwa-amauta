@@ -1,3 +1,4 @@
+import i18next from "i18next";
 import { TimeoutError } from "@/lib/async/withTimeout";
 
 export type AuthErrorCode =
@@ -16,16 +17,19 @@ export interface AuthError {
   isOffline?: boolean;
 }
 
-export const AUTH_ERROR_MESSAGES: Record<AuthErrorCode, string> = {
-  TOKEN_EXPIRED: "Tu sesión expiró. Conéctate a internet para renovarla automáticamente.",
-  TOKEN_INVALID: "Tu sesión no es válida. Por favor, inicia sesión de nuevo.",
-  TOKEN_REVOKED: "Tu sesión fue cerrada por seguridad. Por favor, inicia sesión de nuevo.",
-  REFRESH_FAILED: "No pudimos renovar tu sesión. Por favor, inicia sesión de nuevo.",
-  NETWORK_ERROR: "Sin conexión a internet. Puedes seguir usando la app en modo offline.",
-  SESSION_NOT_FOUND: "No encontramos tu sesión. Por favor, inicia sesión.",
-  TIMEOUT: "La conexión está muy lenta. Inténtalo de nuevo.",
-  CONFLICT: "El dato que intentas guardar fue modificado por otro dispositivo.",
-};
+export function getAuthErrorMessage(code: AuthErrorCode): string {
+  const keyMap: Record<AuthErrorCode, string> = {
+    TOKEN_EXPIRED: "auth:errors.tokenExpired",
+    TOKEN_INVALID: "auth:errors.tokenInvalid",
+    TOKEN_REVOKED: "auth:errors.tokenRevoked",
+    REFRESH_FAILED: "auth:errors.refreshFailed",
+    NETWORK_ERROR: "auth:errors.networkError",
+    SESSION_NOT_FOUND: "auth:errors.sessionNotFound",
+    TIMEOUT: "auth:errors.timeout",
+    CONFLICT: "auth:errors.conflict",
+  }
+  return i18next.t(keyMap[code])
+}
 
 export const OFFLINE_ERROR_CODES: readonly AuthErrorCode[] = [
   "NETWORK_ERROR",
@@ -42,17 +46,17 @@ export function mapHttpErrorToAuthError(error: unknown, isOnline: boolean): Auth
   if (error instanceof TimeoutError) {
     return {
       code: "TIMEOUT",
-      message: error.message || AUTH_ERROR_MESSAGES.TIMEOUT,
+      message: error.message || i18next.t("auth:errors.timeout"),
       isOffline: true,
     };
   }
 
-  const message = error instanceof Error ? error.message : "Error desconocido";
+  const message = error instanceof Error ? error.message : i18next.t("auth:errors.unknown");
 
   if (!isOnline) {
     return {
       code: "NETWORK_ERROR",
-      message: AUTH_ERROR_MESSAGES.NETWORK_ERROR,
+      message: i18next.t("auth:errors.networkError"),
       isOffline: true,
     };
   }
@@ -61,32 +65,32 @@ export function mapHttpErrorToAuthError(error: unknown, isOnline: boolean): Auth
     if (message.toLowerCase().includes("revoked") || message.toLowerCase().includes("invalid")) {
       return {
         code: "TOKEN_REVOKED",
-        message: AUTH_ERROR_MESSAGES.TOKEN_REVOKED,
+        message: i18next.t("auth:errors.tokenRevoked"),
       };
     }
     return {
       code: "TOKEN_INVALID",
-      message: AUTH_ERROR_MESSAGES.TOKEN_INVALID,
+      message: i18next.t("auth:errors.tokenInvalid"),
     };
   }
 
   if (message.includes("403")) {
     return {
       code: "TOKEN_REVOKED",
-      message: AUTH_ERROR_MESSAGES.TOKEN_REVOKED,
+      message: i18next.t("auth:errors.tokenRevoked"),
     };
   }
 
   if (message.toLowerCase().includes("network") || message.toLowerCase().includes("fetch")) {
     return {
       code: "NETWORK_ERROR",
-      message: AUTH_ERROR_MESSAGES.NETWORK_ERROR,
+      message: i18next.t("auth:errors.networkError"),
       isOffline: true,
     };
   }
 
   return {
     code: "REFRESH_FAILED",
-    message: AUTH_ERROR_MESSAGES.REFRESH_FAILED,
+    message: i18next.t("auth:errors.refreshFailed"),
   };
 }

@@ -1,0 +1,62 @@
+{
+  "fallback": {
+    "genericTitle": "Algo salió mal",
+    "networkTitle": "Error de conexión",
+    "genericMessage": "Encontramos un problema. Puedes intentar de nuevo.",
+    "networkMessage": "No pudimos conectar con el servidor. Verifica tu conexión a internet.",
+    "retry": "Intentar de nuevo",
+    "retryConnection": "Reintentar conexión",
+    "goHome": "Ir al inicio",
+    "goToStart": "Volver al inicio"
+  },
+  "student": {
+    "networkTitle": "¡Ups! No hay internet",
+    "genericTitle": "¡Ups! Algo se atravesó",
+    "networkMessage": "Parece que no hay conexión a internet. Pídele a un adulto que revise.",
+    "genericMessage": "Tuviste un pequeño percance. ¡No te preocupes! Puedes intentarlo de nuevo.",
+    "retryNetwork": "¡Verificar de nuevo!",
+    "retryGeneric": "¡Intentar de nuevo!",
+    "goHome": "Volver al inicio"
+  },
+  "parent": {
+    "networkTitle": "Error de conexión",
+    "genericTitle": "Error inesperado",
+    "networkMessage": "No se pudo conectar con el servidor. Revisa tu conexión a internet.",
+    "genericMessage": "Hubo un problema al cargar esta sección. Por favor, intenta de nuevo.",
+    "retryConnection": "Reintentar conexión",
+    "retry": "Reintentar",
+    "home": "Inicio"
+  },
+  "connectionStatus": {
+    "offlineStudent": "¡Ups! Algo no funciona. Avísale a un adulto.",
+    "offlineParent": "Sin conexión a internet. Puedes seguir usando la app en modo offline.",
+    "offlineGeneric": "Sin conexión a internet",
+    "retrying": "Reintentando...",
+    "retry": "Reintentar",
+    "failedSingle": "{{count}} cambio no se pudo guardar",
+    "failedMultiple": "{{count}} cambios no se pudieron guardar"
+  },
+  "updateToast": {
+    "newVersion": "Nueva versión disponible",
+    "updateDescription": "Hay una actualización. ¿Quieres actualizar ahora?",
+    "updating": "Actualizando...",
+    "updateNow": "Actualizar ahora",
+    "postpone": "Posponer"
+  },
+  "downloadLesson": {
+    "title": "Descargar lección",
+    "download": "Descargar para usar offline",
+    "requesting": "Solicitando descarga...",
+    "downloading": "Descargando recursos (esto puede tardar)...",
+    "done": "Descarga completada.",
+    "failedMessage": "Algunos recursos fallaron:",
+    "retry": "Reintentar"
+  },
+  "errorState": {
+    "title": "¡Ups! Algo salió mal",
+    "retry": "Intentar de nuevo"
+  },
+  "loadingState": {
+    "loading": "Cargando..."
+  }
+}

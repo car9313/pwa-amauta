@@ -1,0 +1,39 @@
+{
+  "lesson": {
+    "home": "Inicio",
+    "title": "Lección",
+    "difficulty": "Dificultad:",
+    "step": "Paso {{current}} de {{total}}",
+    "resolve": "Resuelve:",
+    "demoPlaceholder": "Demostración visual próximamente",
+    "inputPlaceholder": "Ej: 15/8",
+    "verifying": "Verificando...",
+    "submitted": "¡Respuesta enviada!",
+    "submit": "Contestar",
+    "skip": "Saltar paso",
+    "errorTitle": "¡Ups! Algo salió mal",
+    "errorMessage": "No pudimos cargar el ejercicio. Intenta de nuevo.",
+    "goHome": "Volver al inicio",
+    "subInstruction": "¡Hazlo como en la pizarra!"
+  },
+  "feedback": {
+    "queuedTitle": "¡Respuesta guardada!",
+    "queuedDescription": "Se enviará automáticamente cuando tengas conexión a internet.",
+    "continue": "Continuar",
+    "excellent": "¡Excelente trabajo!",
+    "good": "¡Buen trabajo!",
+    "failed": "¡Sigue intentando!",
+    "reviewMistakes": "Revisa tus errores",
+    "severity": "Gravedad:",
+    "carryMissed": "Olvidaste llevar el número",
+    "columnMisalign": "Desalineaste las columnas",
+    "signError": "Confundiste suma con resta",
+    "calculationError": "Error en el cálculo",
+    "advance": "Siguiente tema: listo para avanzar",
+    "reinforce": "Sigue practicando para reforzar",
+    "remediate": "Repasemos lo básico primero",
+    "retry": "Intentar de nuevo",
+    "next": "Siguiente",
+    "goHome": "Volver al inicio"
+  }
+}

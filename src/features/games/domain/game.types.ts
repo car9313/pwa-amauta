@@ -4,8 +4,6 @@ export type GameId = "memory" | "timed" | "quiz"
 
 export interface GameConfig {
   id: GameId
-  title: string
-  description: string
   icon: string
   color: string
   bgClass: string
@@ -18,6 +16,7 @@ export interface MemoryCard {
   id: string
   pairId: string
   content: string
+  displayValue: string
   isFlipped: boolean
   isMatched: boolean
 }

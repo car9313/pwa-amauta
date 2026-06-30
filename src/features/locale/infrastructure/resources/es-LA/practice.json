@@ -1,0 +1,22 @@
+{
+  "title": "Práctica Libre",
+  "subtitle": "Elige qué practicar",
+  "topic": "Tema",
+  "all": "Todo",
+  "addition": "Sumas",
+  "subtraction": "Restas",
+  "multiplication": "Multiplicación",
+  "division": "División",
+  "difficulty": "Dificultad",
+  "start": "Comenzar a practicar",
+  "changeTopic": "Cambiar tema",
+  "score": "Aciertos:",
+  "streak": "Racha:",
+  "attempts": "Intentos:",
+  "errorTitle": "No pudimos cargar el ejercicio",
+  "errorMessage": "Intenta de nuevo.",
+  "exercise": "Ejercicio",
+  "inputPlaceholder": "Escribe tu respuesta",
+  "verifying": "Verificando...",
+  "submit": "Contestar"
+}

@@ -1,6 +1,8 @@
-import { useState } from "react"
+import { useState, useCallback } from "react"
+import { useTranslation } from "react-i18next"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { AmautaProgress } from "@/components/amauta"
 import { GameHeader } from "./game-header"
 import { GameResultScreen } from "./game-result"
@@ -13,9 +15,9 @@ interface TimedChallengeViewProps {
   streak: number
   remainingSeconds: number
   isFinished: boolean
-  prompt: string | null
+  prompt: string
   isLoading: boolean
-  onSubmit: (answer: string) => Promise<void>
+  onSubmit: (answer: string) => void
   onBack: () => void
   onReset: () => void
   result: GameResult | null
@@ -35,16 +37,23 @@ export function TimedChallengeView({
   onReset,
   result,
 }: TimedChallengeViewProps) {
-  const [answer, setAnswer] = useState("")
-  const [submitted, setSubmitted] = useState(false)
+  const { t } = useTranslation("games")
+  const [input, setInput] = useState("")
 
-  const handleSubmit = async () => {
-    if (!answer.trim() || submitted) return
-    setSubmitted(true)
-    await onSubmit(answer)
-    setAnswer("")
-    setSubmitted(false)
-  }
+  const handleSubmit = useCallback(() => {
+    if (!input.trim()) return
+    onSubmit(input.trim())
+    setInput("")
+  }, [input, onSubmit])
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter") {
+        handleSubmit()
+      }
+    },
+    [handleSubmit],
+  )
 
   if (isFinished && result) {
     return (
@@ -56,80 +65,66 @@ export function TimedChallengeView({
     )
   }
 
-  const timerPercent = (remainingSeconds / 60) * 100
+  const progress = remainingSeconds > 0 ? (remainingSeconds / 60) * 100 : 0
 
   return (
     <div className="space-y-4">
       <GameHeader
-        title="Reto Contrarreloj"
+        title={t("timed.title")}
         onBack={onBack}
         score={score}
         time={remainingSeconds}
         streak={streak}
       />
 
-      <div className="bg-card rounded-2xl shadow-sm border border-border p-5 sm:p-6 space-y-5">
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">
-            Correctas: <span className="font-bold text-success">{correctCount}</span>
-          </span>
-          <span className="text-muted-foreground">
-            Total: <span className="font-bold text-foreground">{totalAnswered}</span>
-          </span>
-          <span className="text-muted-foreground">
-            Rachas: <span className={cn("font-bold", streak >= 3 ? "text-accent" : "text-foreground")}>
-              {streak}
-            </span>
-          </span>
-        </div>
-
+      <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
         <AmautaProgress
-          value={timerPercent}
-          size="md"
-          amautaVariant={remainingSeconds > 30 ? "level" : remainingSeconds > 10 ? "xp" : "lesson"}
+          value={progress}
+          size="sm"
+          amautaVariant="lesson"
           hideLabel
         />
-
-        <p className="sr-only" aria-live="polite">
-          {remainingSeconds} segundos restantes
-        </p>
-
-        {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="w-8 h-8 border-4 border-accent/30 border-t-accent rounded-full animate-spin" />
+        <div className="p-5 sm:p-6 space-y-6">
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <span>
+              {t("timed.stats", { correct: correctCount, total: totalAnswered })}
+            </span>
+            {streak >= 3 && (
+              <span className="text-accent font-bold">
+                {t("timed.streak")}{" "}{streak}
+              </span>
+            )}
           </div>
-        ) : prompt ? (
-          <>
-            <p className="text-xl sm:text-2xl font-bold text-foreground text-center py-4">
-              {prompt}
-            </p>
-            <div className="flex gap-2">
-              <input
-                type="number"
-                value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-                placeholder="?"
-                disabled={submitted}
-                className={cn(
-                  "flex-1 h-12 px-4 text-lg font-bold text-foreground",
-                  "bg-card border-2 border-border rounded-xl",
-                  "focus:border-accent focus:ring-4 focus:ring-accent/20 focus:outline-none",
-                  "transition-all duration-300",
-                )}
-              />
-              <Button
-                onClick={handleSubmit}
-                disabled={!answer.trim() || submitted}
-                size="child-md"
-              >
-                OK
-              </Button>
-            </div>
-          </>
-        ) : (
-          <p className="text-center text-muted-foreground py-8">Esperando ejercicio...</p>
-        )}
+
+          <div
+            className={cn(
+              "text-2xl sm:text-3xl font-bold text-center py-4",
+              "bg-secondary/50 rounded-xl",
+            )}
+          >
+            {prompt}
+          </div>
+
+          <div className="flex gap-2">
+            <Input
+              type="number"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={t("timed.inputPlaceholder")}
+              disabled={isLoading}
+              className="text-lg text-center h-12"
+              autoFocus
+            />
+            <Button
+              onClick={handleSubmit}
+              disabled={isLoading || !input.trim()}
+              size="child-lg"
+            >
+              {isLoading ? t("timed.verifying") : t("timed.submit")}
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   )

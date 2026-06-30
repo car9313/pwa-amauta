@@ -1,0 +1,11 @@
+{
+  "title": "Selecciona tu rol",
+  "iAm": "Soy",
+  "student": "Estudiante",
+  "parent": "Padre o Madre",
+  "teacher": "Docente",
+  "selectProfile": "Selecciona este perfil para continuar",
+  "selectRole": "Seleccionar {{role}}",
+  "roleDescription": "Elige cómo quieres usar Amauta",
+  "continue": "Continuar"
+}

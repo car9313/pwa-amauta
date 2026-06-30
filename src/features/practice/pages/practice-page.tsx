@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 import { BarChart3, Star, ChevronRight } from "lucide-react"
 import { AmautaButton } from "@/components/amauta"
 
@@ -15,12 +16,12 @@ import { difficultyToStars } from "@/features/exercises/domain/exercise.types"
 
 type PracticeTopic = "all" | "sumas" | "restas" | "multiplicacion" | "division"
 
-const TOPICS: { key: PracticeTopic; label: string; emoji: string }[] = [
-  { key: "all", label: "Todo", emoji: "mixed" },
-  { key: "sumas", label: "Sumas", emoji: "sumas" },
-  { key: "restas", label: "Restas", emoji: "restas" },
-  { key: "multiplicacion", label: "Multiplicación", emoji: "multiplicacion" },
-  { key: "division", label: "División", emoji: "division" },
+const TOPICS: { key: PracticeTopic; label: string }[] = [
+  { key: "all", label: "all" },
+  { key: "sumas", label: "addition" },
+  { key: "restas", label: "subtraction" },
+  { key: "multiplicacion", label: "multiplication" },
+  { key: "division", label: "division" },
 ]
 
 const STRENGTHS = ["LOW", "MEDIUM", "HIGH"] as const
@@ -28,6 +29,7 @@ const STRENGTHS = ["LOW", "MEDIUM", "HIGH"] as const
 const DEFAULT_STUDENT_ID = "stu_445"
 
 export function PracticePage() {
+  const { t } = useTranslation("practice")
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const studentId = useAuthStore((state) => state.selectedStudentId) ?? DEFAULT_STUDENT_ID
@@ -88,6 +90,17 @@ export function PracticePage() {
 
   const isLoadingState = isLoading && !exercise
 
+  const getTopicLabel = (key: PracticeTopic): string => {
+    const topicKeyMap: Record<PracticeTopic, string> = {
+      all: "all",
+      sumas: "addition",
+      restas: "subtraction",
+      multiplicacion: "multiplication",
+      division: "division",
+    }
+    return t(topicKeyMap[key] as "all" | "addition" | "subtraction" | "multiplication" | "division")
+  }
+
   return (
     <div className="space-y-4 sm:space-y-6 pb-6">
       <div
@@ -100,29 +113,29 @@ export function PracticePage() {
                 <BarChart3 className="h-5 w-5 text-accent" />
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-foreground">Práctica Libre</h1>
-                <p className="text-sm text-muted-foreground">Elige qué practicar</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-foreground">{t("title")}</h1>
+                <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
               </div>
             </div>
 
             <div className="bg-card rounded-2xl shadow-sm border border-border p-5 sm:p-6 space-y-6">
               <div>
                 <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-                  Tema
+                  {t("topic")}
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                  {TOPICS.map((t) => (
+                  {TOPICS.map((tpc) => (
                     <button
-                      key={t.key}
-                      onClick={() => setTopic(t.key)}
+                      key={tpc.key}
+                      onClick={() => setTopic(tpc.key)}
                       className={cn(
                         "min-h-[44px] rounded-xl text-sm font-semibold border-2 transition-all duration-200",
-                        topic === t.key
+                        topic === tpc.key
                           ? "border-primary bg-secondary text-primary"
                           : "border-border bg-card text-muted-foreground hover:border-border/80",
                       )}
                     >
-                      {t.label}
+                      {getTopicLabel(tpc.key)}
                     </button>
                   ))}
                 </div>
@@ -130,7 +143,7 @@ export function PracticePage() {
 
               <div>
                 <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-                  Dificultad
+                  {t("difficulty")}
                 </h2>
                 <div className="flex gap-2">
                   {STRENGTHS.map((s, i) => (
@@ -165,7 +178,7 @@ export function PracticePage() {
                 size="child-lg"
                 className="w-full shadow-sm"
               >
-                Comenzar a practicar
+                {t("start")}
                 <ChevronRight className="ml-1 h-5 w-5" />
               </AmautaButton>
             </div>
@@ -178,21 +191,21 @@ export function PracticePage() {
                 className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors"
               >
                 <ChevronRight className="h-4 w-4 rotate-180" />
-                Cambiar tema
+                {t("changeTopic")}
               </button>
               <div className="flex items-center gap-4 text-sm">
                 <span className="text-muted-foreground">
-                  Aciertos: <span className="font-bold text-success">{score}</span>
+                  {t("score")}{" "}<span className="font-bold text-success">{score}</span>
                 </span>
                 <span className="text-muted-foreground">
-                  Racha:{" "}
+                  {t("streak")}{" "}
                   <span className={cn("font-bold", streak >= 3 ? "text-accent" : "text-foreground")}>
                     {streak}
                     {streak >= 3 && " 🔥"}
                   </span>
                 </span>
                 <span className="text-muted-foreground">
-                  Intentos: <span className="font-bold text-foreground">{totalAttempts}</span>
+                  {t("attempts")}{" "}<span className="font-bold text-foreground">{totalAttempts}</span>
                 </span>
               </div>
             </div>
@@ -201,14 +214,14 @@ export function PracticePage() {
               <AmautaLoadingState variant="page" />
             ) : isError ? (
               <AmautaErrorState
-                title="No pudimos cargar el ejercicio"
-                message={(error instanceof Error ? error.message : null) ?? "Intenta de nuevo."}
+                title={t("errorTitle")}
+                message={(error instanceof Error ? error.message : null) ?? t("errorMessage")}
                 onRetry={() => refetch()}
               />
             ) : (
               <div className="bg-card rounded-2xl shadow-sm border border-border p-5 sm:p-6 space-y-5">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Ejercicio</h2>
+                  <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">{t("exercise")}</h2>
                   <div className="flex gap-0.5">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Star
@@ -241,7 +254,7 @@ export function PracticePage() {
                   value={answer}
                   onChange={(e) => setAnswer(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-                  placeholder="Escribe tu respuesta"
+                  placeholder={t("inputPlaceholder")}
                   disabled={submitted}
                   className={cn(
                     "w-full h-12 px-4 text-lg sm:text-xl font-bold text-foreground",
@@ -264,10 +277,10 @@ export function PracticePage() {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                       </svg>
-                      Verificando...
+                      {t("verifying")}
                     </span>
                   ) : (
-                    "Contestar"
+                    t("submit")
                   )}
                 </AmautaButton>
               </div>

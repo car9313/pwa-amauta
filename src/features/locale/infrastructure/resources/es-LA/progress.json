@@ -1,0 +1,16 @@
+{
+  "title": "Mi Progreso",
+  "overallProgress": "Progreso general",
+  "student": "Estudiante",
+  "bySubject": "Por Materia",
+  "achievements": "Logros",
+  "noAchievements": "Aún no tienes logros. ¡Sigue practicando!",
+  "weakAreas": "Áreas a Mejorar",
+  "points": "Puntos",
+  "level": "Nivel",
+  "precision": "Precisión",
+  "learningPath": "Ruta de Aprendizaje",
+  "generalProgress": "Progreso General",
+  "levelPrefix": "Nivel {{level}}",
+  "progressOf": "Progreso de {{name}}"
+}

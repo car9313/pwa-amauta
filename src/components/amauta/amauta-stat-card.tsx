@@ -130,5 +130,5 @@ function AmautaStatCard({
   )
 }
 
-export { AmautaStatCard, colorConfig }
+export { AmautaStatCard }
 export type { AmautaStatCardProps, AmautaStatColor }

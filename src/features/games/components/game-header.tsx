@@ -1,4 +1,5 @@
 import { ArrowLeft, Clock, Star, Zap } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { cn } from "@/lib/utils"
 
 interface GameHeaderProps {
@@ -10,6 +11,8 @@ interface GameHeaderProps {
 }
 
 export function GameHeader({ title, onBack, score, time, streak }: GameHeaderProps) {
+  const { t } = useTranslation("games")
+
   return (
     <div className="flex items-center justify-between gap-4">
       <button
@@ -17,7 +20,7 @@ export function GameHeader({ title, onBack, score, time, streak }: GameHeaderPro
         className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
-        Volver
+        {t("common.back")}
       </button>
 
       <h2 className="text-base sm:text-lg font-bold text-foreground truncate">{title}</h2>

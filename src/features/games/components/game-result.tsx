@@ -1,4 +1,5 @@
 import { Trophy, Star, RefreshCw, Home } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import type { GameResult } from "../domain/game.types"
@@ -10,6 +11,7 @@ interface GameResultProps {
 }
 
 export function GameResultScreen({ result, onPlayAgain, onHome }: GameResultProps) {
+  const { t } = useTranslation("games")
   const isExcellent = result.score >= 80
   const isGood = result.score >= 50
   const percentage = result.totalCount > 0 ? Math.round((result.correctCount / result.totalCount) * 100) : 0
@@ -38,10 +40,10 @@ export function GameResultScreen({ result, onPlayAgain, onHome }: GameResultProp
               isExcellent ? "text-success" : isGood ? "text-accent" : "text-muted-foreground",
             )}
           >
-            {isExcellent ? "¡Excelente!" : isGood ? "¡Buen trabajo!" : "¡Sigue intentando!"}
+            {isExcellent ? t("result.excellent") : isGood ? t("result.good") : t("result.failed")}
           </h2>
           <p className="text-muted-foreground text-sm">
-            {result.correctCount} de {result.totalCount} correctas
+            {t("result.correctOf", { correct: result.correctCount, total: result.totalCount })}
           </p>
         </div>
 
@@ -60,11 +62,11 @@ export function GameResultScreen({ result, onPlayAgain, onHome }: GameResultProp
         <div className="grid grid-cols-2 gap-3 text-center">
           <div className="bg-secondary rounded-xl p-3">
             <p className="text-2xl font-bold text-primary">{result.score}</p>
-            <p className="text-xs text-muted-foreground">Puntaje</p>
+            <p className="text-xs text-muted-foreground">{t("result.score")}</p>
           </div>
           <div className="bg-secondary rounded-xl p-3">
             <p className="text-2xl font-bold text-accent">+{result.earnedPoints}</p>
-            <p className="text-xs text-muted-foreground">Puntos</p>
+            <p className="text-xs text-muted-foreground">{t("result.points")}</p>
           </div>
         </div>
 
@@ -75,7 +77,7 @@ export function GameResultScreen({ result, onPlayAgain, onHome }: GameResultProp
             className="w-full"
           >
             <RefreshCw className="mr-2 h-4 w-4" />
-            Jugar de nuevo
+            {t("result.playAgain")}
           </Button>
           <Button
             onClick={onHome}
@@ -84,7 +86,7 @@ export function GameResultScreen({ result, onPlayAgain, onHome }: GameResultProp
             className="w-full"
           >
             <Home className="mr-2 h-4 w-4" />
-            Volver al inicio
+            {t("result.goHome")}
           </Button>
         </div>
       </div>

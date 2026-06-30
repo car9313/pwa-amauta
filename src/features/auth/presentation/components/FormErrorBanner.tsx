@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { AlertCircle, KeyRound, Loader2, RefreshCw, WifiOff } from "lucide-react";
 import type { AuthError, AuthErrorCode } from "../../domain/auth-error";
 import { AmautaButton } from "@/components/amauta";
@@ -11,6 +12,7 @@ const ICON_BY_CODE: Record<AuthErrorCode, typeof AlertCircle> = {
   NETWORK_ERROR: WifiOff,
   SESSION_NOT_FOUND: KeyRound,
   TIMEOUT: Loader2,
+  CONFLICT: AlertCircle,
 };
 
 const RETRYABLE_CODES: ReadonlySet<AuthErrorCode> = new Set([
@@ -37,6 +39,7 @@ export function FormErrorBanner({
   variant = "error",
   className,
 }: FormErrorBannerProps) {
+  const { t } = useTranslation();
   if (!error) return null;
 
   const Icon = ICON_BY_CODE[error.code] ?? AlertCircle;
@@ -65,10 +68,10 @@ export function FormErrorBanner({
           size="sm"
           onClick={onRetry}
           className="ml-2 shrink-0"
-          aria-label="Reintentar"
+          aria-label={t("common:retry")}
         >
           <RefreshCw className="mr-1 h-3.5 w-3.5" />
-          Reintentar
+          {t("common:retry")}
         </AmautaButton>
       )}
     </div>

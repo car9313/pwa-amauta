@@ -1,16 +1,17 @@
-import { ArrowRight } from "lucide-react";
-import { AmautaCard, AmautaCardContent } from "@/components/amauta";
-import { AmautaButton } from "@/components/amauta";
-import { cn } from "@/lib/utils";
+import { ArrowRight } from "lucide-react"
+import { useTranslation } from "react-i18next"
+import { AmautaCard, AmautaCardContent } from "@/components/amauta"
+import { AmautaButton } from "@/components/amauta"
+import { cn } from "@/lib/utils"
 
 type RoleCardProps = {
-  title: string;
-  highlight: string;
-  imageSrc: string;
-  imageAlt: string;
-  accentClassName?: string;
-  onSelect: () => void;
-};
+  title: string
+  highlight: string
+  imageSrc: string
+  imageAlt: string
+  accentClassName?: string
+  onSelect: () => void
+}
 
 export function RoleCard({
   title,
@@ -20,11 +21,13 @@ export function RoleCard({
   accentClassName,
   onSelect,
 }: RoleCardProps) {
+  const { t } = useTranslation("role")
+
   return (
     <AmautaCard
       className={cn(
         "cursor-pointer border-border/70 bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md",
-        accentClassName
+        accentClassName,
       )}
       onClick={onSelect}
       role="button"
@@ -45,7 +48,7 @@ export function RoleCard({
             <span className="text-amauta-orange">{highlight}</span>
           </p>
           <p className="text-xs text-muted-foreground sm:text-sm">
-            Selecciona este perfil para continuar
+            {t("selectProfile")}
           </p>
         </div>
 
@@ -54,11 +57,11 @@ export function RoleCard({
           size="icon"
           variant="ghost"
           className="shrink-0 rounded-full text-amauta-blue hover:bg-amauta-blue-light hover:text-amauta-blue-dark"
-          aria-label={`Seleccionar ${highlight}`}
+          aria-label={t("selectRole", { role: highlight })}
         >
           <ArrowRight className="h-4 w-4" />
         </AmautaButton>
       </AmautaCardContent>
     </AmautaCard>
-  );
+  )
 }

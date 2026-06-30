@@ -1,0 +1,50 @@
+{
+  "memory": {
+    "title": "Memoria Matemática",
+    "description": "Encuentra los pares de operaciones y resultados",
+    "hiddenCard": "Carta oculta",
+    "pairs": "Pares",
+    "attempts": "Intentos",
+    "time": "Tiempo"
+  },
+  "timed": {
+    "title": "Reto Contrarreloj",
+    "description": "Responde la mayor cantidad en 60 segundos",
+    "stats": "{{correct}} de {{total}}",
+    "streak": "Racha:",
+    "secondsRemaining": "{{seconds}} segundos restantes",
+    "inputPlaceholder": "?",
+    "submit": "OK",
+    "verifying": "Verificando...",
+    "waiting": "Esperando ejercicio..."
+  },
+  "quiz": {
+    "title": "Quiz de Opción Múltiple",
+    "description": "Elige la respuesta correcta entre 4 opciones",
+    "correct": "¡Correcto!",
+    "answer": "Respuesta:",
+    "viewResult": "Ver resultado",
+    "next": "Siguiente",
+    "question": "Pregunta {{current}} de {{total}}",
+    "correctCount": "Correctas:",
+    "options": "Opciones de respuesta"
+  },
+  "result": {
+    "excellent": "¡Excelente!",
+    "good": "¡Buen trabajo!",
+    "failed": "¡Sigue intentando!",
+    "score": "Puntaje",
+    "correctOf": "{{correct}} de {{total}} correctas",
+    "points": "Puntos",
+    "playAgain": "Jugar de nuevo",
+    "goHome": "Volver al inicio"
+  },
+  "common": {
+    "back": "Volver",
+    "play": "Jugar",
+    "letsPlay": "¡Juguemos!",
+    "selectGame": "Elige un juego para aprender matemáticas",
+    "loading": "Cargando...",
+    "estimatedTime": "~{{minutes}} min"
+  }
+}
