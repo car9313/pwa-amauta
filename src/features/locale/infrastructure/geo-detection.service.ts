@@ -1,17 +1,6 @@
-import type { GeoResult, LocaleId } from "../domain/locale.types";
+import type { GeoResult } from "../domain/locale.types";
 import { IPAPI_URL, IPAPI_TIMEOUT_MS } from "../domain/locale.constants";
-
-const COUNTRY_TO_LOCALE: Record<string, LocaleId> = {
-  MX: "es-MX",
-  AR: "es-AR",
-  CL: "es-CL",
-  CO: "es-CO",
-  PE: "es-PE",
-  BO: "es-LA", VE: "es-LA", EC: "es-LA", PY: "es-LA",
-  UY: "es-LA", CR: "es-LA", GT: "es-LA", HN: "es-LA",
-  SV: "es-LA", NI: "es-LA", PA: "es-LA", DO: "es-LA",
-  CU: "es-LA", PR: "es-LA",
-};
+import { LOCALE_MAP } from "../domain/locale.config";
 
 export async function detectLocaleFromGeo(externalSignal?: AbortSignal): Promise<GeoResult> {
   const internalController = new AbortController();
@@ -27,6 +16,7 @@ export async function detectLocaleFromGeo(externalSignal?: AbortSignal): Promise
       headers: { Accept: "application/json" },
     });
     clearTimeout(timer);
+console.log(response)
 
     if (response.status === 429) {
       return { success: false, reason: "rate_limited" };
@@ -39,6 +29,7 @@ export async function detectLocaleFromGeo(externalSignal?: AbortSignal): Promise
     let data: unknown;
     try {
       data = await response.json();
+      console.log(data)
     } catch {
       return { success: false, reason: "parse_error" };
     }
@@ -48,7 +39,7 @@ export async function detectLocaleFromGeo(externalSignal?: AbortSignal): Promise
       return { success: false, reason: "parse_error" };
     }
 
-    const localeId = COUNTRY_TO_LOCALE[countryCode];
+    const localeId = LOCALE_MAP[countryCode];
     if (!localeId) {
       return { success: false, reason: "unmapped_country" };
     }

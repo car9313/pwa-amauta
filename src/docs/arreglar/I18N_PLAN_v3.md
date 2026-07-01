@@ -1,7 +1,7 @@
 # Plan de Internacionalización — Amauta PWA (v3)
 
 > **Propósito**: Sistema de i18n offline-first para múltiples variantes del español latinoamericano con geo-detección pre-autenticación.
-> **Estado**: 🟡 En progreso (Fases 0–9 ✅ con ajuste pendiente — ver sección "Ajuste Post-Fase 3")
+> **Estado**: ✅ Fases 0–9 completas (ajustes aplicados)
 > **Documentos relacionados**: `I18N_FIXES_F0_F1.md`, `PROMPT_GEO_PREAUTH.md`
 
 ---
@@ -62,84 +62,39 @@ Dexie (userId) → Geo pre-auth (memoria) → Navigator.language → es-LA
 
 ---
 
-## Ajuste Post-Fase 3 — Bugs y mejoras de UX identificados
+## Ajuste Post-Fase 3 — Bugs y mejoras de UX identificados ✅
 
-> ⚠️ Aplicar estos fixes antes de Fase 10 (tests). Ver `PROMPT_GEO_PREAUTH.md` para el prompt completo.
+> ✅ Todos los fixes fueron aplicados. Ver `I18N_RESUMEN_APLICADO.md` para el detalle de implementación.
 
-### Bug A — `hydrateFromStorage` no aplica locale en i18next ni retorna boolean
+### Bug A — `hydrateFromStorage` no aplica locale en i18next ni retorna boolean ✅
 
-`hydrateFromStorage` lee la preferencia de Dexie y la guarda en el store, pero nunca llama `i18next.changeLanguage()`. La UI permanece en `es-LA` aunque el store sepa que el locale es `es-MX`.
+`hydrateFromStorage` ahora retorna `Promise<boolean>` y llama `i18next.changeLanguage(pref)` cuando encuentra preferencia. La UI se actualiza al locale correcto de inmediato.
 
-**Fix**: añadir `await i18next.changeLanguage(pref)` cuando se encuentra preferencia. Además, cambiar retorno a `Promise<boolean>` — `true` si encontró locale, `false` si no — para que `LocaleInitializer` sepa si debe disparar geo-detección.
+### Bug B — `setUserPreference` usa `"__global__"` como userId ✅
 
-### Bug B — `setUserPreference` usa `"__global__"` como userId
+Firma actualizada a `setUserPreference(locale: LocaleId, userId: string)`. Ahora persiste con el `userId` real, no `"__global__"`.
 
-```ts
-// ❌ Actual
-await saveLocalePreference("__global__", locale)
+### Bug C — `resolveAndCacheLocale` no detecta geo pre-resuelto ✅
 
-// ✅ Fix
-await saveLocalePreference(userId, locale)
-// Firma actualizada: setUserPreference(locale: LocaleId, userId: string)
-```
+Flag interno `geoAlreadyRan` añadido al store. `resolveAndCacheLocale` verifica este flag antes de llamar a `detectLocaleFromGeo`.
 
-Rompe la segmentación por usuario implementada en Fase 1.
+### Nueva acción — `detectPreAuthLocale(timeoutMs?: number)` ✅
 
-### Bug C — `resolveAndCacheLocale` no detecta geo pre-resuelto
+Implementada en `locale-store.ts`. Incluye:
+- `AbortController` con timeout default 800ms
+- `detectLocaleFromGeo(signal)` con señal de cancelación
+- Fetch de `/locales/{locale}/translation.json` si locale ≠ es-LA
+- Almacenamiento en `preAuthLocaleData` (memoria, no Dexie)
+- `addResourceBundle` + `changeLanguage`
+- `geoAlreadyRan = true`
 
-Sin el flag `geoAlreadyRan`, siempre llama a geo-detección aunque ya corrió en el mount. Fix: añadir flag interno al store y verificarlo al inicio de `resolveAndCacheLocale`.
+### Sin doble llamada a ningún recurso de red ✅
 
-### Nueva acción — `detectPreAuthLocale(timeoutMs?: number)`
+Implementado: el flag `geoAlreadyRan` y `preAuthLocaleData` garantizan que ni geo-detección ni fetch de JSON se repiten post-auth.
 
-Acción pública del store que encapsula la geo-detección pre-auth con timeout agresivo:
-- `timeoutMs` default: `800` (no es espera fija — si geo responde antes, render inmediato)
-- Crea `AbortController` + `setTimeout(timeoutMs)`
-- Llama `detectLocaleFromGeo(signal)` con la señal del AbortController
-- Si responde antes del timeout: `clearTimeout`, resuelve locale
-- Si no responde en `timeoutMs`: `AbortController.abort()`, fallback a `navigator.language`
-- **Si el locale resuelto ≠ `es-LA`**: descarga `/locales/{locale}/translation.json`, lo aplica con `addResourceBundle`, y lo guarda en memoria (`preAuthLocaleData`) — login/register ya muestran traducciones reales del locale detectado
-- Aplica en i18next, actualiza store: `resolvedLocale`, `geoAlreadyRan = true`
-- NO persiste en Dexie (sin userId todavía) — ni la preferencia ni el JSON descargado
+### Cambio en `LocaleInitializer` — Semi-blocking ✅
 
-**Comportamiento por tipo de conexión**:
-```
-Conexión rápida (geo ~200ms)  → render a los 200ms, locale geo + traducciones reales ✅
-Conexión lenta (geo > 800ms)  → render a los 800ms exactos, navigator.language + traducciones reales
-Sin conexión (error <10ms)    → render en <10ms, locale navigator.language (sin fetch posible)
-Usuario con cache en Dexie    → render inmediato (0ms), sin geo, sin fetch ✅
-```
-
-**Locale post-login con timeout**: si la geo fue cancelada por timeout y el locale guardado es el de `navigator.language`, ese locale permanece para ese usuario. La geo **no vuelve a correr** en post-login. El usuario puede corregir su locale en Fase 11 (LanguageSwitcher). Comportamiento esperado y correcto.
-
-### Sin doble llamada a ningún recurso de red
-
-Un punto crítico del diseño: ni la geo-detección ni la descarga del JSON regional se repiten entre la fase pre-auth y la fase post-auth.
-
-```
-Pre-auth (mount):
-  ipapi.co                            → 1 llamada
-  /locales/{locale}/translation.json  → 1 llamada (si locale ≠ es-LA)
-  → ambos resultados quedan en memoria (store)
-
-Post-auth (login):
-  resolveAndCacheLocale(userId)
-    → geoAlreadyRan = true → NO llama ipapi.co de nuevo
-    → preAuthLocaleData ya tiene el JSON → NO vuelve a hacer fetch
-    → SOLO persiste en Dexie lo que ya está en memoria
-```
-
-El fetch del JSON regional ocurre **pre-auth**, no post-auth, precisamente para que login y register ya muestren las traducciones reales del locale detectado — no placeholders en `es-LA`. Post-login, el único trabajo nuevo es escribir esos datos ya descargados en Dexie con la clave `${userId}:${localeId}`.
-
-### Cambio en `LocaleInitializer` — Semi-blocking
-
-`LocaleInitializer` pasa de NO blocking a **semi-blocking**: muestra `<AmautaLoadingState />` durante la fase pre-auth (máx 800ms), luego renderiza `{children}`. Esto elimina el flash de texto en `es-LA` antes de aplicar el locale regional.
-
-```
-Usuario nuevo, conexión rápida:  AmautaLoadingState ~200ms → app en locale geo ✅
-Usuario nuevo, conexión lenta:   AmautaLoadingState 800ms  → app en navigator.language
-Usuario nuevo, sin conexión:     AmautaLoadingState <10ms  → app en es-LA
-Usuario que vuelve:              render inmediato (Dexie) → sin loading screen ✅
-```
+`LocaleInitializer` ahora es semi-blocking con `<AmautaLoadingState />` durante la fase pre-auth (máx 800ms). Flujo de 3 fases implementado.
 
 ---
 
@@ -151,24 +106,20 @@ Sin cambios respecto a v2.
 ### FASE 1 — Infraestructura ✅
 Sin cambios. `geo-detection.service.ts`, `locale-persistence.ts`, `i18n.ts` y `db.ts` no requieren modificaciones.
 
-### FASE 2 — Store y Hooks ✅ (con ajuste pendiente)
-
-> Aplicar fixes A, B y C + nueva acción `detectPreAuthLocale` antes de Fase 10.
+### FASE 2 — Store y Hooks ✅
 
 | # | Archivo | Estado |
 |---|---------|--------|
-| 2.1 | `locale-store.ts` | 🟡 Requiere ajuste (bugs A, B, C + nueva acción) |
+| 2.1 | `locale-store.ts` | ✅ Bugs A/B/C corregidos + `detectPreAuthLocale` implementada |
 | 2.2 | `useLanguage.ts` | ✅ Sin cambios |
 | 2.3 | `useLocale.ts` | ✅ Sin cambios |
 | 2.4 | `locale-utils.ts` | ✅ Sin cambios |
 
-### FASE 3 — LocaleInitializer ✅ (con ajuste pendiente)
-
-> Añadir fase pre-auth semi-blocking al flujo de `LocaleInitializer`.
+### FASE 3 — LocaleInitializer ✅
 
 | # | Archivo | Estado |
 |---|---------|--------|
-| 3.1-3.2 | `LocaleInitializer.tsx` | 🟡 Requiere ajuste (semi-blocking + flujo 3 fases) |
+| 3.1-3.2 | `LocaleInitializer.tsx` | ✅ Semi-blocking + flujo 3 fases implementado |
 | 3.4 | `main.tsx` | ✅ Sin cambios |
 | 3.5 | `sw.ts` | ✅ Sin cambios |
 
@@ -310,13 +261,13 @@ main.tsx mount
 ## Orden de Trabajo Recomendado
 
 ```
-AHORA:
-  1. Aplicar prompt PROMPT_GEO_PREAUTH.md
+✅ COMPLETADO:
+  1. Prompt PROMPT_GEO_PREAUTH.md aplicado
      → locale-store.ts corregido + detectPreAuthLocale()
      → LocaleInitializer.tsx con flujo 3 fases
-  2. pnpm build → verificar compilación limpia
+  2. pnpm build → compilación limpia ✅
 
-DESPUÉS:
+⬜ PENDIENTE:
   3. Fase 10 — tests (incluye nuevos casos pre-auth)
   4. Fase 11 — LanguageSwitcher (opcional, puede diferirse)
   5. Fase 12 — variantes regionales (post-MVP)
@@ -328,8 +279,8 @@ DESPUÉS:
 
 | Fase | Descripción | Estado | Esfuerzo |
 |------|-------------|--------|----------|
-| Ajuste 2.1 | `locale-store.ts` — bugs A/B/C + `detectPreAuthLocale` | 🟡 | ~30 min |
-| Ajuste 3.1 | `LocaleInitializer.tsx` — flujo 3 fases | 🟡 | ~20 min |
+| Ajuste 2.1 | `locale-store.ts` — bugs A/B/C + `detectPreAuthLocale` | ✅ | — |
+| Ajuste 3.1 | `LocaleInitializer.tsx` — flujo 3 fases | ✅ | — |
 | 10 | Tests | ⬜ | ~2 hr |
 | 11 | LanguageSwitcher (opcional) | ⬜ | ~1.25 hr |
 | 12 | Variantes regionales (post-MVP) | ⬜ | ~2.5 hr |

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuthStore } from "@/features/auth/presentation/store/auth-store";
 import { useLocaleStore } from "@/features/locale/store/locale-store";
 import { AmautaLoadingState } from "@/components/amauta";
@@ -22,19 +22,23 @@ export function LocaleInitializer({ children }: { children: React.ReactNode }) {
   const detectPreAuthLocale = useLocaleStore((s) => s.detectPreAuthLocale);
   const resolveAndCacheLocale = useLocaleStore((s) => s.resolveAndCacheLocale);
 
-  useEffect(() => {
-    const init = async () => {
-      const found = await hydrateFromStorage();
-      if (found) {
-        setLocalePhaseReady(true);
-        return;
-      }
-      await detectPreAuthLocale(800);
-      setLocalePhaseReady(true);
-    };
+const hasInitialized = useRef(false)  // ← añade esta línea
 
-    init();
-  }, [hydrateFromStorage, detectPreAuthLocale]);
+useEffect(() => {
+  if (hasInitialized.current) return  // ← protección contra doble ejecución
+  hasInitialized.current = true
+
+  const init = async () => {
+    const found = await hydrateFromStorage()
+    if (found) {
+      setLocalePhaseReady(true)
+      return
+    }
+    await detectPreAuthLocale(800)
+    setLocalePhaseReady(true)
+  }
+  init()
+}, [detectPreAuthLocale, hydrateFromStorage])
 
   useEffect(() => {
     if (!hasAuthHydrated || !isAuthenticated || !user) return;
