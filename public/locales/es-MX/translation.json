@@ -1,0 +1,28 @@
+{
+  "auth": {
+    "login": {
+      "title": "¡Bienvenido! [México]",
+      "subtitle": "Inicia sesión para continuar [MX]",
+      "emailLabel": "Correo electrónico [MX]",
+      "emailPlaceholder": "correo@ejemplo.com [MX]",
+      "passwordLabel": "Contraseña [MX]",
+      "passwordPlaceholder": "•••••••• [MX]",
+      "submitButton": "Entrar [México]",
+      "submitLoading": "Conectando... [MX]",
+      "offlineButton": "Sin internet [MX]",
+      "offlineTitle": "Necesitas internet para iniciar sesión [MX]",
+      "sessionClosedMessage": "Tu sesión fue cerrada [MX]",
+      "accountNotFoundMessage": "No encontramos tu cuenta [MX]",
+      "offlineWelcome": "¡Hola de nuevo, {{name}}! [MX]",
+      "offlineMessage": "No tienes internet [MX]",
+      "registerLink": "¿No tienes cuenta? [MX]",
+      "registerLinkText": "Regístrate [MX]",
+      "preparing": "Preparando tu sesión... [MX]"
+    }
+  },
+  "common": {
+    "loading": "Cargando... [MX]",
+    "error": "Algo salió mal [MX]",
+    "retry": "Intentar de nuevo [MX]"
+  }
+}

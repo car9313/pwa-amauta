@@ -31,7 +31,15 @@ export interface LocaleCacheEntry {
   cachedAt: number;
 }
 
-export type PreferencesEntry = UserPreferencesEntry | LocaleCacheEntry;
+ /* export type PreferencesEntry = UserPreferencesEntry | LocaleCacheEntry; 
+ */
+export interface LastActiveUserEntry {
+  id: "last-active-user";
+  userId: string;
+  updatedAt: number;
+}
+
+export type PreferencesEntry = UserPreferencesEntry | LocaleCacheEntry | LastActiveUserEntry;
 
 export interface QueuedMutation {
   id: string;
