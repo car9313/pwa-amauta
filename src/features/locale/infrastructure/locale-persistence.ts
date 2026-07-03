@@ -1,4 +1,4 @@
-import { db, type UserPreferencesEntry, type LocaleCacheEntry, PreferencesEntry, LastActiveUserEntry } from "@/lib/api/storage/db";
+import { db, type UserPreferencesEntry, type LocaleCacheEntry } from "@/lib/api/storage/db";
 import type { LocaleId, CacheableLocale } from "../domain/locale.types";
 import { LOCALE_VERSIONS } from "../domain/locale.constants";
 
@@ -53,12 +53,8 @@ export async function saveCachedLocale(
   console.log('[dexie] saveCachedLocale completado')           // ← y esto
 }
 
-function isLocaleCacheEntry(entry: PreferencesEntry): entry is LocaleCacheEntry {
-  return "userId" in entry && "localeId" in entry && "data" in entry;
-}
-
-function isLastActiveUserEntry(entry: PreferencesEntry): entry is LastActiveUserEntry {
-  return entry.id === "last-active-user";
+function isLocaleCacheEntry(entry: unknown): entry is LocaleCacheEntry {
+  return !!entry && typeof entry === "object" && "userId" in entry && "localeId" in entry && "data" in (entry as Record<string, unknown>);
 }
 
 export async function getCachedLocale(
@@ -109,7 +105,6 @@ export async function getUserCachedLocale(
   const entry = await db.preferences
     .where("userId")
     .equals(userId)
-    .filter(e => e.id !== "last-active-user")  // ← excluye el puntero
     .first();
 
   console.log('[dexie] entry encontrada:', entry)
@@ -139,20 +134,4 @@ export async function clearAllUserCachedLocales(userId: string): Promise<void> {
 
 export function isLocaleStale(cached: CacheableLocale): boolean {
   return cached.version !== LOCALE_VERSIONS[cached.localeId];
-}
-
-
-/* Qué hacen: setLastActiveUserId escribe en la carpeta fija "last-active-user" quién fue la última persona autenticada. getLastActiveUserId la lee. Es solo un puntero — no contiene ningún diccionario de traducciones, solo dice "ve a buscar la carpeta de este userId en el Archivador B". */
-export async function setLastActiveUserId(userId: string): Promise<void> {
-  await db.preferences.put({
-    id: "last-active-user",
-    userId,
-    updatedAt: Date.now(),
-  } as LastActiveUserEntry);
-}
-
-export async function getLastActiveUserId(): Promise<string | null> {
-  const entry = await db.preferences.get("last-active-user");
-  if (!entry || !isLastActiveUserEntry(entry)) return null;
-  return entry.userId;
 }

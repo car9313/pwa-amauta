@@ -85,6 +85,17 @@ export async function clearSelectedStudentId(): Promise<void> {
   await clearSelectedStudentIdDb();
 }
 
+export async function checkIfSessionExists(): Promise<string | null> {
+  const stored = await loadAuthFromStorage();
+  if (!stored?.user) return null;
+  const user = stored.user;
+  switch (user.role) {
+    case "student": return user.studentId;
+    case "parent": return user.parentId;
+    case "teacher": return user.teacherId;
+  }
+}
+
 export const authStorage = {
   saveAuthResponse,
   getAccessToken,

@@ -1,0 +1,14 @@
+{
+  "auth": {
+    "login": {
+      "subtitle": "Iniciá sesión para seguir aprendiendo",
+      "submitButton": "Ingresar",
+      "sessionClosedMessage": "Tu sesión se cerró. Iniciá sesión de nuevo.",
+      "accountNotFoundMessage": "No encontramos tu cuenta. ¿Revisá que tu correo esté bien escrito?",
+      "offlineWelcome": "¡Qué bueno verte de nuevo, {{name}}! Necesitás internet para jugar.",
+      "offlineMessage": "No tenés internet. Volvé cuando tengas conexión para empezar a jugar.",
+      "registerLinkText": "Registrate acá",
+      "preparing": "Preparando tu sesión..."
+    }
+  }
+}

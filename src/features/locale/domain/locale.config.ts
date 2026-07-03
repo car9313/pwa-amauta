@@ -43,6 +43,13 @@ export const SUPPORTED_LOCALES: LocaleInfo[] = [
     country: "Perú",
     isDefault: false,
   },
+  {
+    id: "en-US",
+    label: "English (US)",
+    flag: "us",
+    country: "Estados Unidos",
+    isDefault: false,
+  },
 ];
 
 export const LOCALE_MAP: Record<string, LocaleInfo["id"]> = {
@@ -51,10 +58,10 @@ export const LOCALE_MAP: Record<string, LocaleInfo["id"]> = {
   CL: "es-CL",
   CO: "es-CO",
   PE: "es-PE",
-  US: "es-MX",  // TEMPORAL — solo para prueba
+  US: "en-US",
   BO: "es-LA", VE: "es-LA", EC: "es-LA", PY: "es-LA",
   UY: "es-LA", CR: "es-LA", GT: "es-LA", HN: "es-LA",
   SV: "es-LA", NI: "es-LA", PA: "es-LA", DO: "es-LA",
-  CU: "es-MX",  // TEMPORAL — solo para prueba
+  CU: "es-LA",
   PR: "es-LA",
 };

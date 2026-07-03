@@ -1,0 +1,11 @@
+{
+  "auth": {
+    "login": {
+      "subtitle": "Ingresa para seguir aprendiendo",
+      "submitButton": "Ingresar",
+      "offlineWelcome": "¡Qué bueno verte de nuevo, {{name}}! Necesitas internet para jugar.",
+      "offlineMessage": "No tienes internet. Vuelve cuando tengas conexión para empezar a jugar.",
+      "registerLinkText": "Regístrate aquí"
+    }
+  }
+}

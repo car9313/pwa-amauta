@@ -1,6 +1,6 @@
 # Documentación de Amauta PWA
 
-> **🗺️ ¿Buscando qué hacer ahora?** Ve directo a [`ROADMAP.md`](./planificacion/ROADMAP.md) — prioridades, tareas y próximo sprints.
+> **🗺️ ¿Buscando qué hacer ahora?** Ve directo a [`ROADMAP.md`](./archivo/planificacion/ROADMAP.md) — prioridades, tareas y próximo sprints.
 
 ## Orden Recomendado de Lectura
 
@@ -16,12 +16,12 @@ Para entender la aplicación desde la arquitectura general hasta los detalles es
 
 | # | Documento | Que explica |
 |---|-----------|-------------|
-| 1b | **[`design/README.md`](./design/README.md)** | Indice del Design System: mapa de componentes, tokens, convenciones |
-| 2b | [`design/01-base-layer.md`](./design/01-base-layer.md) | Componentes base: Button, Card, Badge, Progress, Input, Dialog |
-| 3b | [`design/02-layout-layer.md`](./design/02-layout-layer.md) | Componentes de layout: Container, Section, Grid, Divider |
-| 4b | [`design/03-brand-layer.md`](./design/03-brand-layer.md) | Componentes de marca: Hero, CondorGuide, LearningPath, StatCard, Achievement |
-| 5b | [`design/04-patterns.md`](./design/04-patterns.md) | Patrones compuestos: HeroWithCondor, EducationalSection, CTAEducational, FeatureGrid, HowItWorks, StudentProgressPanel, ParentMetricsGrid |
-| 6b | [`design/05-story-layer.md`](./design/05-story-layer.md) | Componentes de estado: Transition, LoadingState, EmptyState, ErrorState, Reveal |
+| 1b | **[`design/README.md`](./diseno/README.md)** | Indice del Design System: mapa de componentes, tokens, convenciones |
+| 2b | [`design/01-base-layer.md`](./diseno/01-base-layer.md) | Componentes base: Button, Card, Badge, Progress, Input, Dialog |
+| 3b | [`design/02-layout-layer.md`](./diseno/02-layout-layer.md) | Componentes de layout: Container, Section, Grid, Divider |
+| 4b | [`design/03-brand-layer.md`](./diseno/03-brand-layer.md) | Componentes de marca: Hero, CondorGuide, LearningPath, StatCard, Achievement |
+| 5b | [`design/04-patterns.md`](./diseno/04-patterns.md) | Patrones compuestos: HeroWithCondor, EducationalSection, CTAEducational, FeatureGrid, HowItWorks, StudentProgressPanel, ParentMetricsGrid |
+| 6b | [`design/05-story-layer.md`](./diseno/05-story-layer.md) | Componentes de estado: Transition, LoadingState, EmptyState, ErrorState, Reveal |
 
 ### Nivel 1 — Fundamentos
 
@@ -35,29 +35,25 @@ Para entender la aplicación desde la arquitectura general hasta los detalles es
 
 | # | Documento | Qué explica |
 |---|-----------|-------------|
-| 5 | [`AUTH_FLOW.md`](./core/AUTH_FLOW.md) | Flujo de autenticación: login, logout, refresh, offline mode. |
-| 6 | [`AUTH_CHANGES.md`](./core/AUTH_CHANGES.md) | Historial de cambios y decisiones técnicas de auth. |
-| 7 | [`API_CONTRACT.md`](./core/API_CONTRACT.md) | Contrato de API con el backend: endpoints, request/response. |
-| 8 | [`BACKEND_CONFLICT_RESOLUTION.md`](./core/BACKEND_CONFLICT_RESOLUTION.md) | Contrato de conflict resolution para el backend: timestamps, HTTP 409, estrategias por endpoint. |
+| 5 | [`AUTH_FLOW.md`](./nucleo/AUTH_FLOW.md) | Flujo de autenticación: login, logout, refresh, offline mode. |
+| 6 | [`AUTH_CHANGES.md`](./nucleo/AUTH_CHANGES.md) | Historial de cambios y decisiones técnicas de auth. |
+| 7 | [`API_CONTRACT.md`](./nucleo/API_CONTRACT.md) | Contrato de API con el backend: endpoints, request/response. |
+| 8 | [`BACKEND_CONFLICT_RESOLUTION.md`](./nucleo/BACKEND_CONFLICT_RESOLUTION.md) | Contrato de conflict resolution para el backend: timestamps, HTTP 409, estrategias por endpoint. |
 
 ### Nivel 3 — Offline & Sincronización
 
 | # | Documento | Qué explica |
 |---|-----------|-------------|
-| 9 | **[`OFFLINE_QUEUE_SYSTEM.md`](./offline/OFFLINE_QUEUE_SYSTEM.md)** | Sistema de cola offline actual: app-level outbox con Dexie + queue-manager + background-sync + useSafeMutation. |
-| 10 | [`OUTBOX_PATTERN.md`](./offline/OUTBOX_PATTERN.md) | Patrón outbox (actualizado). Concepto general + referencias al sistema actual. |
-| 11 | [`SERVICE_WORKER.md`](./offline/SERVICE_WORKER.md) | Service Worker: precaching, runtime caching, navegación SPA, patrones de matching API. Sin manejo de cola offline (ver punto 9). |
-| 11b | [`MANIFEST.md`](./offline/MANIFEST.md) | Web App Manifest: campos clave, iconos (any vs maskable), shortcuts, troubleshooting. |
-| 11c | [`CACHES_EXPLAINED.md`](./offline/CACHES_EXPLAINED.md) | Explicación detallada de cada cache del SW: por qué se crean (o no), condiciones, impacto. |
+| 9 | **[`OFFLINE_QUEUE_SYSTEM.md`](./sin-conexion/OFFLINE_QUEUE_SYSTEM.md)** | Sistema de cola offline actual: app-level outbox con Dexie + queue-manager + background-sync + useSafeMutation. |
+| 10 | [`OUTBOX_PATTERN.md`](./sin-conexion/OUTBOX_PATTERN.md) | Patrón outbox (actualizado). Concepto general + referencias al sistema actual. |
+| 11 | [`SERVICE_WORKER.md`](./sin-conexion/SERVICE_WORKER.md) | Service Worker: precaching, runtime caching, navegación SPA, patrones de matching API. Sin manejo de cola offline (ver punto 9). |
+| 11b | [`MANIFEST.md`](./sin-conexion/MANIFEST.md) | Web App Manifest: campos clave, iconos (any vs maskable), shortcuts, troubleshooting. |
+| 11c | [`CACHES_EXPLAINED.md`](./sin-conexion/CACHES_EXPLAINED.md) | Explicación detallada de cada cache del SW: por qué se crean (o no), condiciones, impacto. |
 
-### Nivel 4 — Historial / Contexto de Implementación
+### Nivel 4 — Contexto Histórico
 
-| # | Documento | Qué explica |
-|---|-----------|-------------|
-| 12 | [`FASE3-MUTACIONES-UNIFICADAS.md`](./historial/FASE3-MUTACIONES-UNIFICADAS.md) | Historial de la migración de `useOfflineMutation` → `useSafeMutation`. |
-| 13 | [`OFFLINE_MUTATIONS_PLAN.md`](./historial/OFFLINE_MUTATIONS_PLAN.md) | Plan original de offline mutations (histórico). |
-| 14 | [`OFFLINE_MUTATIONS_FLOW.md`](./historial/OFFLINE_MUTATIONS_FLOW.md) | Diagramas de flujo originales (actualizados). |
-| 15 | [`OFFLINE_MUTATIONS_TEST_GUIDE.md`](./historial/OFFLINE_MUTATIONS_TEST_GUIDE.md) | Guía de testing offline (actualizada). |
+> Los documentos históricos de implementación se integraron en las carpetas correspondientes.
+> Ver [`sin-conexion/OFFLINE_QUEUE_SYSTEM.md`](./sin-conexion/OFFLINE_QUEUE_SYSTEM.md) para el historial de cambios del sistema offline.
 
 ### Nivel 5 — Errores y Edge Cases
 
@@ -71,17 +67,17 @@ Para entender la aplicación desde la arquitectura general hasta los detalles es
 
 | # | Documento | Qué explica |
 |---|-----------|-------------|
-| 17b | [`DEV_ONLINE_TOGGLE.md`](./dev/DEV_ONLINE_TOGGLE.md) | Componente DevOnlineToggle: forzar online/offline en desarrollo, cómo quitarlo después. |
-| 17c | [`MOCK_SYSTEM.md`](./dev/MOCK_SYSTEM.md) | Sistema de mocks y configuración de `.env`: VITE_USE_MOCK, usuarios mock, adaptador mock vs real. |
-| 17d | [`SW_DEV_MODE.md`](./offline/SW_DEV_MODE.md) | Por qué el Service Worker solo funciona en producción, cómo activarlo si es necesario. |
+| 17b | [`DEV_ONLINE_TOGGLE.md`](./desarrollo/DEV_ONLINE_TOGGLE.md) | Componente DevOnlineToggle: forzar online/offline en desarrollo, cómo quitarlo después. |
+| 17c | [`MOCK_SYSTEM.md`](./desarrollo/MOCK_SYSTEM.md) | Sistema de mocks y configuración de `.env`: VITE_USE_MOCK, usuarios mock, adaptador mock vs real. |
+| 17d | [`SW_DEV_MODE.md`](./sin-conexion/SW_DEV_MODE.md) | Por qué el Service Worker solo funciona en producción, cómo activarlo si es necesario. |
 
 ### Nivel 6 — Planificación y Seguimiento
 
 | # | Documento | Qué explica |
 |---|-----------|-------------|
-| 18 | [`ROADMAP.md`](./planificacion/ROADMAP.md) | Prioridades, tareas y próximos sprints. |
-| 19 | [`PLAN.md`](./planificacion/PLAN.md) | Plan de trabajo por fases con estado actual. |
-| 20 | [`TODOS.md`](./planificacion/TODOS.md) | Implementaciones pendientes y su estado. |
+| 18 | [`ROADMAP.md`](./archivo/planificacion/ROADMAP.md) | Prioridades, tareas y próximos sprints. |
+| 19 | [`PLAN.md`](./archivo/planificacion/PLAN.md) | Plan de trabajo por fases con estado actual. |
+| 20 | [`TODOS.md`](./archivo/planificacion/TODOS.md) | Implementaciones pendientes y su estado. |
 
 ---
 
@@ -133,7 +129,7 @@ Solo caching. Sin manejo de cola offline.
 
 | Documento | Propósito |
 |-----------|-----------|
-| **[`I18N_PLAN.md`](./planificacion/I18N_PLAN.md)** | Plan completo de i18n offline-first: 13 fases, migración por dominios, geo-detección, variantes regionales. |
+| **[`I18N_PLAN.md`](./archivo/planificacion/I18N_PLAN.md)** | Plan completo de i18n offline-first: 13 fases, migración por dominios, geo-detección, variantes regionales. |
 
 ---
 

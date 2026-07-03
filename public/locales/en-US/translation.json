@@ -1,0 +1,425 @@
+{
+  "auth": {
+    "login": {
+      "title": "Welcome to Amauta!",
+      "subtitle": "Sign in to continue learning",
+      "emailLabel": "Email",
+      "emailPlaceholder": "email@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "submitButton": "Sign in",
+      "submitLoading": "Connecting...",
+      "offlineButton": "No internet",
+      "offlineTitle": "You need internet to sign in",
+      "sessionClosedMessage": "Your session was closed. Please sign in again.",
+      "accountNotFoundMessage": "We couldn't find your account. Is your email spelled correctly?",
+      "offlineWelcome": "Welcome back, {{name}}! You need internet to play.",
+      "offlineMessage": "You're offline. Please come back when you have internet to start playing.",
+      "registerLink": "Don't have an account?",
+      "registerLinkText": "Sign up here",
+      "preparing": "Preparing your session..."
+    },
+    "register": {
+      "title": "Join Amauta!",
+      "subtitle": "Create your account to start learning",
+      "nameLabel": "Full name",
+      "namePlaceholder": "John Doe",
+      "emailLabel": "Email",
+      "emailPlaceholder": "email@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "confirmPasswordLabel": "Confirm password",
+      "submitButton": "Sign up",
+      "submitLoading": "Creating your account...",
+      "offlineButton": "No internet",
+      "offlineTitle": "You need internet to create an account",
+      "offlineMessage": "You're offline. Come back when you have internet to create your account.",
+      "timeoutMessage": "The connection is too slow. Shall we try again?",
+      "networkErrorMessage": "We couldn't create your account. Check your connection and try again.",
+      "sessionClosedMessage": "Your session was closed. Create a new account.",
+      "loginLink": "Already have an account?",
+      "loginLinkText": "Sign in",
+      "preparing": "Preparing your session..."
+    },
+    "validation": {
+      "emailInvalid": "Enter a valid email",
+      "passwordMinLength": "Minimum 6 characters",
+      "nameRequired": "Name is required",
+      "confirmPasswordRequired": "Confirm your password",
+      "passwordMismatch": "Passwords don't match",
+      "childNameRequired": "Name is required",
+      "childEmailInvalid": "Enter a valid email",
+      "childPasswordMinLength": "Minimum 6 characters"
+    },
+    "errors": {
+      "tokenExpired": "Your session expired. Connect to the internet to renew it automatically.",
+      "tokenInvalid": "Your session is invalid. Please sign in again.",
+      "tokenRevoked": "Your session was closed for security. Please sign in again.",
+      "refreshFailed": "We couldn't renew your session. Please sign in again.",
+      "networkError": "No internet connection. You can keep using the app offline.",
+      "sessionNotFound": "We couldn't find your session. Please sign in.",
+      "timeout": "The connection is too slow. Please try again.",
+      "conflict": "The data you're trying to save was modified by another device.",
+      "unknown": "Unknown error"
+    },
+    "banner": {
+      "retry": "Retry",
+      "offlineMessage": "You're not connected to the internet. Some features won't be available."
+    },
+    "initializer": {
+      "verifying": "Verifying session...",
+      "loading": "Loading data..."
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "loadingData": "Loading data...",
+    "error": "Error",
+    "retry": "Retry",
+    "retryConnection": "Retry connection",
+    "back": "Back",
+    "close": "Close",
+    "save": "Save",
+    "cancel": "Cancel",
+    "next": "Next",
+    "previous": "Previous",
+    "continue": "Continue",
+    "home": "Home",
+    "confirm": "OK",
+    "noResults": "No results",
+    "viewAll": "View all",
+    "search": "Search",
+    "delete": "Delete",
+    "edit": "Edit",
+    "closeMenu": "Close menu",
+    "openMenu": "Open menu"
+  },
+  "navigation": {
+    "sidebar": {
+      "closeMenu": "Close menu",
+      "logout": "Sign out"
+    },
+    "navItems": {
+      "dashboard": "My Dashboard",
+      "lessons": "Lessons",
+      "practice": "Practice",
+      "games": "Let's Play!",
+      "progress": "My Progress",
+      "parentPanel": "Parent Panel",
+      "teacherPanel": "Teacher Panel",
+      "login": "Sign in",
+      "register": "Sign up"
+    },
+    "menu": {
+      "title": "Navigation menu",
+      "menuTitle": "Menu",
+      "logoutLoading": "Signing out...",
+      "logoutButton": "Sign out",
+      "userLabel": "User",
+      "studentRole": "Student",
+      "parentRole": "Parent",
+      "teacherRole": "Teacher"
+    },
+    "breadcrumbs": {
+      "home": "Home",
+      "dashboard": "Dashboard",
+      "lessons": "Lessons",
+      "progress": "My Progress",
+      "roleSelection": "Select Role",
+      "register": "Sign Up",
+      "login": "Sign In",
+      "practice": "Practice",
+      "games": "Games"
+    },
+    "header": {
+      "ariaLabel": "Open menu"
+    }
+  },
+  "dashboard": {
+    "student": {
+      "welcome": "Hi, {{name}}!",
+      "streakLabel": "Current streak",
+      "streakDays": "days",
+      "points": "Points",
+      "progress": "Progress",
+      "precision": "Accuracy",
+      "todayAgenda": "Today's Agenda",
+      "addPlaceholder": "Write a task...",
+      "addButton": "Add",
+      "customTask": "Custom task",
+      "noTasks": "No tasks for today",
+      "yourProgress": "Your Progress",
+      "viewAll": "View all",
+      "continueLesson": "Continue Lesson",
+      "continue": "Continue",
+      "play": "Play!",
+      "followLearning": "Keep learning!",
+      "followDescription": "Complete today's lessons with Amauta",
+      "latestAchievements": "Latest Achievements",
+      "noAchievements": "No achievements yet",
+      "minutes": "min",
+      "weekDays": ["M", "T", "W", "T", "F", "S", "S"],
+      "level": "Level {{level}}"
+    },
+    "parent": {
+      "welcome": "Hi, {{name}}!",
+      "childLevel": "Level {{level}}",
+      "points": "points",
+      "precision": "{{precision}}% accuracy",
+      "streakDays": "{{days}} day streak",
+      "recentActivity": "Recent Activity",
+      "items": "items",
+      "noActivity": "No recent activity",
+      "childrenSummary": "Children Summary",
+      "monitorDescription": "Monitor your family's progress",
+      "childrenCount": "Children",
+      "totalPoints": "Points",
+      "average": "Average"
+    },
+    "teacher": {
+      "welcome": "Hi, {{name}}!",
+      "students": "Students",
+      "classes": "Classes",
+      "mastery": "Mastery",
+      "myClasses": "My Classes",
+      "studentsCount": "{{count}} students",
+      "moreStudents": "+{{count}} more students",
+      "subjectProgress": "Progress by Subject",
+      "recentActivity": "Recent Activity",
+      "atRiskStudents": "Students Needing Attention",
+      "studentMastery": "{{mastery}}% mastery"
+    },
+    "agenda": {
+      "start": "Start"
+    },
+    "profile": {
+      "title": "Profile"
+    }
+  },
+  "lessons": {
+    "lesson": {
+      "home": "Home",
+      "title": "Lesson",
+      "difficulty": "Difficulty:",
+      "step": "Step {{current}} of {{total}}",
+      "resolve": "Solve:",
+      "demoPlaceholder": "Visual demo coming soon",
+      "inputPlaceholder": "E.g. 15/8",
+      "verifying": "Verifying...",
+      "submitted": "Answer submitted!",
+      "submit": "Answer",
+      "skip": "Skip step",
+      "errorTitle": "Oops! Something went wrong",
+      "errorMessage": "We couldn't load the exercise. Please try again.",
+      "goHome": "Go back home",
+      "subInstruction": "Do it as shown on the board!"
+    },
+    "feedback": {
+      "queuedTitle": "Answer saved!",
+      "queuedDescription": "It will be sent automatically when you're back online.",
+      "continue": "Continue",
+      "excellent": "Excellent work!",
+      "good": "Great job!",
+      "failed": "Keep trying!",
+      "reviewMistakes": "Review your mistakes",
+      "severity": "Severity:",
+      "carryMissed": "You forgot to carry the number",
+      "columnMisalign": "The columns were misaligned",
+      "signError": "You confused addition with subtraction",
+      "calculationError": "Calculation error",
+      "advance": "Next topic: ready to move on",
+      "reinforce": "Keep practicing to reinforce",
+      "remediate": "Let's review the basics first",
+      "retry": "Try again",
+      "next": "Next",
+      "goHome": "Go back home"
+    }
+  },
+  "exercises": {
+    "types": {
+      "visualAddition": "Visual addition",
+      "visualSubtraction": "Visual subtraction",
+      "visualMultiplication": "Visual multiplication",
+      "visualDivision": "Visual division",
+      "textProblem": "Word problem",
+      "interactive": "Interactive"
+    },
+    "feedback": {
+      "correct": "Correct!",
+      "incorrect": "Incorrect",
+      "hint": "Hint",
+      "showHint": "Show hint",
+      "hideHint": "Hide hint",
+      "noHint": "No hints available",
+      "tryAgain": "Try again",
+      "showSolution": "View solution"
+    },
+    "answerTypes": {
+      "numeric": "Numeric",
+      "text": "Text",
+      "select": "Select",
+      "multipleChoice": "Multiple choice"
+    }
+  },
+  "games": {
+    "memory": {
+      "title": "Math Memory",
+      "description": "Find matching pairs of operations and results",
+      "hiddenCard": "Hidden card",
+      "pairs": "Pairs",
+      "attempts": "Attempts",
+      "time": "Time"
+    },
+    "timed": {
+      "title": "Timed Challenge",
+      "description": "Answer as many as you can in 60 seconds",
+      "stats": "{{correct}} of {{total}}",
+      "streak": "Streak:",
+      "secondsRemaining": "{{seconds}} seconds remaining",
+      "inputPlaceholder": "?",
+      "submit": "OK",
+      "verifying": "Verifying...",
+      "waiting": "Waiting for exercise..."
+    },
+    "quiz": {
+      "title": "Multiple Choice Quiz",
+      "description": "Choose the correct answer from 4 options",
+      "correct": "Correct!",
+      "answer": "Answer:",
+      "viewResult": "View result",
+      "next": "Next",
+      "question": "Question {{current}} of {{total}}",
+      "correctCount": "Correct:",
+      "options": "Answer options"
+    },
+    "result": {
+      "excellent": "Excellent!",
+      "good": "Great job!",
+      "failed": "Keep trying!",
+      "score": "Score",
+      "correctOf": "{{correct}} of {{total}} correct",
+      "points": "Points",
+      "playAgain": "Play again",
+      "goHome": "Go back home"
+    },
+    "common": {
+      "back": "Back",
+      "play": "Play",
+      "letsPlay": "Let's Play!",
+      "selectGame": "Choose a game to learn math",
+      "loading": "Loading...",
+      "estimatedTime": "~{{minutes}} min"
+    }
+  },
+  "practice": {
+    "title": "Free Practice",
+    "subtitle": "Choose what to practice",
+    "topic": "Topic",
+    "all": "All",
+    "addition": "Addition",
+    "subtraction": "Subtraction",
+    "multiplication": "Multiplication",
+    "division": "Division",
+    "difficulty": "Difficulty",
+    "start": "Start practicing",
+    "changeTopic": "Change topic",
+    "score": "Score:",
+    "streak": "Streak:",
+    "attempts": "Attempts:",
+    "errorTitle": "We couldn't load the exercise",
+    "errorMessage": "Please try again.",
+    "exercise": "Exercise",
+    "inputPlaceholder": "Type your answer",
+    "verifying": "Verifying...",
+    "submit": "Answer"
+  },
+  "progress": {
+    "title": "My Progress",
+    "overallProgress": "Overall progress",
+    "student": "Student",
+    "bySubject": "By Subject",
+    "achievements": "Achievements",
+    "noAchievements": "You don't have achievements yet. Keep practicing!",
+    "weakAreas": "Areas to Improve",
+    "points": "Points",
+    "level": "Level",
+    "precision": "Accuracy",
+    "learningPath": "Learning Path",
+    "generalProgress": "General Progress",
+    "levelPrefix": "Level {{level}}",
+    "progressOf": "{{name}}'s Progress"
+  },
+  "role": {
+    "title": "Select your role",
+    "iAm": "I am",
+    "student": "Student",
+    "parent": "Parent",
+    "teacher": "Teacher",
+    "selectProfile": "Select this profile to continue",
+    "selectRole": "Select {{role}}",
+    "roleDescription": "Choose how you want to use Amauta",
+    "continue": "Continue"
+  },
+  "errors": {
+    "fallback": {
+      "genericTitle": "Something went wrong",
+      "networkTitle": "Connection error",
+      "genericMessage": "We ran into a problem. You can try again.",
+      "networkMessage": "We couldn't connect to the server. Check your internet connection.",
+      "retry": "Try again",
+      "retryConnection": "Retry connection",
+      "goHome": "Go home",
+      "goToStart": "Go back home"
+    },
+    "student": {
+      "networkTitle": "Oops! No internet",
+      "genericTitle": "Oops! Something got in the way",
+      "networkMessage": "It looks like there's no internet connection. Ask an adult to check.",
+      "genericMessage": "You had a small hiccup. Don't worry! You can try again.",
+      "retryNetwork": "Check again!",
+      "retryGeneric": "Try again!",
+      "goHome": "Go back home"
+    },
+    "parent": {
+      "networkTitle": "Connection error",
+      "genericTitle": "Unexpected error",
+      "networkMessage": "Couldn't connect to the server. Check your internet connection.",
+      "genericMessage": "There was a problem loading this section. Please try again.",
+      "retryConnection": "Retry connection",
+      "retry": "Retry",
+      "home": "Home"
+    },
+    "connectionStatus": {
+      "offlineStudent": "Oops! Something isn't working. Let an adult know.",
+      "offlineParent": "No internet connection. You can keep using the app offline.",
+      "offlineGeneric": "No internet connection",
+      "retrying": "Retrying...",
+      "retry": "Retry",
+      "failedSingle": "{{count}} change could not be saved",
+      "failedMultiple": "{{count}} changes could not be saved"
+    },
+    "updateToast": {
+      "newVersion": "New version available",
+      "updateDescription": "There's an update. Would you like to update now?",
+      "updating": "Updating...",
+      "updateNow": "Update now",
+      "postpone": "Postpone"
+    },
+    "downloadLesson": {
+      "title": "Download lesson",
+      "download": "Download for offline use",
+      "requesting": "Requesting download...",
+      "downloading": "Downloading resources (this may take a while)...",
+      "done": "Download complete.",
+      "failedMessage": "Some resources failed:",
+      "retry": "Retry"
+    },
+    "errorState": {
+      "title": "Oops! Something went wrong",
+      "retry": "Try again"
+    },
+    "loadingState": {
+      "loading": "Loading..."
+    }
+  }
+}
