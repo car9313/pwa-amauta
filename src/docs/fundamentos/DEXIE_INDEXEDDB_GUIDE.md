@@ -21,9 +21,9 @@ Amauta usa **Dexie** como wrapper sobre **IndexedDB** para persistencia offline.
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                    IndexedDB (Browser)                         │
-│                      amauta-db (v1)                           │
+│                    amauta-db (v3)                           │
 ├─────────────────────────────────────────────────────────────────┤
-│  Tables:                                                     │
+│  Tables (v3):                                             │
 │  ├── tokens       → Tokens de autenticación                 │
 │  ├── users       → Usuario autenticado                      │
 │  ├── preferences → Preferencias del usuario                 │
@@ -63,7 +63,10 @@ export interface StoredUser {
 
 export interface UserPreferences {
   id: string;
+  userId: string;
   selectedStudentId: string | null;
+  localeId: string | null;
+  cachedAt: number | null;
   updatedAt: number;
 }
 
@@ -136,6 +139,7 @@ export interface AmautaDatabase extends Dexie {
 
 export const db = new Dexie("amauta-db") as AmautaDatabase;
 
+// v1: schema inicial
 db.version(1).stores({
   tokens: "id",
   users: "id",
@@ -146,6 +150,35 @@ db.version(1).stores({
   progress: "studentId, lessonId",
   students: "id",
 });
+
+// v2: se agrega localeCache (luego eliminada en v3)
+db.version(2).stores({
+  tokens: "id",
+  users: "id",
+  preferences: "id",
+  mutations: "id, status, priority, createdAt, type",
+  exercises: "id, type, difficulty, subject",
+  lessons: "id, subject",
+  progress: "studentId, lessonId",
+  students: "id",
+  localeCache: "id",
+});
+
+// v3: localeCache unificada en preferences, nuevos índices en preferences
+db.version(3).stores({
+  tokens: "id",
+  users: "id",
+  preferences: "id, userId, localeId, cachedAt",
+  mutations: "id, status, priority, createdAt, type",
+  exercises: "id, type, difficulty, subject",
+  lessons: "id, subject",
+  progress: "studentId, lessonId",
+  students: "id",
+}).upgrade(tx => {
+  return tx.table("preferences").delete("user-preferences");
+});
+
+
 ```
 
 ### Archivos de Funciones por Tabla
@@ -201,17 +234,24 @@ interface StoredUser {
 
 ### Tabla: preferences
 
-Almacena preferencias del usuario.
+Almacena preferencias del usuario (incluyendo locale e hijo seleccionado).
 
 ```typescript
 interface UserPreferences {
-  id: "user-preferences";    // Primary key
-  selectedStudentId: string | null;  // Hij@ actualmente seleccionado
-  updatedAt: number;         // Timestamp de última actualización
+  id: string;                    // "{userId}_preferences"
+  userId: string;                // ID del usuario
+  selectedStudentId: string | null; // Hij@ actualmente seleccionado
+  localeId: string | null;       // Idioma seleccionado
+  cachedAt: number | null;       // Timestamp de último cache de locale
+  updatedAt: number;             // Timestamp de última actualización
 }
 ```
 
-**Uso:** Recordar qué hijo está seleccionado en el dashboard.
+**Índices:** `id`, `userId`, `localeId`, `cachedAt`
+
+**Uso:** Recordar qué hijo está seleccionado, preferencias de idioma.
+
+> **Historial:** En v2 existía la tabla `localeCache` separada para traducciones. En v3 se unificó dentro de `preferences`.
 
 ---
 
@@ -484,12 +524,14 @@ export async function ensureExercises() {
 
 ### Índices y consultas
 
-Los índices se definen en `db.version(1).stores()`:
+Los índices se definen en `db.version(N).stores()`. Versión actual (v3):
 
 ```typescript
-db.version(1).stores({
-  exercises: "id, type, difficulty, subject",  // Índices
-  progress: "studentId, lessonId",               // Índice compuesto
+db.version(3).stores({
+  exercises: "id, type, difficulty, subject",
+  progress: "studentId, lessonId",
+  preferences: "id, userId, localeId, cachedAt",
+  mutations: "id, status, priority, createdAt, type",
 });
 ```
 
@@ -616,30 +658,42 @@ export function useSaveExercise() {
 
 ## Migración de Datos
 
-Para actualizar el esquema de la base de datos:
+Para actualizar el esquema de la base de datos se definen múltiples versiones en cadena. Dexie ejecuta automáticamente las migraciones entre versiones.
+
+Ejemplo real de migración v2 → v3 (unificación de `localeCache` en `preferences`):
 
 ```typescript
-export const db = new Dexie("amauta-db") as AmautaDatabase;
-
-// Versión 1: schema inicial
-db.version(1).stores({
-  tokens: "id",
-  users: "id",
-  // ...
-});
-
-// Versión 2: migrando a versión 2
 db.version(2).stores({
   tokens: "id",
   users: "id",
-  exercises: "id, type",  // Nuevo índice
+  preferences: "id",
+  mutations: "id, status, priority, createdAt, type",
+  exercises: "id, type, difficulty, subject",
+  lessons: "id, subject",
+  progress: "studentId, lessonId",
+  students: "id",
+  localeCache: "id",
+});
+
+db.version(3).stores({
+  tokens: "id",
+  users: "id",
+  preferences: "id, userId, localeId, cachedAt",
+  mutations: "id, status, priority, createdAt, type",
+  exercises: "id, type, difficulty, subject",
+  lessons: "id, subject",
+  progress: "studentId, lessonId",
+  students: "id",
 }).upgrade(tx => {
-  return tx.table("exercises").toCollection().modify(exercise => {
-    // Migración de datos existente
-    exercise.newField = "default";
-  });
+  // Eliminar entrada antigua con id fijo "user-preferences"
+  return tx.table("preferences").delete("user-preferences");
 });
 ```
+
+**Reglas importantes:**
+1. Cada versión debe incluir **todas** las tablas que deben persistir (las omitidas se eliminan automáticamente)
+2. Usa `.upgrade(tx => ...)` para transformar datos existentes
+3. Dexie ejecuta upgrades incrementalmente (ej: de v1 a v3 ejecuta v2 + v3)
 
 ---
 
@@ -688,6 +742,6 @@ describe("exercises-db", () => {
 
 ## Ver Também
 
-- [OUTBOX_PATTERN.md](../offline/OUTBOX_PATTERN.md) - Patrón outbox para mutations offline
-- [PERSISTENCE_TEST_GUIDE.md](../testing/PERSISTENCE_TEST_GUIDE.md) - Guía de testing de persistencia
+- [OUTBOX_PATTERN.md](../sin-conexion/OUTBOX_PATTERN.md) - Patrón outbox para mutations offline
+- [PERSISTENCE_TEST_GUIDE.md](../pruebas-automatizadas/PERSISTENCE_TEST_GUIDE.md) - Guía de testing de persistencia
 - [ARCHITECTURE_LAYERS.md](./ARCHITECTURE_LAYERS.md) - Capas de la aplicación

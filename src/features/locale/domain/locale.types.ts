@@ -4,7 +4,8 @@ export type LocaleId =
   | "es-AR"
   | "es-CL"
   | "es-CO"
-  | "es-PE";
+  | "es-PE"
+  | "en-US";
 
 export interface LocaleInfo {
   id: LocaleId;

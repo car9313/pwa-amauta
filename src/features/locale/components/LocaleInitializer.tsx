@@ -3,6 +3,7 @@ import { useAuthStore } from "@/features/auth/presentation/store/auth-store";
 import { useLocaleStore } from "@/features/locale/store/locale-store";
 import { AmautaLoadingState } from "@/components/amauta";
 import type { AuthUser } from "@/features/auth/domain/types";
+import { checkIfSessionExists } from "@/features/auth/infrastructure/auth-storage";
 
 function getAuthUserId(user: AuthUser): string {
   switch (user.role) {
@@ -22,23 +23,28 @@ export function LocaleInitializer({ children }: { children: React.ReactNode }) {
   const detectPreAuthLocale = useLocaleStore((s) => s.detectPreAuthLocale);
   const resolveAndCacheLocale = useLocaleStore((s) => s.resolveAndCacheLocale);
 
-const hasInitialized = useRef(false)  // ← añade esta línea
+  const hasInitialized = useRef(false);
 
-useEffect(() => {
-  if (hasInitialized.current) return  // ← protección contra doble ejecución
-  hasInitialized.current = true
+  useEffect(() => {
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
 
-  const init = async () => {
-    const found = await hydrateFromStorage()
-    if (found) {
-      setLocalePhaseReady(true)
-      return
-    }
-    await detectPreAuthLocale(800)
-    setLocalePhaseReady(true)
-  }
-  init()
-}, [detectPreAuthLocale, hydrateFromStorage])
+    const init = async () => {
+      const userId = await checkIfSessionExists();
+
+      if (userId) {
+        const found = await hydrateFromStorage(userId);
+        if (found) {
+          setLocalePhaseReady(true);
+          return;
+        }
+      }
+
+      await detectPreAuthLocale(800);
+      setLocalePhaseReady(true);
+    };
+    init();
+  }, [detectPreAuthLocale, hydrateFromStorage]);
 
   useEffect(() => {
     if (!hasAuthHydrated || !isAuthenticated || !user) return;

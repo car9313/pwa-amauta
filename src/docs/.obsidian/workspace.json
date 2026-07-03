@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "arreglar/I18N_PLAN_v2.md",
+                "file": "archivo/arreglar/I18N_PLAN_v2.md",
                 "mode": "preview",
                 "source": false
               },
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "arreglar/I18N_PLAN_v2.md",
+                "file": "archivo/arreglar/I18N_PLAN_v2.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -113,7 +113,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "arreglar/I18N_PLAN_v2.md",
+                "file": "archivo/arreglar/I18N_PLAN_v2.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
@@ -156,7 +156,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "arreglar/I18N_PLAN_v2.md",
+                "file": "archivo/arreglar/I18N_PLAN_v2.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -185,9 +185,9 @@
   },
   "active": "715c3aeae12a2e7c",
   "lastOpenFiles": [
-    "arreglar/FASE3_RESUMEN.md",
-    "arreglar/FASE2_RESUMEN.md",
-    "arreglar/I18N_PLAN_v2.md",
-    "arreglar/I18N_FIXES_F0_F1.md"
+    "archivo/arreglar/FASE3_RESUMEN.md",
+    "archivo/arreglar/FASE2_RESUMEN.md",
+    "archivo/arreglar/I18N_PLAN_v2.md",
+    "archivo/arreglar/I18N_FIXES_F0_F1.md"
   ]
 }

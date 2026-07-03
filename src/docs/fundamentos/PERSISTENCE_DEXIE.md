@@ -2,7 +2,7 @@
 
 > **IMPORTANTE**: Para nueva documentación, ver:
 > - [DEXIE_INDEXEDDB_GUIDE.md](./DEXIE_INDEXEDDB_GUIDE.md) - Guía completa de uso
-> - [OUTBOX_PATTERN.md](../offline/OUTBOX_PATTERN.md) - Patrón outbox
+> - [OUTBOX_PATTERN.md](../sin-conexion/OUTBOX_PATTERN.md) - Patrón outbox
 
 ## Resumen de Tecnologías de Almacenamiento
 
@@ -87,14 +87,13 @@ const users = await db.users.toArray();
 
 ## Base de Datos en Amauta
 
-### 1. amauta-auth (Auth - Tokens y Usuario)
+### Base de Datos Unificada: amauta-db (v3)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│               IndexedDB: amauta-auth (v2)                            │
+│               IndexedDB: amauta-db (v3)                               │
 ├─────────────────────────────────────────────────────────────────────┤
-│                                                                    │
-│  Database: amauta-auth                                              │
+│  Database: amauta-db                                                │
 │  ┌─────────────────────────────────────────────────────────────┐    │
 │  │ TABLE: tokens                                                │    │
 │  ├── id: "amauta-tokens" (primary key)                        │    │
@@ -112,9 +111,31 @@ const users = await db.users.toArray();
 │  └── storedAt: number                                      │    │
 │  └─────────────────────────────────────────────────────┘    │
 │  ┌─────────────────────────────────────────────────────────┐    │
-│  │ TABLE: preferences (v2)                                  │    │
-│  ├── id: "user-preferences" (primary key)            │    │
-│  └── selectedStudentId: string | ""                   │    │
+│  │ TABLE: preferences (v3)                                  │    │
+│  ├── id: string (primary key)                            │    │
+│  ├── userId: string                                       │    │
+│  ├── selectedStudentId: string | null                    │    │
+│  ├── localeId: string | null                             │    │
+│  ├── cachedAt: number | null                             │    │
+│  └── updatedAt: number                                   │    │
+│  └─────────────────────────────────────────────────────┘    │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │ TABLE: mutations (cola outbox)                          │    │
+│  ├── id: "mut_timestamp_hash" (primary key)                │    │
+│  ├── type: string                                          │    │
+│  ├── payload: unknown                                     │    │
+│  ├── endpoint: string                                     │    │
+│  ├── method: string                                       │    │
+│  ├── priority: 1 | 2 | 3                                 │    │
+│  ├── retryCount: number                                  │    │
+│  ├── status: "pending" | "syncing" | "done" | "failed"   │    │
+│  ├── createdAt: number                                    │    │
+│  ├── lastAttemptAt: number | null                        │    │
+│  ├── errorMessage: string | null                         │    │
+│  └── result: unknown | null                               │    │
+│  └─────────────────────────────────────────────────────┘    │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │ TABLE: exercises, lessons, progress, students           │    │
 │  └─────────────────────────────────────────────────────┘    │
 │                                                                    │
 └─────────────────────────────────────────────────────────────┘
@@ -124,42 +145,13 @@ const users = await db.users.toArray();
 - Sesión de usuario (login/logout)
 - Tokens de acceso
 - Información del usuario
-- Student seleccionado
+- Student seleccionado + preferencias de locale
+- Cola de mutations offline
+- Datos de currículo (exercises, lessons, progress, students)
 
 ---
 
-### 2. amauta-offline-queue (Mutations Offline)
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│           IndexedDB: amauta-offline-queue (v1)                       │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                    │
-│  Database: amauta-offline-queue                                     │
-│  ┌─────────────────────────────────────────────────────────────┐    │
-│  │ TABLE: mutations                                             │    │
-│  ├── id: "mut_timestamp_hash" (primary key)                │    │
-│  ├── type: string ("addChild", "updateProgress", ...)   │    │
-│  ├── payload: unknown (datos de la operación)       │    │
-│  ├── endpoint: string ("/api/parents/...")           │    │
-│  ├── method: "POST" | "PUT" | "PATCH" | "DELETE"   │    │
-│  ├── priority: 1 | 2 | 3 (alta | media | baja)     │    │
-│  ├── retryCount: number (0-3)                      │    │
-│  ├── status: string                                │    │
-│  │     "pending" | "syncing" | "done" | "failed"   │    │
-│  ├── createdAt: number (timestamp)               │    │
-│  ├── lastAttemptAt: number | null                 │    │
-│  ├── errorMessage: string | null                 │    │
-│  └── result: unknown | null                       │    │
-│  └─────────────────────────────────────────────────────┘    │
-│                                                                    │
-└─────────────────────────────────────────────────────────────┘
-```
-
-**Uso:**
-- Cola de mutations offline
-- Retry con exponential backoff
-- Prioridad de procesamiento
+> **Nota:** En versiones anteriores existían BD separadas (`amauta-auth` y `amauta-offline-queue`). Desde v3 están unificadas en `amauta-db`. Ver el diagrama en la sección anterior.
 
 ---
 
@@ -326,7 +318,7 @@ El patrón **Outbox** es una técnica para garantizar operaciones atomic en sist
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                    │
 │  src/lib/api/storage/offline-queue.ts                           │
-│  ├── Dexie: amauta-offline-queue                             │
+│  ├── Dexie: amauta-db (tabla mutations)                     │
 │  ├── Table: mutations (cola de operaciones)              │
 │  └── Métodos:                                                │
 │       ├── enqueueMutation()  → guardar en cola            │
@@ -340,10 +332,10 @@ El patrón **Outbox** es una técnica para garantizar operaciones atomic en sist
 │  ├── triggerSync() → inicia sync manual              │
 │  └── getQueueState() → estado actual                │
 │                                                                    │
-│  src/lib/sync/useOfflineMutation.ts                     │
-│  ├── useOfflineMutation() → hook para mutations       │
-│  ├── usePendingMutations() → estado de cola         │
-│  └── Retorna: isQueued, pendingCount, error, retry │
+│  src/lib/sync/useSafeMutation.ts                        │
+│  ├── Hook único para mutations offline/online         │
+│  ├── Soporta optimistic updates                       │
+│  └── Reemplaza useOfflineMutation (eliminado)        │
 │                                                                    │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -369,22 +361,19 @@ El patrón **Outbox** es una técnica para garantizar operaciones atomic en sist
 ```
 ¿Necesitas guardar datos offline?
 │
-├── SÍ ──► ¿Son tokens/credenciales?
+├── SÍ ──► Dexie: amauta-db (v3)
 │   │
-│   ├── SÍ ──► Dexie: amauta-auth (tokens, users, preferences)
-│   │
-│   └── NO ──► ¿Son mutations/escrituras?
-│       │
-│       ├── SÍ ──► Dexie: amauta-offline-queue (outbox)
-│       │
-│       └── NO ──► ¿Son datos del servidor?
-│           │
-│           └── SÍ ──► TanStack Query (cache en memoria)
-│
+│   ├── tokens, users        → Sesión y auth
+│   ├── preferences          → Preferencias de usuario
+│   ├── mutations (outbox)   → Escrituras offline
+│   ├── exercises, lessons   → Datos de currículo
+│   ├── progress             → Progreso del estudiante
+│   └── students             → Hijos registrados
 │
 └── NO ──► ¿Es estado de UI?
     │
-    └── SÍ ──► Zustand (memoria)
+    ├── SÍ ──► Zustand (memoria)
+    └── NO ──► TanStack Query (cache en memoria)
 ```
 
 ---
@@ -398,10 +387,10 @@ El patrón **Outbox** es una técnica para garantizar operaciones atomic en sist
 │                                                                    │
 │  1. UI llama: mutate({ name: "Juan", email: "juan@..." })        │
 │                                                                    │
-│  2. Hook useOfflineMutation detecta: navigator.onLine = false    │
+│  2. Hook useSafeMutation detecta: navigator.onLine = false      │
 │                                                                    │
 │  3. Guarda en Dexie (outbox):                                    │
-│     amauta-offline-queue.mutations.put({                        │
+│     db.mutations.put({                                          │
 │       id: "mut_1713792345678_abc",                              │
 │       type: "addChild",                                          │
 │       payload: { name: "Juan", email: "juan@..." },          │
@@ -436,4 +425,4 @@ Para información más detallada y actualizada, ver:
 | Documento | Descripción |
 |-----------|------------|
 | [DEXIE_INDEXEDDB_GUIDE.md](./DEXIE_INDEXEDDB_GUIDE.md) | Guía completa de Dexie/IndexedDB |
-| [OUTBOX_PATTERN.md](../offline/OUTBOX_PATTERN.md) | Patrón outbox para mutations offline |
+| [OUTBOX_PATTERN.md](../sin-conexion/OUTBOX_PATTERN.md) | Patrón outbox para mutations offline |

@@ -7,8 +7,6 @@ import {
   getUserCachedLocale,
   saveCachedLocale,
   isLocaleStale,
-  getLastActiveUserId,
-  setLastActiveUserId,
 } from "../infrastructure/locale-persistence";
 import { resolveLocale, getLocaleFromNavigator } from "../utils/locale-utils";
 
@@ -22,7 +20,7 @@ interface LocaleState {
   /* Qué cambió funcionalmente: antes, hydrateFromStorage solo sabía decir "el idioma se llama es-MX" sin tener el diccionario. Ahora hace dos pasos: primero pregunta "¿quién fue la última persona?", y con esa respuesta va directo a buscar su carpeta completa (Archivador B), que sí tiene el diccionario entero.
 Cómo afecta al flujo de i18n — exactamente tu edge case: un usuario que cerró sesión y vuelve a abrir la app ya no depende de hacer login para tener traducciones reales. hydrateFromStorage encuentra su userId guardado, va al Archivador B, y aplica el diccionario completo de es-MX (o el locale que sea) antes de que se muestre el login. El login ya no cae al fallback es-LA en ese caso. */
 
-  hydrateFromStorage: () => Promise<boolean>;
+  hydrateFromStorage: (userId: string) => Promise<boolean>;
   detectPreAuthLocale: (timeoutMs?: number) => Promise<void>;
   resolveAndCacheLocale: (userId: string) => Promise<void>;
   setUserPreference: (locale: LocaleId, userId: string) => Promise<void>;
@@ -46,28 +44,17 @@ export const useLocaleStore = create<LocaleState>((set, get) => ({
     return false;
   }, */
 
-  hydrateFromStorage: async (): Promise<boolean> => {
-    console.log("[i18n] hydrateFromStorage: iniciando...");
-    const lastUserId = await getLastActiveUserId();
-    console.log("[i18n] lastUserId encontrado:", lastUserId);
-    if (!lastUserId) {
-      console.log("[i18n] Sin userId conocido → irá a geo-detección");
-      set({ isReady: true });
-      return false; // no hay nadie conocido — la app pasará a geo-detección pre-auth
-    }
+  hydrateFromStorage: async (userId: string): Promise<boolean> => {
+    console.log("[i18n] hydrateFromStorage: buscando cache para", userId);
 
-    const cached = await getUserCachedLocale(lastUserId);
-console.log('[i18n] cache encontrado:', cached)        // ← añade esta línea
-  console.log('[i18n] isStale:', cached ? isLocaleStale(cached) : 'no hay cache')  // ← y esta
-
+    const cached = await getUserCachedLocale(userId);
 
     if (!cached || isLocaleStale(cached)) {
-       console.log('[i18n] cache inválido o stale → geo-detección')  // ← y esta
+      console.log("[i18n] cache inválido o no existe → irá a geo-detección");
       set({ isReady: true });
-      return false; // hay un userId conocido pero su cache no es válido — geo-detección de nuevo
+      return false;
     }
 
-    // Encontramos la carpeta completa del Archivador B: aplicamos el diccionario real
     const data = cached.data as Record<string, Record<string, unknown>>;
     for (const ns of LOCALE_NAMESPACES) {
       if (data[ns]) {
@@ -82,7 +69,7 @@ console.log('[i18n] cache encontrado:', cached)        // ← añade esta línea
       isReady: true,
     });
 
-    return true; // login/register ya van a mostrar el diccionario real, no es-LA
+    return true;
   },
 
   detectPreAuthLocale: async (timeoutMs = 800) => {
@@ -155,7 +142,6 @@ La próxima vez que hydrateFromStorage busque, encuentra lastActiveUserId = "stu
         userPreference: cached.localeId,
       });
       console.log("[i18n] persistiendo en Dexie para userId:", userId);
-      await setLastActiveUserId(userId);
       return;
     }
 
@@ -175,7 +161,6 @@ La próxima vez que hydrateFromStorage busque, encuentra lastActiveUserId = "stu
       }
 
       await i18next.changeLanguage(locale);
-      await setLastActiveUserId(userId); // ← esta línea también faltaba aquí
       set({ userPreference: locale, isReady: true, preAuthLocaleData: null });
       return;
     }
@@ -214,7 +199,6 @@ La próxima vez que hydrateFromStorage busque, encuentra lastActiveUserId = "stu
 
     await i18next.changeLanguage(resolved);
     set({ resolvedLocale: resolved, userPreference: resolved, isReady: true });
-    await setLastActiveUserId(userId);
   
   },
 
@@ -223,7 +207,6 @@ La próxima vez que hydrateFromStorage busque, encuentra lastActiveUserId = "stu
     // Actualiza el cache en Dexie con el nuevo locale elegido manualmente
     // Los datos quedan vacíos porque es-LA está embebido, las variantes se cargan al cambiar
     await saveCachedLocale(userId, locale, {});
-    await setLastActiveUserId(userId);
     await i18next.changeLanguage(locale);
   },
 

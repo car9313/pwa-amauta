@@ -1,0 +1,13 @@
+{
+  "auth": {
+    "login": {
+      "title": "¡Bienvenido a Amauta!",
+      "subtitle": "Ingresa para continuar aprendiendo",
+      "submitButton": "Ingresar",
+      "sessionClosedMessage": "Tu sesión se cerró. Ingresa de nuevo.",
+      "offlineWelcome": "¡Qué alegría verte de nuevo, {{name}}! Necesitas internet para jugar.",
+      "offlineMessage": "No tienes internet. Vuelve cuando tengas conexión para seguir aprendiendo.",
+      "registerLinkText": "Regístrate aquí"
+    }
+  }
+}

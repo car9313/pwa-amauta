@@ -45,18 +45,20 @@
 │  │                    Dexie (IndexedDB)                        │  │
 │  │                    =============================               │  │
 │  │                                                         │  │
-│  │  amauta-auth (v2)         amauta-offline-queue (v1)          │  │
-│  │  ├─ tokens              │  ├─ mutations                   │  │
-│  │  │  - accessToken       │  │   - type: addChild             │  │
-│  │  │  - refreshToken     │  │   - payload: {...}            │  │
-│  │  │  - expiresAt       │  │   - priority: 1|2|3           │  │
-│  │  │                    │  │   - status: pending          │  │
-│  │  ├─ users              │  ├─ retryCount: 0-3            │  │
-│  │  │  - AuthUser          │  │   - endpoint: /api/...        │  │
-│  │  │  - name             │  └──────────────────────────────┘  │
-│  │  │  - email            │                                    │
-│  │  │  - role             │                                   │
-│  │  └─ preferences       │                                   │
+│  │                    amauta-db (v3) — BD unificada               │  │
+│  │                                                             │  │
+│  │  ┌─────────────────────────────────────────────────────┐    │  │
+│  │  │  tokens      → accessToken, refreshToken, expiresAt │    │  │
+│  │  │  users       → AuthUser (name, email, role, ...)    │    │  │
+│  │  │  preferences → selectedStudentId, userId, localeId  │    │  │
+│  │  │  mutations   → cola outbox (type, payload, status)  │    │  │
+│  │  │  exercises   → ejercicios del currículo             │    │  │
+│  │  │  lessons     → lecciones con exerciseIds            │    │  │
+│  │  │  progress    → progreso del estudiante              │    │  │
+│  │  │  students    → hijos registrados                    │    │  │
+│  │  └─────────────────────────────────────────────────────┘    │  │
+│  │                                                              │  │
+│  └──────────────────────────────────────────────────────────────┘  │
 │  │     - selectedStudent │                                   │
 │  │                     │                                   │
 │  │                     │  📦 Cola de mutations offline    │
@@ -103,13 +105,12 @@
 │        │ Si API Offline: error                                  │
 │        ▼                                                            │
 │  ┌──────────────────────────────────────────────────────────────┐  │
-│  │  Persistence: Dexie - auth-db.ts                         │  │
+│  │  Persistence: Dexie - db.ts (amauta-db v3)              │  │
 │  │                                                          │  │
-│  │  saveAuthData()                                          │  │
-│  │  ├── tokens.put({ accessToken, refreshToken, ... })   │  │
-│  │  └── users.put({ user })                                │  │
+│  │  db.tokens.put({ accessToken, refreshToken, ... })      │  │
+│  │  db.users.put({ user })                                  │  │
 │  │                                                          │  │
-│  │  IndexedDB: amauta-auth                                 │  │
+│  │  IndexedDB: amauta-db (BD unificada)                    │  │
 │  │  ├─ tokens: { accessToken, expiresAt }                  │  │
 │  │  └─ users:  { name, email, role }                     │  │
 │  └─────┬──────────────────────────────────────────────────────┘  │
@@ -274,9 +275,7 @@
 |------|-------------|--------------|---------|
 | **Zustand** | Estado runtime de UI | ❌ Memoria | user, isAuthenticated, selectedStudentId |
 | **TanStack Query** | Datos del servidor | ❌ Memoria (cache) | session, dashboard, progress |
-| **Dexie - auth** | Tokens y usuario | ✅ IndexedDB | accessToken, AuthUser |
-| **Dexie - queue** | Mutations offline | ✅ IndexedDB | addChild, updateProgress |
-| **localStorage** | Preferencias pequeñas | ✅ localStorage | (no usado para auth) |
+| **Dexie (amauta-db v3)** | Todo (auth, datos, cola offline) | ✅ IndexedDB | tokens, users, preferences, mutations, exercises, lessons, progress, students |
 
 ---
 
@@ -313,7 +312,5 @@ COMPONENT (React)
 
 INDEXEDDB (Dexie)
     │
-    ├── amauta-auth (tokens + user + preferences)
-    │
-    └── amauta-db → tabla mutations (mutations pendientes)
+    └── amauta-db (v3) → 8 tablas (tokens, users, preferences, mutations, exercises, lessons, progress, students)
 ```
