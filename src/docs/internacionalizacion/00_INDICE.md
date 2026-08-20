@@ -1,8 +1,8 @@
 # Indice — Internacionalizacion por Geolocalizacion
 
 > **Sistema**: i18n offline-first con geo-deteccion pre-auth y cache en Dexie
-> **Version del documento**: 1.0.0
-> **Ultima actualizacion**: 03 Julio 2026
+> **Version del documento**: 1.1.0
+> **Ultima actualizacion**: 06 Julio 2026
 
 ---
 
@@ -12,7 +12,7 @@
 Si necesitas entender como funciona sin profundizar en cada detalle:
 
 ```
-01_VISION_GENERAL.md  →  09_DIAGRAMAS.md  →  10_PROBLEMAS_CONOCIDOS.md
+01_VISION_GENERAL.md  →  09_DIAGRAMAS.md  →  10_PROBLEMAS_CONOCIDOS.md  →  11_FLUJO_LOCALE_PRIORIDAD.md
 ```
 
 ### Ruta Operativa (1.5 hr)
@@ -31,7 +31,7 @@ Si necesitas entender el sistema completo, incluyendo infraestructura y variante
 00_INDICE.md  →  01_VISION_GENERAL.md  →  02_MODELO_DE_DOMINIO.md
 →  03_INFRAESTRUCTURA.md  →  04_STORE_Y_HOOKS.md  →  05_LOCALE_INITIALIZER.md
 →  06_FLUJO_PREAUTH.md  →  07_PERSISTENCIA_DEXIE.md  →  08_VARIANTES_REGIONALES.md
-→  09_DIAGRAMAS.md  →  10_PROBLEMAS_CONOCIDOS.md
+→  09_DIAGRAMAS.md  →  10_PROBLEMAS_CONOCIDOS.md  →  11_FLUJO_LOCALE_PRIORIDAD.md
 ```
 
 ---
@@ -196,3 +196,4 @@ Si necesitas entender el sistema completo, incluyendo infraestructura y variante
 | Version | Fecha | Cambio |
 |---------|-------|--------|
 | 1.0.0 | 03 Jul 2026 | Creacion inicial del sistema de documentacion |
+| 1.1.0 | 06 Jul 2026 | Agregado `11_FLUJO_LOCALE_PRIORIDAD.md` con cadena de prioridad y escenarios A-H |

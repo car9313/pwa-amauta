@@ -39,7 +39,19 @@ export async function saveCachedLocale(
   userId: string,
   localeId: LocaleId,
   data: Record<string, unknown>,
+  countryCode?: string | null,
 ): Promise<void> {
+  // Eliminar entries de cache previas del mismo usuario con otro locale
+  const oldEntries = await db.preferences
+    .where("userId")
+    .equals(userId)
+    .filter((entry) => isLocaleCacheEntry(entry) && entry.localeId !== localeId)
+    .toArray();
+
+  if (oldEntries.length > 0) {
+    await db.preferences.bulkDelete(oldEntries.map((e) => e.id));
+  }
+
   const entry: LocaleCacheEntry = {
     id: buildKey(userId, localeId),
     userId,
@@ -47,10 +59,9 @@ export async function saveCachedLocale(
     data,
     version: LOCALE_VERSIONS[localeId],
     cachedAt: Date.now(),
+    countryCode: countryCode ?? null,
   };
-  console.log('[dexie] saveCachedLocale escribiendo:', entry)  // ← añade esto
   await db.preferences.put(entry);
-  console.log('[dexie] saveCachedLocale completado')           // ← y esto
 }
 
 function isLocaleCacheEntry(entry: unknown): entry is LocaleCacheEntry {
@@ -71,44 +82,17 @@ export async function getCachedLocale(
     data: entry.data as Record<string, unknown>,
     version: entry.version,
     cachedAt: entry.cachedAt,
+    countryCode: entry.countryCode ?? null,
   };
 }
-
-
-
-
-/* export async function getUserCachedLocale(
-  userId: string,
-): Promise<CacheableLocale | null> {
-  const entry = await db.preferences
-    .where("userId")
-    .equals(userId)
-    .first();
-  if (!entry || !isLocaleCacheEntry(entry)) return null;
-  return {
-    id: entry.id,
-    userId: entry.userId,
-    localeId: entry.localeId as LocaleId,
-    data: entry.data as Record<string, unknown>,
-    version: entry.version,
-    cachedAt: entry.cachedAt,
-  };
-}
- */
-
 
 export async function getUserCachedLocale(
   userId: string,
 ): Promise<CacheableLocale | null> {
-  console.log('[dexie] getUserCachedLocale buscando userId:', userId)
-
   const entry = await db.preferences
     .where("userId")
     .equals(userId)
     .first();
-
-  console.log('[dexie] entry encontrada:', entry)
-  console.log('[dexie] isLocaleCacheEntry:', entry ? isLocaleCacheEntry(entry) : 'no hay entry')
 
   if (!entry || !isLocaleCacheEntry(entry)) return null;
 
@@ -119,6 +103,7 @@ export async function getUserCachedLocale(
     data: entry.data as Record<string, unknown>,
     version: entry.version,
     cachedAt: entry.cachedAt,
+    countryCode: entry.countryCode ?? null,
   };
 }
 export async function clearCachedLocale(

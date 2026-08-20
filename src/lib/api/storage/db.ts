@@ -29,6 +29,8 @@ export interface LocaleCacheEntry {
   data: unknown;
   version: string;
   cachedAt: number;
+  /** País (ISO 3166-1 alpha-2) desde el que se resolvió la cache. Ausente en entries legacy. */
+  countryCode?: string | null;
 }
 
  /* export type PreferencesEntry = UserPreferencesEntry | LocaleCacheEntry; 
