@@ -40,7 +40,9 @@ detectPreAuthLocale(800)
     │   ├── Internamente tiene su propio timeout de 5s
     │   │   pero la señal externa aborta antes (800ms)
     │   │
-    │   ├── Exito: { success: true, localeId: "es-MX" }
+    │   ├── Exito: { success: true, localeId: "es-MX", countryCode: "MX" }
+    │   │   └─ Decision: LOCALE_MAP[code] (regional)
+    │   │       → fallbackLocaleForCountry(code) (es-LA / en-US por idioma del pais)
     │   ├── 429:   { success: false, reason: "rate_limited" }
     │   ├── Timeout: { success: false, reason: "timeout" }
     │   └── Error:  { success: false, reason: "network_error" }
@@ -50,7 +52,8 @@ detectPreAuthLocale(800)
     │
     ├── [4] Resolver locale
     │   resolved = resolveLocale(geoResult, getLocaleFromNavigator())
-    │       ├── geoResult.success → usa ese localeId
+    │       ├── geoResult.success → usa ese localeId (countryCode se guarda en
+    │       │   preAuthCountryCode para persistirlo con la cache post-login)
     │       ├── geoResult.fail → getLocaleFromNavigator()
     │       │   ├── "en-US" → "en-US"
     │       │   ├── "es-MX" → "es-MX"
@@ -190,6 +193,7 @@ resolveAndCacheLocale(userId)
 | **Sin persistencia pre-auth** | El locale resuelto pre-auth vive en memoria hasta autenticacion. Dexie solo se escribe post-login con userId. |
 | **Locale post-timeout** | Si geo fue cancelada por timeout, el locale de navigator.language queda permanente para esa sesion. No se reintenta. |
 | **Prioridad de resolucion** | Dexie (userId) → Geo (memoria) → Navigator.language (solo español) → es-LA |
+| **Geo con fallback por idioma** | Pais sin variante regional → `fallbackLocaleForCountry`: hispano → es-LA, anglo → en-US. `unmapped_country` queda solo para paises sin idioma conocido. |
 | **Idioma fijo en sesion** | El locale no cambia automaticamente una vez resuelto, incluso si el usuario se mueve de pais. |
 
 ---
@@ -199,3 +203,4 @@ resolveAndCacheLocale(userId)
 | Version | Fecha | Cambio |
 |---------|-------|--------|
 | 1.0.0 | 03 Jul 2026 | Creacion inicial |
+| 1.1.0 | 20 Ago 2026 | Geo con fallback por idioma del pais (`locale-languages.ts`). `GeoResult` y `preAuthCountryCode` registran el pais; se persiste con la cache post-login. |

@@ -1,8 +1,9 @@
 import { create } from "zustand";
 import i18next from "i18next";
-import type { LocaleId } from "../domain/locale.types";
+import type { LocaleId, GeoResult } from "../domain/locale.types";
 import { DEFAULT_LOCALE, LOCALE_NAMESPACES } from "../domain/locale.constants";
 import { detectLocaleFromGeo } from "../infrastructure/geo-detection.service";
+
 import {
   getUserCachedLocale,
   saveCachedLocale,
@@ -10,19 +11,28 @@ import {
 } from "../infrastructure/locale-persistence";
 import { resolveLocale, getLocaleFromNavigator } from "../utils/locale-utils";
 
+type GeoFailReason = Extract<GeoResult, { success: false }>["reason"];
+
+function devLog(...args: unknown[]): void {
+  if (import.meta.env.DEV) {
+    console.log("[i18n]", ...args);
+  }
+}
+
 interface LocaleState {
   resolvedLocale: LocaleId;
   isReady: boolean;
   userPreference: LocaleId | null;
   geoAlreadyRan: boolean;
   preAuthLocaleData: Record<string, Record<string, unknown>> | null;
-
-  /* Qué cambió funcionalmente: antes, hydrateFromStorage solo sabía decir "el idioma se llama es-MX" sin tener el diccionario. Ahora hace dos pasos: primero pregunta "¿quién fue la última persona?", y con esa respuesta va directo a buscar su carpeta completa (Archivador B), que sí tiene el diccionario entero.
-Cómo afecta al flujo de i18n — exactamente tu edge case: un usuario que cerró sesión y vuelve a abrir la app ya no depende de hacer login para tener traducciones reales. hydrateFromStorage encuentra su userId guardado, va al Archivador B, y aplica el diccionario completo de es-MX (o el locale que sea) antes de que se muestre el login. El login ya no cae al fallback es-LA en ese caso. */
+  preAuthCountryCode: string | null;
+  geoFailReason: GeoFailReason | null;
+  geoVerificationInFlight: boolean;
 
   hydrateFromStorage: (userId: string) => Promise<boolean>;
   detectPreAuthLocale: (timeoutMs?: number) => Promise<void>;
   resolveAndCacheLocale: (userId: string) => Promise<void>;
+  verifyLocaleAgainstGeo: (userId: string) => Promise<void>;
   setUserPreference: (locale: LocaleId, userId: string) => Promise<void>;
   resetLocale: () => void;
 }
@@ -33,24 +43,17 @@ export const useLocaleStore = create<LocaleState>((set, get) => ({
   userPreference: null,
   geoAlreadyRan: false,
   preAuthLocaleData: null,
-
-  /*  hydrateFromStorage: async () => {
-    const pref = await getLocalePreference();
-    if (pref) {
-      set({ userPreference: pref, resolvedLocale: pref });
-      await i18next.changeLanguage(pref);
-      return true;
-    }
-    return false;
-  }, */
+  preAuthCountryCode: null,
+  geoFailReason: null,
+  geoVerificationInFlight: false,
 
   hydrateFromStorage: async (userId: string): Promise<boolean> => {
-    console.log("[i18n] hydrateFromStorage: buscando cache para", userId);
+    devLog("hydrateFromStorage: buscando cache para", userId);
 
     const cached = await getUserCachedLocale(userId);
 
     if (!cached || isLocaleStale(cached)) {
-      console.log("[i18n] cache inválido o no existe → irá a geo-detección");
+      devLog("cache inválido o no existe → irá a geo-detección");
       set({ isReady: true });
       return false;
     }
@@ -73,11 +76,7 @@ export const useLocaleStore = create<LocaleState>((set, get) => ({
   },
 
   detectPreAuthLocale: async (timeoutMs = 800) => {
-    console.log(
-      "[i18n] detectPreAuthLocale: iniciando con timeout",
-      timeoutMs,
-      "ms",
-    );
+    devLog("detectPreAuthLocale: iniciando con timeout", timeoutMs, "ms");
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -85,6 +84,7 @@ export const useLocaleStore = create<LocaleState>((set, get) => ({
     clearTimeout(timer);
 
     const resolved = resolveLocale(geoResult, getLocaleFromNavigator());
+    const failReason = geoResult.success ? null : geoResult.reason;
 
     if (resolved !== DEFAULT_LOCALE) {
       try {
@@ -111,21 +111,20 @@ export const useLocaleStore = create<LocaleState>((set, get) => ({
         /* Regional files not available yet — fall through to es-LA */
       }
     }
-    console.log("[i18n] locale resuelto:", resolved);
-    console.log("[i18n] geoResult:", geoResult);
+    devLog("locale resuelto:", resolved);
+    devLog("geoResult:", geoResult);
     await i18next.changeLanguage(resolved);
-    set({ resolvedLocale: resolved, geoAlreadyRan: true });
+    set({
+      resolvedLocale: resolved,
+      geoAlreadyRan: true,
+      geoFailReason: failReason,
+      preAuthCountryCode: geoResult.success ? geoResult.countryCode : null,
+    });
   },
 
-  /* Qué hace este cambio: cada vez que un usuario completa exitosamente la resolución de su locale (ya sea porque tenía cache válido o porque acaba de detectarlo por primera vez), se actualiza el puntero "última persona que usó la app" con su userId.
-Cómo afecta al flujo de i18n: esto es lo que hace que el Paso 3 funcione. Sin esta línea, getLastActiveUserId() siempre devolvería null porque nadie habría escrito ahí nunca. Con esta línea, cada login exitoso deja un rastro que la próxima sesión pre-auth puede seguir. 
-Cuando el locale es es-LA, preAuthData es null (porque no se hace fetch de es-LA, ya está embebido). Entonces saveCachedLocale nunca se ejecuta y la entrada "stu_001:es-LA" nunca se crea en Dexie.
-La próxima vez que hydrateFromStorage busque, encuentra lastActiveUserId = "stu_001", luego busca getUserCachedLocale("stu_001") y no encuentra nada → vuelve a geo-detección innecesariamente.
-*/
-
   resolveAndCacheLocale: async (userId) => {
-    console.log("[i18n] resolveAndCacheLocale: userId =", userId);
-    console.log("[i18n] geoAlreadyRan =", get().geoAlreadyRan);
+    devLog("resolveAndCacheLocale: userId =", userId);
+    devLog("geoAlreadyRan =", get().geoAlreadyRan);
     const cached = await getUserCachedLocale(userId);
 
     if (cached && !isLocaleStale(cached)) {
@@ -141,16 +140,68 @@ La próxima vez que hydrateFromStorage busque, encuentra lastActiveUserId = "stu
         isReady: true,
         userPreference: cached.localeId,
       });
-      console.log("[i18n] persistiendo en Dexie para userId:", userId);
       return;
     }
 
     if (get().geoAlreadyRan) {
+      const failReason = get().geoFailReason;
+
+      // Si geo falló pre-auth por falta de conexión o timeout, y ahora hay red
+      // (login requiere conexión → aquí siempre hay red), reintentamos con timeout completo
+      const shouldRetryGeo = failReason === "network_error" || failReason === "timeout";
+
+      if (shouldRetryGeo) {
+        devLog("reintentando geo post-login, motivo previo:", failReason);
+        const retryResult = await detectLocaleFromGeo();
+        const retried = resolveLocale(retryResult, getLocaleFromNavigator());
+        const retriedCountryCode = retryResult.success ? retryResult.countryCode : null;
+
+        if (retried !== DEFAULT_LOCALE) {
+          try {
+            const response = await fetch(`/locales/${retried}/translation.json`);
+            if (response.ok) {
+              const remoteData = (await response.json()) as Record<string, Record<string, unknown>>;
+              await saveCachedLocale(userId, retried, remoteData, retriedCountryCode);
+              for (const ns of LOCALE_NAMESPACES) {
+                if (remoteData[ns]) {
+                  i18next.addResourceBundle(retried, ns, remoteData[ns], true, true);
+                }
+              }
+              await i18next.changeLanguage(retried);
+              set({
+                resolvedLocale: retried,
+                userPreference: retried,
+                isReady: true,
+                preAuthLocaleData: null,
+                geoFailReason: null,
+              });
+              return;
+            }
+          } catch {
+            // El reintento también falló → seguimos con locale pre-auth
+          }
+        }
+
+        // El reintento tampoco mapeó un locale regional → persiste es-LA
+        await saveCachedLocale(userId, retried, {}, retriedCountryCode);
+        await i18next.changeLanguage(retried);
+        set({
+          resolvedLocale: retried,
+          userPreference: retried,
+          isReady: true,
+          preAuthLocaleData: null,
+          geoFailReason: null,
+        });
+        return;
+      }
+
+      // Sin reintento (rate_limited, unmapped_country, parse_error)
+      // o el reintento falló → usar lo que ya tenemos de pre-auth
       const locale = get().resolvedLocale;
       const preAuthData = get().preAuthLocaleData;
+      const preAuthCountryCode = get().preAuthCountryCode;
 
-      // Siempre persistimos, aunque sea con datos vacíos (es-LA ya está embebido)
-      await saveCachedLocale(userId, locale, preAuthData ?? {});
+      await saveCachedLocale(userId, locale, preAuthData ?? {}, preAuthCountryCode);
 
       if (preAuthData) {
         for (const ns of LOCALE_NAMESPACES) {
@@ -161,12 +212,18 @@ La próxima vez que hydrateFromStorage busque, encuentra lastActiveUserId = "stu
       }
 
       await i18next.changeLanguage(locale);
-      set({ userPreference: locale, isReady: true, preAuthLocaleData: null });
+      set({
+        userPreference: locale,
+        isReady: true,
+        preAuthLocaleData: null,
+        geoFailReason: null,
+      });
       return;
     }
 
     const geoResult = await detectLocaleFromGeo();
     const resolved = resolveLocale(geoResult, getLocaleFromNavigator());
+    const countryCode = geoResult.success ? geoResult.countryCode : null;
 
     if (resolved !== DEFAULT_LOCALE) {
       try {
@@ -176,7 +233,7 @@ La próxima vez que hydrateFromStorage busque, encuentra lastActiveUserId = "stu
             string,
             Record<string, unknown>
           >;
-          await saveCachedLocale(userId, resolved, remoteData);
+          await saveCachedLocale(userId, resolved, remoteData, countryCode);
           for (const ns of LOCALE_NAMESPACES) {
             if (remoteData[ns]) {
               i18next.addResourceBundle(
@@ -194,12 +251,82 @@ La próxima vez que hydrateFromStorage busque, encuentra lastActiveUserId = "stu
       }
     } else {
       // locale es es-LA — está embebido, no hay fetch, pero guardamos la entrada en Dexie
-      await saveCachedLocale(userId, resolved, {});
+      await saveCachedLocale(userId, resolved, {}, countryCode);
     }
 
     await i18next.changeLanguage(resolved);
     set({ resolvedLocale: resolved, userPreference: resolved, isReady: true });
-  
+  },
+
+  // Verificación no bloqueante al inicio de sesión con cache válida (UC-6: viaje).
+  // Solo cambia el idioma si la geo difiere del país con el que se resolvió la cache.
+  verifyLocaleAgainstGeo: async (userId: string): Promise<void> => {
+    if (get().geoVerificationInFlight) return;
+    // Sin conexión: no intentar (la cache es la fuente de verdad offline)
+    if (globalThis.navigator?.onLine === false) return;
+
+    set({ geoVerificationInFlight: true });
+    try {
+      const cached = await getUserCachedLocale(userId);
+      if (!cached || isLocaleStale(cached)) return;
+
+      const geoResult = await detectLocaleFromGeo();
+      if (!geoResult.success) return;
+
+      // Mismo país que cuando se resolvió la cache → no-op
+      if (geoResult.countryCode === cached.countryCode) return;
+
+      // Mismo idioma pero país distinto → refrescar país de la cache
+      if (geoResult.localeId === cached.localeId) {
+        devLog("verify: mismo idioma, país distinto — refrescando countryCode");
+        await saveCachedLocale(userId, cached.localeId, cached.data, geoResult.countryCode);
+        return;
+      }
+
+      devLog("verify: país cambió", cached.countryCode, "→", geoResult.countryCode, "(", cached.localeId, "→", geoResult.localeId, ")");
+
+      const locale = geoResult.localeId;
+      if (locale !== DEFAULT_LOCALE) {
+        try {
+          const response = await fetch(`/locales/${locale}/translation.json`);
+          if (response.ok) {
+            const remoteData = (await response.json()) as Record<
+              string,
+              Record<string, unknown>
+            >;
+            await saveCachedLocale(userId, locale, remoteData, geoResult.countryCode);
+            for (const ns of LOCALE_NAMESPACES) {
+              if (remoteData[ns]) {
+                i18next.addResourceBundle(locale, ns, remoteData[ns], true, true);
+              }
+            }
+            await i18next.changeLanguage(locale);
+            set({
+              resolvedLocale: locale,
+              userPreference: locale,
+              isReady: true,
+              geoFailReason: null,
+            });
+            return;
+          }
+        } catch {
+          /* Regional files not available yet — se mantiene la cache */
+        }
+        return;
+      }
+
+      // es-LA está embebido: no hay fetch, solo actualizar cache
+      await saveCachedLocale(userId, locale, {}, geoResult.countryCode);
+      await i18next.changeLanguage(locale);
+      set({
+        resolvedLocale: locale,
+        userPreference: locale,
+        isReady: true,
+        geoFailReason: null,
+      });
+    } finally {
+      set({ geoVerificationInFlight: false });
+    }
   },
 
   setUserPreference: async (locale, userId) => {
@@ -216,6 +343,9 @@ La próxima vez que hydrateFromStorage busque, encuentra lastActiveUserId = "stu
       userPreference: null,
       geoAlreadyRan: false,
       preAuthLocaleData: null,
+      preAuthCountryCode: null,
+      geoFailReason: null,
+      geoVerificationInFlight: false,
     });
   },
 }));

@@ -26,11 +26,20 @@ export function getLocaleFromNavigator(
 
   const parts = lang.split("-");
 
-  // Solo extraer variantes de español del navigator.
-  // English (en-US) debe venir ÚNICAMENTE de geo-detección.
+  // Variantes de español: navigator.language = "es-MX" → "es-MX"
   if (parts[0].toLowerCase() === "es" && parts.length >= 2) {
     const candidate = `es-${parts[1].toUpperCase()}` as LocaleId;
     if (isLocaleSupported(candidate)) return candidate;
+  }
+
+  // English: navigator.language = "en-US" → "en-US"
+  // Solo cuando geo-detección falla. En-US debe venir idealmente de geo.
+  if (parts[0].toLowerCase() === "en") {
+    if (parts.length >= 2) {
+      const candidate = `en-${parts[1].toUpperCase()}` as LocaleId;
+      if (isLocaleSupported(candidate)) return candidate;
+    }
+    return "en-US";
   }
 
   return null;

@@ -22,8 +22,10 @@ export function LocaleInitializer({ children }: { children: React.ReactNode }) {
   const hydrateFromStorage = useLocaleStore((s) => s.hydrateFromStorage);
   const detectPreAuthLocale = useLocaleStore((s) => s.detectPreAuthLocale);
   const resolveAndCacheLocale = useLocaleStore((s) => s.resolveAndCacheLocale);
+  const verifyLocaleAgainstGeo = useLocaleStore((s) => s.verifyLocaleAgainstGeo);
 
   const hasInitialized = useRef(false);
+  const hasResolvedPostAuth = useRef(false);
 
   useEffect(() => {
     if (hasInitialized.current) return;
@@ -36,6 +38,9 @@ export function LocaleInitializer({ children }: { children: React.ReactNode }) {
         const found = await hydrateFromStorage(userId);
         if (found) {
           setLocalePhaseReady(true);
+          // Verificación no bloqueante: si la geo difiere del país de la cache
+          // (viaje entre países), corrige el idioma en caliente sin recargar.
+          void verifyLocaleAgainstGeo(userId);
           return;
         }
       }
@@ -44,12 +49,30 @@ export function LocaleInitializer({ children }: { children: React.ReactNode }) {
       setLocalePhaseReady(true);
     };
     init();
-  }, [detectPreAuthLocale, hydrateFromStorage]);
+  }, [detectPreAuthLocale, hydrateFromStorage, verifyLocaleAgainstGeo]);
 
   useEffect(() => {
     if (!hasAuthHydrated || !isAuthenticated || !user) return;
+    if (hasResolvedPostAuth.current) return;
+    hasResolvedPostAuth.current = true;
+
+    const { geoAlreadyRan, geoFailReason } = useLocaleStore.getState();
+    const needsGeoRetry = geoAlreadyRan
+      && (geoFailReason === "network_error" || geoFailReason === "timeout");
+
     const userId = getAuthUserId(user);
-    resolveAndCacheLocale(userId);
+
+    if (needsGeoRetry) {
+      // Re-mostrar loading de forma síncrona es intencional: evita el flash de
+      // idioma al cambiar el locale tras el reintento de geo (ver doc Problema 5).
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setLocalePhaseReady(false);
+      resolveAndCacheLocale(userId).then(() => {
+        setLocalePhaseReady(true);
+      });
+    } else {
+      void resolveAndCacheLocale(userId);
+    }
   }, [hasAuthHydrated, isAuthenticated, user, resolveAndCacheLocale]);
 
   if (!localePhaseReady) {
