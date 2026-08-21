@@ -44,4 +44,7 @@ export const progressKeys = {
   byLesson: (studentId: string, lessonId: string) =>
     [...progressKeys.all, "byLesson", studentId, lessonId] as const,
   count: () => [...progressKeys.all, "count"] as const,
+  mastery: (studentId: string) => [...progressKeys.all, "mastery", studentId] as const,
+  masteryTopic: (studentId: string, topicId: string) =>
+    [...progressKeys.all, "mastery", studentId, "topic", topicId] as const,
 };

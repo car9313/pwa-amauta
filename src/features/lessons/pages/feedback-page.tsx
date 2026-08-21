@@ -1,9 +1,12 @@
+import { useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { CheckCircle, Star, RefreshCw, Home, Sparkles, AlertTriangle, ChevronRight } from "lucide-react"
-import { AmautaButton } from "@/components/amauta"
+import { AmautaBadge, AmautaButton, Character } from "@/components/amauta"
 import { cn } from "@/lib/utils"
+import { fireLessonCelebration } from "@/lib/effects/confetti"
 import type { ExerciseResult, Mistake } from "@/features/exercises/domain/exercise.types"
+import type { LessonSessionSummary } from "@/features/lessons/domain/lesson-session.types"
 
 const SCORE_COLORS = {
   excellent: {
@@ -65,11 +68,92 @@ function ScoreCircle({ score, size = 120 }: { score: number; size?: number }) {
   )
 }
 
+function SummaryView({ summary }: { summary: LessonSessionSummary }) {
+  const { t } = useTranslation("lessons")
+  const navigate = useNavigate()
+
+  const precision = Math.round(
+    (summary.firstTryCorrectCount / Math.max(1, summary.totalAttempts)) * 100
+  )
+  const isPerfect = precision === 100
+
+  useEffect(() => {
+    fireLessonCelebration(isPerfect)
+  }, [isPerfect])
+
+  return (
+    <div className="pb-6 animate-fade-in-up">
+      <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
+        <div
+          className={cn(
+            "p-6 sm:p-8 text-center space-y-4 bg-gradient-to-b",
+            isPerfect ? "from-warning/25 to-accent/10" : "from-primary/15 to-accent/10"
+          )}
+        >
+          <div className="flex justify-center">
+            <Character
+              size="xl"
+              expression={isPerfect ? "superstar" : "happy"}
+            />
+          </div>
+
+          <div className="space-y-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+              {t("feedback.summaryTitle")}
+            </h1>
+            <p className="text-muted-foreground">
+              {isPerfect
+                ? t("feedback.summaryPerfect")
+                : t("feedback.summaryEncourage")}
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <AmautaBadge variant="xp" size="lg">
+              <Sparkles className="w-4 h-4 fill-current" />
+              +{summary.xpEarned} XP
+            </AmautaBadge>
+            <AmautaBadge variant={isPerfect ? "achievement" : "streak"} size="lg">
+              <Star className="w-4 h-4" />
+              {t("feedback.precision", { value: precision })}
+            </AmautaBadge>
+          </div>
+        </div>
+
+        <div className="p-6 sm:p-8 space-y-3">
+          <AmautaButton
+            onClick={() => navigate("/lessons")}
+            size="child-lg"
+            className="w-full shadow-sm hover:shadow-md"
+          >
+            {t("feedback.practiceMore")}
+            <ChevronRight className="ml-1 h-5 w-5" />
+          </AmautaButton>
+
+          <AmautaButton
+            onClick={() => navigate("/dashboard/student")}
+            variant="outline"
+            size="child-lg"
+            className="w-full"
+          >
+            <Home className="mr-2 h-4 w-4" />
+            {t("feedback.goHome")}
+          </AmautaButton>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function FeedbackPage() {
   const { t } = useTranslation("lessons")
   const navigate = useNavigate()
   const location = useLocation()
-  const state = location.state as { result?: ExerciseResult; queued?: boolean } | null
+  const state = location.state as {
+    result?: ExerciseResult
+    queued?: boolean
+    summary?: LessonSessionSummary
+  } | null
 
   const MISTAKE_LABELS: Record<Mistake["type"], string> = {
     CARRY_MISSED: t("feedback.carryMissed"),
@@ -78,9 +162,13 @@ export function FeedbackPage() {
     CALCULATION_ERROR: t("feedback.calculationError"),
   }
 
-  if (!state?.result && !state?.queued) {
+  if (!state?.result && !state?.queued && !state?.summary) {
     navigate("/lessons", { replace: true })
     return null
+  }
+
+  if (state?.summary) {
+    return <SummaryView summary={state.summary} />
   }
 
   if (state?.queued) {

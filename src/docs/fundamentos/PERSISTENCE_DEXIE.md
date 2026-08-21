@@ -87,11 +87,11 @@ const users = await db.users.toArray();
 
 ## Base de Datos en Amauta
 
-### Base de Datos Unificada: amauta-db (v3)
+### Base de Datos Unificada: amauta-db (v5)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│               IndexedDB: amauta-db (v3)                               │
+│               IndexedDB: amauta-db (v5)                               │
 ├─────────────────────────────────────────────────────────────────────┤
 │  Database: amauta-db                                                │
 │  ┌─────────────────────────────────────────────────────────────┐    │
@@ -136,6 +136,7 @@ const users = await db.users.toArray();
 │  └─────────────────────────────────────────────────────┘    │
 │  ┌─────────────────────────────────────────────────────────┐    │
 │  │ TABLE: exercises, lessons, progress, students           │    │
+│  │ TABLE: agendaTasks (v4), conceptMastery (v5)            │    │
 │  └─────────────────────────────────────────────────────┘    │
 │                                                                    │
 └─────────────────────────────────────────────────────────────┘
@@ -148,6 +149,8 @@ const users = await db.users.toArray();
 - Student seleccionado + preferencias de locale
 - Cola de mutations offline
 - Datos de currículo (exercises, lessons, progress, students)
+- Tareas de agenda (agendaTasks)
+- Dominio de conceptos para gamificación (conceptMastery, local-only)
 
 ---
 
@@ -361,13 +364,15 @@ El patrón **Outbox** es una técnica para garantizar operaciones atomic en sist
 ```
 ¿Necesitas guardar datos offline?
 │
-├── SÍ ──► Dexie: amauta-db (v3)
+├── SÍ ──► Dexie: amauta-db (v5)
 │   │
 │   ├── tokens, users        → Sesión y auth
 │   ├── preferences          → Preferencias de usuario
 │   ├── mutations (outbox)   → Escrituras offline
 │   ├── exercises, lessons   → Datos de currículo
 │   ├── progress             → Progreso del estudiante
+│   ├── agendaTasks          → Tareas de agenda
+│   ├── conceptMastery       → Dominio por tema (local-only)
 │   └── students             → Hijos registrados
 │
 └── NO ──► ¿Es estado de UI?

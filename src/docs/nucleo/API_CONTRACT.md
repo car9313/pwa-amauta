@@ -573,13 +573,14 @@ Obtiene el siguiente ejercicio que el estudiante debe resolver. El backend decid
     "type": "VISUAL_ADDITION",
     "topicId": "math_addition",
     "prompt": "Resuelve: 5 + 3 = ?",
-    "answerType": "NUMERIC",
+    "answerType": "MULTIPLE_CHOICE",
+    "options": ["7", "8", "9"],
     "difficulty": "LOW",
     "hints": ["Cuenta con tus dedos", "Sumar es agregar más"],
     "feedbackStyle": "ENCOURAGING",
     "stepCurrent": 1,
     "stepTotal": 3,
-    "demoContent": "🍎🍎🍎🍎🍎 + 🍎🍎🍎 = 🍎🍎🍎🍎🍎🍎🍎🍎",
+    "demoContent": "🍎🍎🍎🍎🍎 + 🍎🍎 = 🍎🍎🍎🍎🍎🍎🍎🍎",
     "secondaryQuestion": "¿Cuántas manzanas hay en total?",
     "subInstruction": "Puedes usar los dedos para contar"
   },
@@ -596,6 +597,7 @@ Obtiene el siguiente ejercicio que el estudiante debe resolver. El backend decid
 | `topicId` | `string` | `z.string()` | ✅ | Agrupa ejercicios por tema. Se usa para calcular progreso por tema y para `nextAction.topicId` en el resultado. |
 | `prompt` | `string` | `z.string()` | ✅ | La pregunta principal que ve el estudiante. Es el texto más importante de la pantalla. |
 | `answerType` | enum | `answerTypeSchema` | ✅ | Define el tipo de input: `NUMERIC` = teclado numérico, `TEXT` = campo texto, `SELECT` = dropdown, `MULTIPLE_CHOICE` = botones de opción. |
+| `options` | `string[]` | `z.array(z.string()).optional()` | ❌ | Opciones para respuesta táctil (usadas con `MULTIPLE_CHOICE`). **Nunca incluyen la respuesta correcta** (server-first). Si no viene, la UI hace fallback a input numérico/texto según `answerType`. |
 | `difficulty` | enum | `difficultyLevelSchema` | ✅ | `LOW` = 2 estrellas, `MEDIUM` = 3 estrellas, `HIGH` = 5 estrellas. Se muestra visualmente. |
 | `hints` | `string[]` | `z.array(z.string())` | ✅ | Array de pistas. Se muestran una por una cuando el estudiante presiona "Ayuda". Si está vacío, se oculta el botón de ayuda. |
 | `feedbackStyle` | enum | `feedbackStyleSchema` | ✅ | `ENCOURAGING` = mensajes positivos siempre, `NEUTRAL` = objetivo, `CORRECTIVE` = señala errores específicos. Determina el tono del feedback. |
@@ -632,6 +634,11 @@ Envía la respuesta del estudiante a un ejercicio específico. El frontend usa `
 1. Si está online → hace POST HTTP
 2. Si el POST falla (error de red) → encola en Dexie para sync posterior
 3. Si está offline → encola directamente, devuelve `Symbol(QUEUED_OFFLINE)`
+
+> **Contrato server-first (anti-cheat):** el backend es la única fuente de verdad sobre si una
+> respuesta es correcta. El servidor **nunca** envía la respuesta correcta al cliente (ni en
+> `options`, ni en el resultado). Al fallar, el cliente muestra solo la explicación textual del
+> feedback sin revelar la opción correcta.
 
 #### Request
 
@@ -701,13 +708,25 @@ Envía la respuesta del estudiante a un ejercicio específico. El frontend usa `
 | `topicId` | `string` | `z.string()` | Tópico al que debe ir el estudiante según la acción recomendada. Se usa para link de navegación. |
 | `pedagogy` | enum | `pedagogyTypeSchema` | `VISUAL`, `TEXT` o `INTERACTIVE`. Sugiere el tipo de ejercicio recomendado. |
 
-#### Mapeo score → UI en FeedbackPage
+#### Mapeo resultado → UI en LessonPage (feedback inline)
 
-| score | passed | UI que se muestra |
-|-------|--------|-------------------|
-| >= 80 | `true` | Animación de celebración + "¡Excelente!" + mensaje motivacional + botón Siguiente (acción `ADVANCE` o `REINFORCE`) |
-| 70-79 | `true` | Mensaje de ánimo + "¡Buen trabajo!" + botón Siguiente |
-| < 70 | `false` | Feedback con errores específicos + lista de `mistakes` con mensajes + botón "Intentar de nuevo" (acción `REMEDIATE`) |
+Desde la gamificación de lecciones, el feedback de cada respuesta es **inline** en la página de
+lección (bottom sheet en móvil, sidebar en tablet/desktop). `/lessons/feedback` solo se usa para
+respuestas encoladas offline y para el resumen de fin de lección.
+
+| Resultado | UI |
+|-------|--------|
+| `passed: true` | Mascota `happy` + confeti burst + sonido + badge +XP (+10) + auto-avance al siguiente ejercicio en ~1.9s (cancelable) |
+| `passed: false` | Mascota `encouraging`/`sad` + sonido suave + explicación textual (`feedbackSummary`, `mistakes`) sin revelar la correcta; espera botón Continuar |
+
+**Fin de lección:** cuando llega un resultado con `passed: true` **y** `stepCurrent >= stepTotal`
+(ambos campos los controla el backend), el cliente dispara fanfarria + navega a
+`/lessons/feedback { summary }`: pantalla de resumen con XP total de la sesión, precisión por
+intentos a primera, mascota `superstar` (precisión 100%) o `happy`, y confeti de celebración.
+Un fallo en el último paso NO completa la lección (filosofía adaptativa: repite hasta lograr).
+
+**Offline:** si la mutación se encola (`QUEUED_OFFLINE`) → `/lessons/feedback { queued: true }`
+con mensaje "Respuesta guardada, se enviará cuando tengas conexión".
 
 #### Flujo offline
 
@@ -723,10 +742,11 @@ useSafeMutation({
   tentativeOnly: true,   // solo marca _submitted, no hace optimistic update completo
   optimisticUpdate: (old, payload) => ({ ...old, _submitted: true }),
 })
-  → Online: POST HTTP → ExerciseResult → FeedbackPage
+  → Online: POST HTTP → ExerciseResult → feedback inline en LessonPage
+    (o resumen si passed && stepCurrent >= stepTotal)
   → Offline: enqueueMutation("submitAnswer", payload, endpoint, "POST")
     → useMutation retorna QUEUED_OFFLINE
-    → FeedbackPage muestra "Respuesta guardada, se enviará cuando tengas conexión"
+    → /lessons/feedback { queued: true }: "Respuesta guardada, se enviará cuando tengas conexión"
 ```
 
 ---

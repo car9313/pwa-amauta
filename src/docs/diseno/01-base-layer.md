@@ -197,15 +197,24 @@ Cuando `colorByValue={true}`, el color de la barra cambia segun el valor:
 
 ## Character
 
-Mascota de Amauta sin burbuja de dialogo. Version simplificada de `CondorGuide` para usar como avatar o decoracion.
+Mascota de Amauta sin burbuja de dialogo. Version simplificada de `CondorGuide` para usar como avatar o decoracion. Soporta expresiones reactivas para gamificacion (feedback de lecciones).
 
 ### Props
 
 ```typescript
 type CharacterSize = "sm" | "md" | "lg" | "xl"
 
+type CharacterExpression =
+  | "idle"
+  | "thinking"
+  | "happy"
+  | "encouraging"
+  | "superstar"
+  | "sad"
+
 interface CharacterProps {
   size?: CharacterSize
+  expression?: CharacterExpression
   className?: string
 }
 ```
@@ -219,9 +228,24 @@ interface CharacterProps {
 | `lg` | `w-24 h-24` |
 | `xl` | `w-32 h-32` |
 
+### Expresiones
+
+Con la prop `expression`, el componente carga la imagen correspondiente desde `/img/mascota/`:
+
+| expression | Imagen | Uso tipico |
+|------------|--------|-----------|
+| `idle` | `/img/mascota/idle.webp` | Estado neutral / esperando |
+| `thinking` | `/img/mascota/thinking.webp` | Mientras se valida una respuesta (server-first) |
+| `happy` | `/img/mascota/happy.webp` | Respuesta correcta / resumen con errores |
+| `encouraging` | `/img/mascota/encouraging.webp` | Animo tras un error |
+| `superstar` | `/img/mascota/superstar.webp` | Leccion perfecta (precision 100%) |
+| `sad` | `/img/mascota/sad.webp` | Feedback correctivo suave |
+
 ### Comportamiento
 
-- Imagen desde `/img/amauta-mascot.jpg`
+- **Sin `expression`** (backward-compatible): usa la imagen legacy `/img/amauta-mascot.jpg`. Dashboards y navegacion no cambian.
+- **Con `expression`**: usa el `.webp` correspondiente; si la imagen falla, hace fallback a la legacy.
+- Animacion ligera (`motion`) segun la expresion.
 - Sin burbuja de dialogo (a diferencia de `CondorGuide`)
 - `object-contain` para mantener aspect ratio
 - Borde redondeado completo (`rounded-full`) con borde blanco
@@ -231,7 +255,8 @@ interface CharacterProps {
 ```tsx
 <Character size="sm" />
 <Character size="lg" className="shadow-xl" />
-<Character size="xl" />
+<Character size="md" expression="thinking" />
+<Character size="xl" expression="superstar" />
 ```
 
 ---

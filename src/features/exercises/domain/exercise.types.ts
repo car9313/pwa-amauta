@@ -74,6 +74,7 @@ export const exerciseSchema = z.object({
   answerType: answerTypeSchema,
   difficulty: difficultyLevelSchema,
   hints: z.array(z.string()),
+  options: z.array(z.string()).optional(),
   feedbackStyle: feedbackStyleSchema,
   stepCurrent: z.number().int().optional(),
   stepTotal: z.number().int().optional(),

@@ -55,6 +55,25 @@ copy .env.example .env.development
 | `VITE_USE_MOCK` | `true` o `false` | Activa/desactiva mocks |
 | `VITE_API_BASE_URL` | URL del backend | Si está vacío, fuerza mocks |
 | `VITE_API_VERSION` | `v1` | Versión del API (solo afecta al adapter real) |
+| `VITE_FORCE_CONFETTI` | `true` o `false` | Fuerza confetti aunque el sistema tenga `prefers-reduced-motion` activo |
+
+### 2b. Override de animaciones (`VITE_FORCE_CONFETTI`)
+
+Los wrappers de confetti (`src/lib/effects/confetti.ts`) respetan la preferencia de accesibilidad `prefers-reduced-motion` del sistema operativo. En máquinas con las animaciones de Windows desactivadas (Accesibilidad > Efectos visuales), el confetti se suprime silenciosamente en toda la app que use estos wrappers (lecciones).
+
+Comportamiento:
+
+| Escenario | Resultado |
+|-----------|-----------|
+| Reduced-motion inactivo | Confetti normal |
+| Reduced-motion activo | Suprimido + `console.warn` una vez por sesión (solo dev) |
+| Reduced-motion activo + `VITE_FORCE_CONFETTI=true` | Confetti forzado (desarrollo/demos) |
+
+Notas:
+
+- En **producción** la variable no debe activarse: los usuarios con reduced-motion no verán animaciones (accesibilidad intacta).
+- Al cambiar la variable hay que reiniciar `pnpm dev`.
+- El confetti del dashboard de estudiante (`student-dashboard-page.tsx`) llama a `canvas-confetti` directamente sin guard: siempre se dispara, ignore esta configuración.
 
 ### 3. Desarrollo sin backend (recomendado)
 

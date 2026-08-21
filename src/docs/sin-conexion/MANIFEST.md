@@ -101,31 +101,61 @@ Los shortcuts aparecen al hacer **long-press** (presion prolongada) en el icono 
 | `Richer PWA Install UI` faltan screenshots | La UI de instalacion mejorada no esta disponible | Agregar screenshots al manifest (post-MVP) |
 | Icono no carga (404) | La ruta del icono no existe | Verificar que el archivo existe en `public/icons/` y se copia al build |
 
-## Screenshots (futuro)
+## Screenshots (PENDIENTE)
 
-Chrome muestra el warning:
-- `Richer PWA Install UI won't be available on desktop. Please add at least one screenshot with form_factor set to wide`
-- `Richer PWA Install UI won't be available on mobile. Please add at least one screenshot`
+Las entradas de screenshots **ya estan configuradas** en `vite.config.ts` (bloque `manifest.screenshots`), pero los archivos PNG **no existen todavia**. La carpeta `public/screenshots/` no existe.
 
-Esto es **cosmetico** (no afecta el funcionamiento). Para resolverlo, habria que agregar:
+### Archivos pendientes de crear
 
-```json
-"screenshots": [
-  {
-    "src": "/screenshots/desktop.png",
-    "sizes": "1280x720",
-    "form_factor": "wide",
-    "label": "Vista principal de Amauta"
-  },
-  {
-    "src": "/screenshots/mobile.png",
-    "sizes": "720x1280",
-    "label": "Amauta en dispositivo movil"
-  }
-]
+| Archivo pendiente | Tamaño declarado | `form_factor` | Estado |
+|---|---|---|---|
+| `public/screenshots/dashboard-student.png` | 1080x1920 | `wide` | Pendiente + inconsistencia (ver abajo) |
+| `public/screenshots/lesson-view.png` | 1080x1920 | `narrow` | Pendiente |
+| `public/screenshots/practice-exercise.png` | 1080x1920 | `narrow` | Pendiente |
+
+### Inconsistencia detectada
+
+`dashboard-student.png` declara `form_factor: "wide"` pero con tamaño 1080x1920 (vertical/retrato). Chrome exige que un screenshot `wide` sea horizontal (paisaje). Al crear el archivo, usar una captura horizontal (ej. 1280x720 o 1920x1080) y actualizar `sizes` en `vite.config.ts`, o cambiar el `form_factor` a `narrow`.
+
+### Impacto
+
+Mientras los archivos no existan:
+- Chrome muestra warnings en DevTools:
+  - `Richer PWA Install UI won't be available on desktop...`
+  - `Richer PWA Install UI won't be available on mobile...`
+- La UI de instalacion mejorada (con screenshots) no esta disponible
+- Es **cosmetico**: NO afecta la instalacion basica de la PWA
+
+### Como resolverlo
+
+1. Tomar capturas reales de la app (dashboard del nino, vista de leccion, ejercicio)
+2. Guardarlas en `public/screenshots/` con los nombres de la tabla
+3. Verificar que las dimensiones coincidan con `sizes` en `vite.config.ts`
+4. Corregir la inconsistencia `wide`/vertical de `dashboard-student.png`
+
+> Prioridad: baja (post-MVP). La app instala y funciona sin screenshots.
+
+## Manifest en desarrollo (pnpm dev)
+
+En `pnpm dev` el manifest **se ve vacio en DevTools** (Application > Manifest: "No manifest detected") y no aparece la opcion de instalar. Esto es **comportamiento esperado**, no un bug.
+
+| Aspecto | Detalle |
+|---------|---------|
+| Causa | `devOptions.enabled: false` en `vite.config.ts`. Con esto, `vite-plugin-pwa` NO genera ni sirve `manifest.webmanifest`, y NO inyecta `<link rel="manifest">` en el HTML servido |
+| Donde existe el manifest | Solo se genera durante `pnpm build`, en `dist/manifest.webmanifest` |
+| Service Worker | Igual: desactivado en dev (ver `SW_DEV_MODE.md`) |
+
+### Como verificar la instalacion de la PWA
+
+```bash
+pnpm build && pnpm preview
 ```
 
-> Prioridad: baja (post-MVP). La app funciona sin screenshots.
+1. Abrir `http://localhost:4173` en Chrome
+2. DevTools > Application > Manifest: debe mostrar Identity, Presentation, Icons y Shortcuts
+3. Aparecera el icono de instalar en la barra de direcciones (o Menu > Instalar Amauta)
+
+> Nota: agregar manualmente `<link rel="manifest">` a `index.html` NO es necesario ni recomendado: el plugin lo inyecta solo durante el build, y en dev el archivo no existiria (404).
 
 ## Referencias
 
