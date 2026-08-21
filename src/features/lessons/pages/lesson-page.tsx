@@ -1,22 +1,47 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useEffect, useReducer, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 import { useQueryClient } from "@tanstack/react-query"
-import { Star, ChevronRight, HelpCircle } from "lucide-react"
-import { AmautaButton, AmautaContainer } from "@/components/amauta"
-
-import { AmautaLoadingState, AmautaErrorState, AmautaProgress } from "@/components/amauta"
+import { ChevronRight } from "lucide-react"
+import { AmautaContainer, AmautaErrorState, AmautaLoadingState } from "@/components/amauta"
 
 import { cn } from "@/lib/utils"
-import { useNextExercise, useSubmitAnswer } from "@/features/exercises/hooks/useExercise"
-import { getNextExercise } from "@/services/exercise.service"
-import { exerciseKeys } from "@/lib/query/keys"
-import { useAuthStore } from "@/features/auth/presentation/store/auth-store"
-import { difficultyToStars } from "@/features/exercises/domain/exercise.types"
+import { fireCorrectBurst } from "@/lib/effects/confetti"
+import {
+  playCorrectSound,
+  playVictoryFanfare,
+  playWrongSound,
+  speakText,
+} from "@/lib/sound/sound"
+import { getProgressByStudentAndLesson } from "@/lib/api/storage/progress-db"
+import {
+  exerciseKeys,
+  progressKeys,
+} from "@/lib/query/keys"
 import { QUEUED_OFFLINE } from "@/lib/sync/useSafeMutation"
 import { DownloadLesson } from "@/components/DownloadLesson"
+import { useBreakpoint } from "@/hooks/useBreakpoint"
+import { getNextExercise } from "@/services/exercise.service"
+import { difficultyToStars } from "@/features/exercises/domain/exercise.types"
+import type { ExerciseResult, ExerciseType } from "@/features/exercises/domain/exercise.types"
+import {
+  XP_PER_CORRECT,
+  computeLevelFromPoints,
+  computeNextStreakDays,
+} from "@/features/exercises/domain/gamification.utils"
+import { useNextExercise, useSubmitAnswer } from "@/features/exercises/hooks/useExercise"
+import {
+  useConceptMasteryForTopic,
+  useRecordConceptAttempt,
+} from "@/features/exercises/hooks/useConceptMastery"
+import { useProgressByStudentAndLesson, useUpdateProgress } from "@/features/exercises/hooks/useProgress"
+import { LessonHeader } from "@/features/lessons/components/exercise/lesson-header"
+import { MascotFeedback } from "@/features/lessons/components/exercise/mascot-feedback"
+import { QuestionCard } from "@/features/lessons/components/exercise/question-card"
+import type { LessonExerciseStatus, LessonSessionSummary } from "@/features/lessons/domain/lesson-session.types"
+import { useAuthStore } from "@/features/auth/presentation/store/auth-store"
 
 interface LessonPageProps {
   studentId?:   string
@@ -31,6 +56,82 @@ interface LessonPageProps {
 
 const DEFAULT_STUDENT_ID = "stu_445"
 const DEFAULT_STEP_TOTAL = 3
+const AUTO_ADVANCE_MS = 1900
+
+const SUBJECT_BY_EXERCISE_TYPE: Record<ExerciseType, string> = {
+  VISUAL_ADDITION: "math",
+  VISUAL_SUBTRACTION: "math",
+  VISUAL_MULTIPLICATION: "math",
+  VISUAL_DIVISION: "math",
+  TEXT_PROBLEM: "math",
+  INTERACTIVE: "math",
+}
+
+interface LessonSessionState {
+  status: LessonExerciseStatus
+  selectedAnswer: string | null
+  inputValue: string
+  result: ExerciseResult | null
+  xpEarnedThisSession: number
+  attemptedExerciseIds: string[]
+  firstTryCorrectCount: number
+}
+
+type LessonSessionAction =
+  | { type: "START_CHECKING"; answer: string }
+  | { type: "SET_INPUT"; value: string }
+  | { type: "RESOLVE"; result: ExerciseResult; exerciseId: string }
+  | { type: "ADVANCE" }
+
+const initialSessionState: LessonSessionState = {
+  status: "idle",
+  selectedAnswer: null,
+  inputValue: "",
+  result: null,
+  xpEarnedThisSession: 0,
+  attemptedExerciseIds: [],
+  firstTryCorrectCount: 0,
+}
+
+function sessionReducer(
+  state: LessonSessionState,
+  action: LessonSessionAction
+): LessonSessionState {
+  switch (action.type) {
+    case "START_CHECKING":
+      return { ...state, status: "checking", selectedAnswer: action.answer }
+
+    case "SET_INPUT":
+      return { ...state, inputValue: action.value }
+
+    case "RESOLVE": {
+      const isFirstAttempt = !state.attemptedExerciseIds.includes(action.exerciseId)
+      const passed = action.result.passed
+
+      return {
+        ...state,
+        status: passed ? "correct" : "incorrect",
+        result: action.result,
+        xpEarnedThisSession: state.xpEarnedThisSession + (passed ? XP_PER_CORRECT : 0),
+        firstTryCorrectCount:
+          state.firstTryCorrectCount + (passed && isFirstAttempt ? 1 : 0),
+        attemptedExerciseIds: [...state.attemptedExerciseIds, action.exerciseId],
+      }
+    }
+
+    case "ADVANCE":
+      return {
+        ...state,
+        status: "idle",
+        selectedAnswer: null,
+        inputValue: "",
+        result: null,
+      }
+
+    default:
+      return state
+  }
+}
 
 export function LessonPage({
   studentId  = DEFAULT_STUDENT_ID,
@@ -44,43 +145,164 @@ export function LessonPage({
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const tenantId = useAuthStore((state) => state.user?.tenantId ?? null)
-  const [answer, setAnswer]         = useState("")
-  const [submitted, setSubmitted]   = useState(false)
+  const { isTabletOrDesktop } = useBreakpoint()
+
+  const [session, dispatch] = useReducer(sessionReducer, initialSessionState)
+  const [showHint, setShowHint] = useState(false)
+
+  const isFirstAttemptRef = useRef(true)
+  const autoAdvanceTimerRef = useRef<number | null>(null)
 
   const { data: exercise, isLoading, isError, error } = useNextExercise(studentId)
-  const { mutate: submitAnswer, isPending } = useSubmitAnswer(studentId)
+  const { mutate: submitAnswer } = useSubmitAnswer(studentId)
+  const { mutateAsync: recordAttempt } = useRecordConceptAttempt()
+  const { mutate: updateProgress } = useUpdateProgress()
+
+  const topicId = exercise?.topicId ?? null
+  const { data: mastery } = useConceptMasteryForTopic(studentId, topicId)
+  const { data: lessonProgress } = useProgressByStudentAndLesson(studentId, topicId ?? "")
+
+  const clearAutoAdvanceTimer = useCallback(() => {
+    if (autoAdvanceTimerRef.current !== null) {
+      window.clearTimeout(autoAdvanceTimerRef.current)
+      autoAdvanceTimerRef.current = null
+    }
+  }, [])
+
+  const advance = useCallback(() => {
+    clearAutoAdvanceTimer()
+    setShowHint(false)
+    dispatch({ type: "ADVANCE" })
+    void queryClient.invalidateQueries({
+      queryKey: exerciseKeys.next(studentId, tenantId),
+    })
+  }, [clearAutoAdvanceTimer, queryClient, studentId, tenantId])
+
+  useEffect(() => {
+    if (session.status !== "correct") return
+    autoAdvanceTimerRef.current = window.setTimeout(() => {
+      advance()
+    }, AUTO_ADVANCE_MS)
+    return clearAutoAdvanceTimer
+  }, [session.status, advance, clearAutoAdvanceTimer])
+
+  useEffect(() => clearAutoAdvanceTimer, [clearAutoAdvanceTimer])
 
   const prefetchNextExercise = () => {
-    queryClient.prefetchQuery({
+    void queryClient.prefetchQuery({
       queryKey: exerciseKeys.next(studentId, tenantId),
       queryFn: () => getNextExercise(studentId),
       staleTime: Number(import.meta.env.VITE_QUERY_STALE_TIME ?? 60) * 1000,
-    });
-  };
+    })
+  }
 
-  const handleSubmit = () => {
-    if (!answer.trim() || submitted || !exercise) return
-    setSubmitted(true)
+  const applyProgressReward = async (passed: boolean, progressBucketId: string) => {
+    try {
+      const current = await getProgressByStudentAndLesson(studentId, progressBucketId)
+      const nextPoints = (current?.points ?? 0) + (passed ? XP_PER_CORRECT : 0)
+
+      updateProgress({
+        studentId,
+        lessonId: progressBucketId,
+        updates: {
+          points: nextPoints,
+          level: computeLevelFromPoints(nextPoints),
+          streakDays: computeNextStreakDays(current?.lastPlayedAt, current?.streakDays),
+        },
+      })
+    } catch {
+      return
+    }
+  }
+
+  const handleResolve = (data: ExerciseResult | typeof QUEUED_OFFLINE) => {
+    if (data === QUEUED_OFFLINE) {
+      navigate("/lessons/feedback", { state: { queued: true }, replace: true })
+      return
+    }
+    if (!exercise) return
+
+    const exerciseStepCurrent = exercise.stepCurrent ?? initialStep
+    const exerciseStepTotal = exercise.stepTotal ?? stepTotal
+    const isLessonComplete =
+      data.passed && exerciseStepCurrent >= exerciseStepTotal
+
+    dispatch({ type: "RESOLVE", result: data, exerciseId: exercise.exerciseId })
+
+    if (isLessonComplete) {
+      clearAutoAdvanceTimer()
+      playVictoryFanfare()
+
+      void recordAttempt({
+        studentId,
+        topicId: exercise.topicId,
+        subject: SUBJECT_BY_EXERCISE_TYPE[exercise.type],
+        isCorrect: data.passed,
+        isFirstAttempt: isFirstAttemptRef.current,
+      })
+      void applyProgressReward(data.passed, exercise.topicId)
+
+      const summary: LessonSessionSummary = {
+        xpEarned: session.xpEarnedThisSession + XP_PER_CORRECT,
+        firstTryCorrectCount:
+          session.firstTryCorrectCount + (isFirstAttemptRef.current ? 1 : 0),
+        totalAttempts: session.attemptedExerciseIds.length + 1,
+        topicId: exercise.topicId,
+      }
+
+      navigate("/lessons/feedback", { state: { summary }, replace: true })
+      return
+    }
+
+    if (data.passed) {
+      playCorrectSound()
+      fireCorrectBurst()
+    } else {
+      playWrongSound()
+    }
+
+    speakText(data.passed ? t("lesson.correctTitle") : data.feedbackSummary || t("lesson.incorrectTitle"))
+
+    void recordAttempt({
+      studentId,
+      topicId: exercise.topicId,
+      subject: SUBJECT_BY_EXERCISE_TYPE[exercise.type],
+      isCorrect: data.passed,
+      isFirstAttempt: isFirstAttemptRef.current,
+    })
+
+    void applyProgressReward(data.passed, exercise.topicId)
+
+    if (!data.passed && data.nextAction.action === "REMEDIATE") {
+      prefetchNextExercise()
+    }
+  }
+
+  const startChecking = (answer: string) => {
+    if (!exercise || session.status !== "idle") return
+    isFirstAttemptRef.current = !session.attemptedExerciseIds.includes(exercise.exerciseId)
+    dispatch({ type: "START_CHECKING", answer })
+
     submitAnswer(
       { exerciseId: exercise.exerciseId, answer },
-      {
-        onSuccess: (data) => {
-          if (data === QUEUED_OFFLINE) {
-            navigate("/lessons/feedback", { state: { queued: true }, replace: true });
-            return;
-          }
-          prefetchNextExercise();
-          navigate("/lessons/feedback", { state: { result: data }, replace: true });
-        },
-      }
+      { onSuccess: handleResolve }
     )
+  }
+
+  const handleSelectOption = (option: string) => {
+    startChecking(option)
+  }
+
+  const handleSubmitInput = () => {
+    if (!session.inputValue.trim()) return
+    startChecking(session.inputValue.trim())
   }
 
   if (isLoading) {
     return <AmautaLoadingState variant="page" />
   }
 
-  if (isError) {
+  if (isError || !exercise) {
     return (
       <AmautaErrorState
         title={t("lesson.errorTitle")}
@@ -91,16 +313,10 @@ export function LessonPage({
     )
   }
 
-  const title          = lessonTitle ?? exercise?.topicId ?? t("lesson.title")
-  const starsCount     = difficultyToStars(exercise?.difficulty ?? "MEDIUM")
-  const currentStep    = exercise?.stepCurrent   ?? initialStep
-  const totalSteps     = exercise?.stepTotal     ?? stepTotal
-  const mainProblem    = exercise?.prompt ?? ""
-  const explanation    = exercise?.hints?.[0] ?? ""
-  const demoContent    = exercise?.demoContent ?? exercise?.hints?.[1] ?? null
-  const secondaryQ     = exercise?.secondaryQuestion ?? null
-  const subInstruction = exercise?.subInstruction ?? t("lesson.subInstruction")
-  const stepProgress   = totalSteps > 0 ? (currentStep / totalSteps) * 100 : 0
+  const title       = lessonTitle ?? exercise.topicId ?? t("lesson.title")
+  const starsCount  = difficultyToStars(exercise.difficulty)
+  const currentStep = exercise.stepCurrent ?? initialStep
+  const totalSteps  = exercise.stepTotal ?? stepTotal
 
   return (
     <AmautaContainer as="div" className="space-y-4 sm:space-y-6 pb-6">
@@ -117,175 +333,89 @@ export function LessonPage({
       </div>
 
       <div
-        className="relative overflow-hidden rounded-2xl bg-card shadow-sm border border-border animate-fade-in-up"
+        className={cn(
+          "grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch animate-fade-in-up",
+          !isTabletOrDesktop && "pb-24"
+        )}
       >
-        <div className="p-5 sm:p-6 space-y-5">
-          <div className="space-y-3">
-            <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight">
-              {title}
-            </h1>
+        {isTabletOrDesktop && (
+          <aside className="md:col-span-5 rounded-[28px] bg-gradient-to-b from-primary/10 via-primary/5 to-accent/10 border border-border shadow-sm overflow-hidden min-h-[440px]">
+            <MascotFeedback
+              status={session.status}
+              layoutMode="sidebar"
+              explanationMessage={session.result?.feedbackSummary ?? null}
+              xpEarnedThisSession={session.xpEarnedThisSession}
+              masteryLevel={mastery?.masteryLevel ?? null}
+              confidenceStage={mastery?.confidenceStage ?? null}
+              onContinue={advance}
+            />
+          </aside>
+        )}
 
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs text-muted-foreground">{t("lesson.difficulty")}</span>
-                <div className="flex gap-0.5">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star
-                      key={star}
-                      className={cn(
-                        "h-4 w-4 sm:h-5 sm:w-5 transition-colors",
-                        star <= starsCount
-                          ? "text-accent fill-accent"
-                          : "text-muted-foreground/20 fill-muted-foreground/20"
-                      )}
-                    />
-                  ))}
-                </div>
+        <section className={cn("space-y-4", isTabletOrDesktop && "md:col-span-7")}>
+          <div className="relative overflow-hidden rounded-2xl bg-card shadow-sm border border-border">
+            <div className="p-5 sm:p-6 space-y-6">
+              <LessonHeader
+                title={title}
+                difficultyStars={starsCount}
+                stepCurrent={currentStep}
+                stepTotal={totalSteps}
+                xpEarnedThisSession={session.xpEarnedThisSession}
+                streakDays={lessonProgress?.streakDays ?? null}
+                masteryLevel={mastery?.masteryLevel ?? null}
+                confidenceStage={mastery?.confidenceStage ?? null}
+              />
+
+              <QuestionCard
+                prompt={exercise.prompt}
+                answerType={exercise.answerType}
+                options={exercise.options}
+                hints={exercise.hints}
+                subInstruction={exercise.subInstruction ?? undefined}
+                selectedAnswer={session.selectedAnswer}
+                inputValue={session.inputValue}
+                status={session.status}
+                showHint={showHint}
+                onListen={() => speakText(exercise.prompt)}
+                onSelectOption={handleSelectOption}
+                onInputChange={(value) => dispatch({ type: "SET_INPUT", value })}
+                onSubmitInput={handleSubmitInput}
+                onToggleHint={() => setShowHint((prev) => !prev)}
+                onContinue={advance}
+              />
+
+              <div className="pt-1">
+                <button
+                  onClick={onSkip ?? advance}
+                  className="w-full text-center text-sm sm:text-base font-medium text-primary hover:text-primary/80 transition-colors flex items-center justify-center gap-1 py-2"
+                >
+                  {t("lesson.skip")}
+                  <ChevronRight className="h-4 w-4" />
+                </button>
               </div>
-
-              <div className="h-4 w-px bg-border hidden sm:block" />
-
-              <span className="text-xs sm:text-sm text-muted-foreground font-medium">
-                {t("lesson.step", { current: currentStep, total: totalSteps })}
-              </span>
             </div>
-
-            <AmautaProgress value={stepProgress} size="sm" amautaVariant="lesson" animated={false} hideLabel />
           </div>
 
-          {mainProblem && (
-            <div className="rounded-xl border border-border bg-muted/50 p-4 space-y-3">
-              <p className="text-sm sm:text-base text-foreground font-medium">
-                {t("lesson.resolve")}{" "}
-                <span className="text-lg sm:text-2xl font-bold text-foreground">
-                  {mainProblem}
-                </span>
-              </p>
-
-              {explanation && (
-                <p className="text-sm text-muted-foreground">{explanation}</p>
-              )}
-
-              {demoContent ? (
-                <div className="bg-amauta-blue-dark rounded-xl p-4 sm:p-5 flex items-center justify-between gap-4">
-                  <p className="text-white text-lg sm:text-2xl font-bold tracking-wide">
-                    {demoContent}
-                  </p>
-                  <div className="hidden sm:block w-16 h-16 rounded-lg bg-white/10 overflow-hidden flex-shrink-0">
-                    <img
-                      src="/img/amauta-mascot.jpg"
-                      alt="Amauta"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-amauta-blue-dark rounded-xl p-4 sm:p-5 flex items-center justify-between gap-4">
-                  <p className="text-white/50 text-sm italic">
-                    {t("lesson.demoPlaceholder")}
-                  </p>
-                  <div className="hidden sm:block w-16 h-16 rounded-lg bg-white/10 overflow-hidden flex-shrink-0">
-                    <img
-                      src="/img/amauta-mascot.jpg"
-                      alt="Amauta"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {secondaryQ && (
-            <div className="rounded-xl bg-accent/10 border border-accent/20 p-4">
-              <div className="flex items-start gap-3">
-                <div className="w-7 h-7 rounded-full bg-accent flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <HelpCircle className="w-4 h-4 text-white" />
-                </div>
-                <div>
-                  <p className="text-sm sm:text-base font-semibold text-foreground">
-                    {secondaryQ}
-                  </p>
-                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                    {subInstruction}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {!secondaryQ && mainProblem && (
-            <div className="rounded-xl bg-accent/10 border border-accent/20 p-4">
-              <div className="flex items-start gap-3">
-                <div className="w-7 h-7 rounded-full bg-accent flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <HelpCircle className="w-4 h-4 text-white" />
-                </div>
-                <div>
-                  <p className="text-sm sm:text-base font-semibold text-foreground">
-                    {mainProblem}
-                  </p>
-                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                    {subInstruction}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <input
-            type={exercise?.answerType === "NUMERIC" ? "number" : "text"}
-            value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-            placeholder={t("lesson.inputPlaceholder")}
-            disabled={submitted}
-            className={cn(
-              "w-full h-12 px-4 text-lg sm:text-xl font-bold text-foreground",
-              "bg-card border-2 border-border rounded-xl",
-              "focus:border-accent focus:ring-4 focus:ring-accent/20 focus:outline-none",
-              "transition-all duration-300 placeholder:text-muted-foreground",
-              "disabled:bg-muted disabled:text-muted-foreground"
-            )}
+          <DownloadLesson
+            lessonId={title}
+            getLessonAssets={() => {
+              return [];
+            }}
           />
-
-          <div className="space-y-3 pt-1">
-            <AmautaButton
-              onClick={handleSubmit}
-              disabled={!answer.trim() || isPending || submitted}
-              size="child-lg"
-              className="w-full shadow-sm hover:shadow-md"
-            >
-              {isPending ? (
-                <span className="flex items-center gap-2">
-                  <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  {t("lesson.verifying")}
-                </span>
-              ) : submitted ? (
-                t("lesson.submitted")
-              ) : (
-                t("lesson.submit")
-              )}
-            </AmautaButton>
-
-            <button
-              onClick={onSkip ?? onBack}
-              className="w-full text-center text-sm sm:text-base font-medium text-primary hover:text-primary/80 transition-colors flex items-center justify-center gap-1 py-2"
-            >
-              {t("lesson.skip")}
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
+        </section>
       </div>
-      <DownloadLesson
-        lessonId={title}
-        getLessonAssets={() => {
-          return [];
-        }}
-      />
+
+      {!isTabletOrDesktop && (
+        <MascotFeedback
+          status={session.status}
+          layoutMode="sheet"
+          explanationMessage={session.result?.feedbackSummary ?? null}
+          xpEarnedThisSession={session.xpEarnedThisSession}
+          masteryLevel={mastery?.masteryLevel ?? null}
+          confidenceStage={mastery?.confidenceStage ?? null}
+          onContinue={advance}
+        />
+      )}
     </AmautaContainer>
   )
 }

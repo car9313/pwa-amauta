@@ -21,9 +21,9 @@ Amauta usa **Dexie** como wrapper sobre **IndexedDB** para persistencia offline.
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                    IndexedDB (Browser)                         │
-│                    amauta-db (v3)                           │
+│                    amauta-db (v5)                           │
 ├─────────────────────────────────────────────────────────────────┤
-│  Tables (v3):                                             │
+│  Tables (v5):                                             │
 │  ├── tokens       → Tokens de autenticación                 │
 │  ├── users       → Usuario autenticado                      │
 │  ├── preferences → Preferencias del usuario                 │
@@ -31,7 +31,9 @@ Amauta usa **Dexie** como wrapper sobre **IndexedDB** para persistencia offline.
 │  ├── exercises   → Ejercicios disponibles                    │
 │  ├── lessons    → Lecciones del currículo                   │
 │  ├── progress   → Progreso del estudiante                   │
-│  └── students   → Hijos registrados                         │
+│  ├── students   → Hijos registrados                         │
+│  ├── agendaTasks → Tareas de agenda por estudiante          │
+│  └── conceptMastery → Dominio de conceptos por tema (v5)    │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -178,6 +180,32 @@ db.version(3).stores({
   return tx.table("preferences").delete("user-preferences");
 });
 
+// v4: se agrega agendaTasks (tareas de agenda por estudiante)
+db.version(4).stores({
+  tokens: "id",
+  users: "id",
+  preferences: "id, userId, localeId, cachedAt",
+  mutations: "id, status, priority, createdAt, type",
+  exercises: "id, type, difficulty, subject",
+  lessons: "id, subject",
+  progress: "studentId, lessonId",
+  students: "id",
+  agendaTasks: "id, studentId, completed, createdAt",
+});
+
+// v5: se agrega conceptMastery (dominio de conceptos por tema)
+db.version(5).stores({
+  tokens: "id",
+  users: "id",
+  preferences: "id, userId, localeId, cachedAt",
+  mutations: "id, status, priority, createdAt, type",
+  exercises: "id, type, difficulty, subject",
+  lessons: "id, subject",
+  progress: "studentId, lessonId",
+  students: "id",
+  agendaTasks: "id, studentId, completed, createdAt",
+  conceptMastery: "id, studentId, topicId, subject",
+});
 
 ```
 
@@ -193,6 +221,8 @@ Cada tabla tiene su propio archivo de funciones en `src/lib/api/storage/`:
 | lessons | `lessons-db.ts` | CRUD de lecciones |
 | progress | `progress-db.ts` | Progreso del estudiante |
 | students | `students-db.ts` | Hijos registrados |
+| agendaTasks | `agenda-tasks.ts` | Tareas de agenda |
+| conceptMastery | `concept-mastery-db.ts` | Dominio de conceptos (gamificación) |
 
 ---
 
@@ -361,6 +391,56 @@ interface Student {
 
 ---
 
+### Tabla: agendaTasks
+
+Tareas de agenda por estudiante (agregada en v4).
+
+**Índices:** `id`, `studentId`, `completed`, `createdAt`
+
+---
+
+### Tabla: conceptMastery
+
+Dominio de conceptos por tema. Alimenta la gamificación de la lección
+(mastery % mostrado en el header y el feedback). Agregada en v5.
+
+```typescript
+interface ConceptMasteryEntry {
+  id: string;                    // "{studentId}_{topicId}"
+  studentId: string;
+  topicId: string;               // ej: "math_addition"
+  subject: string;
+  masteryLevel: number;          // 10-100
+  confidenceStage: "exploring" | "practicing" | "mastered";
+  consecutiveCorrect: number;
+  totalAttempts: number;
+  totalCorrect: number;
+  firstTryCorrectCount: number;
+  lastPracticedAt: number;
+}
+```
+
+**Índices:** `id`, `studentId`, `topicId`, `subject`
+
+**Fórmula de mastery** (`recordConceptAttempt` en `concept-mastery-db.ts`):
+
+```
+accuracy = totalCorrect / totalAttempts
+mastery = clamp(accuracy × 75 + min(25, consecutiveCorrect × 5), 10, 100)
+```
+
+| confidenceStage | Condición |
+|---|---|
+| `mastered` | mastery ≥ 80 y rango de intento ≥ 2 |
+| `practicing` | mastery ≥ 40 |
+| `exploring` | resto |
+
+> **Política local-only:** esta tabla NO pasa por el outbox ni se sincroniza con el backend.
+> Es una métrica propia del cliente para UX/pedagogía inmediata; el servidor calcula su
+> propia métrica de dominio a partir de los `submitAnswer` que recibe.
+
+---
+
 ## Uso de Funciones de Base de Datos
 
 ### Ejemplo: Guardar y leer ejercicios
@@ -524,14 +604,16 @@ export async function ensureExercises() {
 
 ### Índices y consultas
 
-Los índices se definen en `db.version(N).stores()`. Versión actual (v3):
+Los índices se definen en `db.version(N).stores()`. Versión actual (v5):
 
 ```typescript
-db.version(3).stores({
+db.version(5).stores({
   exercises: "id, type, difficulty, subject",
   progress: "studentId, lessonId",
   preferences: "id, userId, localeId, cachedAt",
   mutations: "id, status, priority, createdAt, type",
+  agendaTasks: "id, studentId, completed, createdAt",
+  conceptMastery: "id, studentId, topicId, subject",
 });
 ```
 

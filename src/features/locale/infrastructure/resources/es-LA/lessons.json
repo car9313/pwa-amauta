@@ -8,13 +8,23 @@
     "demoPlaceholder": "Demostración visual próximamente",
     "inputPlaceholder": "Ej: 15/8",
     "verifying": "Verificando...",
+    "checking": "Comprobando...",
     "submitted": "¡Respuesta enviada!",
     "submit": "Contestar",
+    "continue": "Continuar",
     "skip": "Saltar paso",
     "errorTitle": "¡Ups! Algo salió mal",
     "errorMessage": "No pudimos cargar el ejercicio. Intenta de nuevo.",
     "goHome": "Volver al inicio",
-    "subInstruction": "¡Hazlo como en la pizarra!"
+    "subInstruction": "¡Hazlo como en la pizarra!",
+    "listening": "Escuchar la pregunta en voz alta",
+    "hintShow": "¿Necesitas una pista?",
+    "hintHide": "Ocultar pista",
+    "correctTitle": "¡Súper bien!",
+    "incorrectTitle": "¡Casi lo logras!",
+    "masteryLevel": "Dominio {{level}}%",
+    "streakDays": "{{days}} días seguidos",
+    "companionMessage": "El Cóndor te acompaña"
   },
   "feedback": {
     "queuedTitle": "¡Respuesta guardada!",
@@ -34,6 +44,11 @@
     "remediate": "Repasemos lo básico primero",
     "retry": "Intentar de nuevo",
     "next": "Siguiente",
-    "goHome": "Volver al inicio"
+    "goHome": "Volver al inicio",
+    "summaryTitle": "Lección completada",
+    "summaryPerfect": "¡Lo lograste sin fallar ningún intento!",
+    "summaryEncourage": "Gran esfuerzo: completaste la lección repasando.",
+    "precision": "Precisión {{value}}%",
+    "practiceMore": "Seguir practicando"
   }
 }

@@ -45,8 +45,8 @@
 │  │                    Dexie (IndexedDB)                        │  │
 │  │                    =============================               │  │
 │  │                                                         │  │
-│  │                    amauta-db (v3) — BD unificada               │  │
-│  │                                                             │  │
+│  │                    amauta-db (v5) — BD unificada               │
+│  │                                                             │
 │  │  ┌─────────────────────────────────────────────────────┐    │  │
 │  │  │  tokens      → accessToken, refreshToken, expiresAt │    │  │
 │  │  │  users       → AuthUser (name, email, role, ...)    │    │  │
@@ -56,6 +56,8 @@
 │  │  │  lessons     → lecciones con exerciseIds            │    │  │
 │  │  │  progress    → progreso del estudiante              │    │  │
 │  │  │  students    → hijos registrados                    │    │  │
+│  │  │  agendaTasks → tareas de agenda                     │    │  │
+│  │  │  conceptMastery → dominio por tema (local-only)     │    │  │
 │  │  └─────────────────────────────────────────────────────┘    │  │
 │  │                                                              │  │
 │  └──────────────────────────────────────────────────────────────┘  │
@@ -105,7 +107,7 @@
 │        │ Si API Offline: error                                  │
 │        ▼                                                            │
 │  ┌──────────────────────────────────────────────────────────────┐  │
-│  │  Persistence: Dexie - db.ts (amauta-db v3)              │  │
+│  │  Persistence: Dexie - db.ts (amauta-db v5)              │  │
 │  │                                                          │  │
 │  │  db.tokens.put({ accessToken, refreshToken, ... })      │  │
 │  │  db.users.put({ user })                                  │  │
@@ -275,7 +277,7 @@
 |------|-------------|--------------|---------|
 | **Zustand** | Estado runtime de UI | ❌ Memoria | user, isAuthenticated, selectedStudentId |
 | **TanStack Query** | Datos del servidor | ❌ Memoria (cache) | session, dashboard, progress |
-| **Dexie (amauta-db v3)** | Todo (auth, datos, cola offline) | ✅ IndexedDB | tokens, users, preferences, mutations, exercises, lessons, progress, students |
+| **Dexie (amauta-db v5)** | Todo (auth, datos, cola offline) | ✅ IndexedDB | tokens, users, preferences, mutations, exercises, lessons, progress, students, agendaTasks, conceptMastery |
 
 ---
 
@@ -312,5 +314,5 @@ COMPONENT (React)
 
 INDEXEDDB (Dexie)
     │
-    └── amauta-db (v3) → 8 tablas (tokens, users, preferences, mutations, exercises, lessons, progress, students)
+    └── amauta-db (v5) → 10 tablas (tokens, users, preferences, mutations, exercises, lessons, progress, students, agendaTasks, conceptMastery)
 ```

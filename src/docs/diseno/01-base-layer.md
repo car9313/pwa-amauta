@@ -127,7 +127,7 @@ interface AmautaBadgeProps
 
 ## AmautaProgress
 
-Envuelve `ProgressBar` de shadcn. Agrega label semantico y valor numerico.
+Envuelve `ProgressBar` (`src/components/ui/progress-bar.tsx`). Agrega label semantico, valor numerico y estilo de juego: barra gruesa con efecto tubo, transicion spring y estrella en la punta del relleno.
 
 ### Props
 
@@ -143,6 +143,17 @@ interface AmautaProgressProps extends Omit<ProgressBarProps, "color"> {
 }
 ```
 
+### Props heredadas de ProgressBar
+
+| Prop | Default | Descripcion |
+|------|---------|-------------|
+| `max` | `100` | Valor maximo de escala; el porcentaje se calcula como `value / max`. |
+| `gloss` | `false` | Brillo superior sobre el relleno. |
+| `showTipStar` | `true` | Estrella en la punta del relleno cuando el porcentaje supera 6%. |
+| `interactive` | `true` | Glow del color del relleno al hacer hover sobre la barra. |
+| `animated` | `true` | Shimmer sweep sobre el relleno. |
+| `color` | `"primary"` | Color solido del relleno: `primary`, `accent`, `success`. |
+
 ### Variantes
 
 | amautaVariant | Color | Label default |
@@ -155,10 +166,18 @@ interface AmautaProgressProps extends Omit<ProgressBarProps, "color"> {
 
 ### Prop especial: colorByValue
 
-Cuando `colorByValue={true}`, el color de la barra cambia segun el valor (alineado con Figma):
+Cuando `colorByValue={true}`, el color de la barra cambia segun el valor:
 - `value === 100` → success (verde)
-- `value >= 75` → primary (azul)
-- `value < 75` → accent (naranja)
+- `value >= 50` → primary (azul)
+- `value < 50` → accent (naranja)
+
+### Estilo
+
+- Grosor uniforme en toda la app: usar `size="md"` (28px). Todos los consumidores actuales lo usan; `sm` (20px) y `lg` (36px) existen como API pero deben evitarse para mantener consistencia.
+- Pista con efecto tubo: fondo `secondary`, borde `border-border/70` y sombra interna.
+- Relleno solido con tokens de diseno (sin gradientes), transicion spring `cubic-bezier(0.34, 1.56, 0.64, 1)` de 700ms.
+- Fila de label con icono de estrella ambar y porcentaje en pill badge (`bg-secondary text-primary rounded-full border`).
+- Hover: glow suave del color del relleno, scoped con `group/progress` (no se activa desde contenedores padres con `group`). Desactivable con `interactive={false}`.
 
 ### Comportamiento
 
@@ -168,24 +187,34 @@ Cuando `colorByValue={true}`, el color de la barra cambia segun el valor (alinea
 
 ```tsx
 <AmautaProgress value={75} amautaVariant="lesson" />
-<AmautaProgress value={60} amautaVariant="xp" label="Experiencia" size="lg" />
+<AmautaProgress value={60} amautaVariant="xp" label="Experiencia" size="md" />
 <AmautaProgress value={100} amautaVariant="level" showValue={false} />
 <AmautaProgress value={85} amautaVariant="lesson" hideLabel />
+<AmautaProgress value={7} max={10} hideLabel interactive={false} />
 ```
 
 ---
 
 ## Character
 
-Mascota de Amauta sin burbuja de dialogo. Version simplificada de `CondorGuide` para usar como avatar o decoracion.
+Mascota de Amauta sin burbuja de dialogo. Version simplificada de `CondorGuide` para usar como avatar o decoracion. Soporta expresiones reactivas para gamificacion (feedback de lecciones).
 
 ### Props
 
 ```typescript
 type CharacterSize = "sm" | "md" | "lg" | "xl"
 
+type CharacterExpression =
+  | "idle"
+  | "thinking"
+  | "happy"
+  | "encouraging"
+  | "superstar"
+  | "sad"
+
 interface CharacterProps {
   size?: CharacterSize
+  expression?: CharacterExpression
   className?: string
 }
 ```
@@ -199,9 +228,24 @@ interface CharacterProps {
 | `lg` | `w-24 h-24` |
 | `xl` | `w-32 h-32` |
 
+### Expresiones
+
+Con la prop `expression`, el componente carga la imagen correspondiente desde `/img/mascota/`:
+
+| expression | Imagen | Uso tipico |
+|------------|--------|-----------|
+| `idle` | `/img/mascota/idle.webp` | Estado neutral / esperando |
+| `thinking` | `/img/mascota/thinking.webp` | Mientras se valida una respuesta (server-first) |
+| `happy` | `/img/mascota/happy.webp` | Respuesta correcta / resumen con errores |
+| `encouraging` | `/img/mascota/encouraging.webp` | Animo tras un error |
+| `superstar` | `/img/mascota/superstar.webp` | Leccion perfecta (precision 100%) |
+| `sad` | `/img/mascota/sad.webp` | Feedback correctivo suave |
+
 ### Comportamiento
 
-- Imagen desde `/img/amauta-mascot.jpg`
+- **Sin `expression`** (backward-compatible): usa la imagen legacy `/img/amauta-mascot.jpg`. Dashboards y navegacion no cambian.
+- **Con `expression`**: usa el `.webp` correspondiente; si la imagen falla, hace fallback a la legacy.
+- Animacion ligera (`motion`) segun la expresion.
 - Sin burbuja de dialogo (a diferencia de `CondorGuide`)
 - `object-contain` para mantener aspect ratio
 - Borde redondeado completo (`rounded-full`) con borde blanco
@@ -211,7 +255,8 @@ interface CharacterProps {
 ```tsx
 <Character size="sm" />
 <Character size="lg" className="shadow-xl" />
-<Character size="xl" />
+<Character size="md" expression="thinking" />
+<Character size="xl" expression="superstar" />
 ```
 
 ---

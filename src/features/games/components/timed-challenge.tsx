@@ -80,7 +80,7 @@ export function TimedChallengeView({
       <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
         <AmautaProgress
           value={progress}
-          size="sm"
+          size="md"
           amautaVariant="lesson"
           hideLabel
         />

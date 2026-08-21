@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { getNextExercise, submitAnswer } from "@/services/exercise.service";
 import type { SubmitAnswerPayload, Exercise, ExerciseResult } from "@/features/exercises/domain/exercise.types";
 import { useAuthStore } from "@/features/auth/presentation/store/auth-store";
@@ -12,6 +12,7 @@ export function useNextExercise(studentId: string) {
     queryKey: exerciseKeys.next(studentId, tenantId),
     queryFn: () => getNextExercise(studentId),
     staleTime: Number(import.meta.env.VITE_QUERY_STALE_TIME ?? 60) * 1000,
+    placeholderData: keepPreviousData,
     retry: 2,
   });
 }
