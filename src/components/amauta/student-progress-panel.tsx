@@ -76,7 +76,7 @@ function StudentProgressPanel({
           value={totalProgress}
           amautaVariant="lesson"
           label="Progreso General"
-          size="lg"
+          size="md"
         />
       </div>
 

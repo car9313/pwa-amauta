@@ -231,6 +231,22 @@ export const agendaItemSchema = z.object({
 
 export type AgendaItem = z.infer<typeof agendaItemSchema>;
 
+export const agendaTaskSchema = z.object({
+  id: z.string(),
+  studentId: z.string(),
+  title: z.string(),
+  subject: z.string(),
+  scheduledAt: z.string(),
+  durationMinutes: z.number().int().positive(),
+  completed: z.boolean(),
+  completedAt: z.number().nullable(),
+  assignedBy: z.string().optional(),
+  xp: z.number().int().nonnegative(),
+  createdAt: z.number(),
+});
+
+export type AgendaTask = z.infer<typeof agendaTaskSchema>;
+
 export const progressItemSchema = z.object({
   topicId: z.string(),
   title: z.string(),

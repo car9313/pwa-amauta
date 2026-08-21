@@ -150,7 +150,7 @@ export function LessonPage({
               </span>
             </div>
 
-            <AmautaProgress value={stepProgress} size="sm" amautaVariant="lesson" animated={false} hideLabel />
+            <AmautaProgress value={stepProgress} size="md" amautaVariant="lesson" animated={false} hideLabel />
           </div>
 
           {mainProblem && (

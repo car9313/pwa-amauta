@@ -64,7 +64,7 @@ export function QuizGameView({
       />
 
       <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
-        <AmautaProgress value={progress} size="sm" amautaVariant="lesson" hideLabel />
+        <AmautaProgress value={progress} size="md" amautaVariant="lesson" hideLabel />
 
         <div className="p-5 sm:p-6 space-y-6">
           <div className="flex items-center justify-between text-sm text-muted-foreground">

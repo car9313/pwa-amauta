@@ -93,7 +93,7 @@ export function LevelScreen({ studentId = DEFAULT_STUDENT_ID }: LevelScreenProps
                   <div className="mt-2">
                     <AmautaProgress
                       value={Math.round(subject.mastery)}
-                      size="sm"
+                      size="md"
                       amautaVariant={subject.mastery >= 80 ? "level" : subject.mastery >= 50 ? "lesson" : "xp"}
                       animated
                       hideLabel

@@ -135,7 +135,7 @@ export function TeacherDashboardPage() {
                   <span className="text-secondary-foreground font-medium">{subject.title}</span>
                   <span className="text-muted-foreground">{subject.mastery}%</span>
                 </div>
-                <AmautaProgress value={subject.mastery} size="sm" amautaVariant="lesson" hideLabel />
+                <AmautaProgress value={subject.mastery} size="md" amautaVariant="lesson" hideLabel />
               </div>
             ))}
           </div>

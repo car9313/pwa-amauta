@@ -154,7 +154,7 @@ El sistema de diseño envuelve **shadcn/ui** (Radix + Tailwind) con variantes se
 | **AmautaButton** | `default`, `accent` (CTAs), `accent-ghost` (secundarias), `success`; tamaños incluido `child-lg`. |
 | **AmautaCard** | `default`, `glass`, `elevated`, `bordered`, `interactive`. |
 | **AmautaBadge** | `default`, `success`, `warning`, `xp`, `streak`, `achievement`; tamaños sm/md/lg. |
-| **AmautaProgress** | `lesson`, `xp`, `level`, `default`, `topic`; `colorByValue` cambia color según valor. |
+| **AmautaProgress** | `lesson`, `xp`, `level`, `default`, `topic`; `colorByValue` cambia color según valor (100% verde, ≥50% azul, <50% naranja). Grosor uniforme 28px, estrella en la punta y glow al hover. |
 | **AmautaStatCard** | Colores `primary`, `accent`, `success`, `warning`, `info` + tendencia up/down/neutral. |
 | **AmautaAchievement** | Estados locked/unlocked, tamaños sm/md/lg, animación sparkle. |
 | **AmautaLearningPath** | Pasos `completed`/`current`/`locked`, orientación vertical u horizontal. |

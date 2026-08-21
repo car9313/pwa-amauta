@@ -68,15 +68,73 @@ describe("AmautaProgress", () => {
     expect(bar.querySelector(".bg-success")).toBeInTheDocument()
   })
 
+  it("uses success color with colorByValue at 100 percent", () => {
+    render(<AmautaProgress value={100} colorByValue hideLabel />)
+    const bar = screen.getByRole("progressbar")
+    expect(bar.querySelector(".bg-success")).toBeInTheDocument()
+  })
+
+  it("uses primary color with colorByValue at 50 percent or more", () => {
+    render(<AmautaProgress value={50} colorByValue hideLabel />)
+    const bar = screen.getByRole("progressbar")
+    expect(bar.querySelector(".bg-primary")).toBeInTheDocument()
+  })
+
+  it("uses accent color with colorByValue below 50 percent", () => {
+    render(<AmautaProgress value={49} colorByValue hideLabel />)
+    const bar = screen.getByRole("progressbar")
+    expect(bar.querySelector(".bg-accent")).toBeInTheDocument()
+  })
+
+  it("supports custom max value", () => {
+    const { container } = render(<AmautaProgress value={5} max={10} hideLabel />)
+    const fill = container.querySelector('[role="progressbar"] .h-full') as HTMLElement
+    expect(fill.style.width).toBe("50%")
+  })
+
   it("sets progressbar width based on value", () => {
-    render(<AmautaProgress value={42} hideLabel />)
-    const fill = screen.getByRole("progressbar").querySelector(".h-full") as HTMLElement
+    const { container } = render(<AmautaProgress value={42} hideLabel />)
+    const fill = container.querySelector('[role="progressbar"] .h-full') as HTMLElement
     expect(fill.style.width).toBe("42%")
   })
 
   it("clamps value between 0 and 100", () => {
-    render(<AmautaProgress value={150} hideLabel />)
-    const fill = screen.getByRole("progressbar").querySelector(".h-full") as HTMLElement
+    const { container } = render(<AmautaProgress value={150} hideLabel />)
+    const fill = container.querySelector('[role="progressbar"] .h-full') as HTMLElement
     expect(fill.style.width).toBe("100%")
+  })
+
+  it("shows tip star above 6 percent by default", () => {
+    const { container } = render(<AmautaProgress value={50} hideLabel />)
+    const bar = container.querySelector('[role="progressbar"]')
+    expect(bar?.querySelector(".lucide-star")).toBeInTheDocument()
+  })
+
+  it("hides tip star at or below 6 percent", () => {
+    const { container } = render(<AmautaProgress value={3} hideLabel />)
+    const bar = container.querySelector('[role="progressbar"]')
+    expect(bar?.querySelector(".lucide-star")).not.toBeInTheDocument()
+  })
+
+  it("hides tip star when showTipStar is false", () => {
+    const { container } = render(
+      <AmautaProgress value={50} hideLabel showTipStar={false} />
+    )
+    const bar = container.querySelector('[role="progressbar"]')
+    expect(bar?.querySelector(".lucide-star")).not.toBeInTheDocument()
+  })
+
+  it("applies hover glow by default", () => {
+    const { container } = render(<AmautaProgress value={50} hideLabel />)
+    const fill = container.querySelector('[role="progressbar"] .h-full')
+    expect(fill?.className).toContain("group-hover/progress:shadow")
+  })
+
+  it("removes hover glow when interactive is false", () => {
+    const { container } = render(
+      <AmautaProgress value={50} hideLabel interactive={false} />
+    )
+    const fill = container.querySelector('[role="progressbar"] .h-full')
+    expect(fill?.className).not.toContain("group-hover/progress:shadow")
   })
 })

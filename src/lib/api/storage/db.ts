@@ -1,5 +1,6 @@
 import Dexie, { type EntityTable } from "dexie";
 import type { AuthUser } from "@/features/auth/domain/types";
+import type { AgendaTask } from "@/features/exercises/domain/exercise.types";
 
 export interface TokenData {
   id: string;
@@ -108,6 +109,7 @@ export interface AmautaDatabase extends Dexie {
   lessons: EntityTable<Lesson, "id">;
   progress: EntityTable<StudentProgress, "id">;
   students: EntityTable<Student, "id">;
+  agendaTasks: EntityTable<AgendaTask, "id">;
 }
 
 export const db = new Dexie("amauta-db") as AmautaDatabase;
@@ -146,4 +148,16 @@ db.version(3).stores({
   students: "id",
 }).upgrade(tx => {
   return tx.table("preferences").delete("user-preferences");
+});
+
+db.version(4).stores({
+  tokens: "id",
+  users: "id",
+  preferences: "id, userId, localeId, cachedAt",
+  mutations: "id, status, priority, createdAt, type",
+  exercises: "id, type, difficulty, subject",
+  lessons: "id, subject",
+  progress: "studentId, lessonId",
+  students: "id",
+  agendaTasks: "id, studentId, completed, createdAt",
 });
